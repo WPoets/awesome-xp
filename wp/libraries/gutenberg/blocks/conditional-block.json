@@ -1,0 +1,55 @@
+{
+  "name": "conditional-block",
+  "title": "Conditional Block",
+  "description": "Display content conditionally",
+  "icon": "filter",
+  "category": "widgets",
+  "tabs": [
+    {
+      "name": "condition",
+      "title": "Condition",
+      "icon": "filter",
+      "fields": [
+        {
+          "type": "service",
+          "name": "check-service",
+          "label": "Service to Check",
+          "attr_name": "condition.service"
+        },
+        {
+          "type": "attributes-repeater",
+          "name": "check-params",
+          "label": "Parameters",
+          "attr_name": "condition.params"
+        }
+      ]
+    },
+    {
+      "name": "then",
+      "title": "Then Content",
+      "icon": "yes",
+      "fields": [
+        {
+          "type": "innerblocks",
+          "name": "then-content",
+          "label": "Content to Show if True",
+          "attr_name": "then.content"
+        }
+      ]
+    },
+    {
+      "name": "else",
+      "title": "Else Content",
+      "icon": "no",
+      "fields": [
+        {
+          "type": "innerblocks",
+          "name": "else-content",
+          "label": "Content to Show if False",
+          "attr_name": "else.content"
+        }
+      ]
+    }
+  ],
+  "template_file": "/path/to/templates/conditional-block.php"
+}

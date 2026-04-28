@@ -1,0 +1,458 @@
+/* DGB Editor Styles */
+
+/* Tab Buttons */
+.dgb-tab-buttons {
+    display: flex;
+    border-bottom: 2px solid #2271b1;
+    margin-bottom: 0;
+    gap: 4px;
+    padding: 0 4px;
+    background: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.dgb-tab-button {
+    padding: 12px 20px;
+    border: 2px solid transparent;
+    background: #f0f0f0;
+    cursor: pointer;
+    margin-bottom: -2px;
+    border-radius: 4px 4px 0 0;
+    transition: all 0.2s ease;
+    color: #555;
+    font-weight: 500;
+}
+
+.dgb-tab-button:hover {
+    background: #fff;
+    border-color: #2271b1;
+    border-bottom-color: transparent;
+    color: #2271b1;
+}
+
+.dgb-tab-button.active {
+    background: #fff;
+    border-color: #2271b1;
+    border-bottom-color: #fff;
+    color: #2271b1;
+}
+
+.dgb-tab-button-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.dgb-tab-button .dashicons {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+}
+
+/* Tab Content */
+.dgb-tab-content {
+    padding: 20px;
+    background: #fff;
+    border: 2px solid #2271b1;
+    border-top: none;
+    position: relative;
+    min-height: 200px;
+    margin-top: -2px;
+}
+
+/* Field Visibility */
+[data-active-tab] .dgb-field {
+    opacity: 0;
+    position: absolute;
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform: translateY(10px);
+}
+
+[data-active-tab] .dgb-field.dgb-field-active {
+    opacity: 1;
+    position: relative;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+/* Field Styles */
+.dgb-field {
+    margin-bottom: 24px;
+    padding: 16px;
+    border: 1px solid #e2e4e7;
+    border-radius: 4px;
+    background: #fff;
+}
+
+.dgb-field:hover {
+    border-color: #2271b1;
+}
+
+.dgb-field .components-base-control {
+    width: 100%;
+    margin-bottom: 0;
+}
+
+/* Number Fields */
+.dgb-field input[type="number"] {
+    width: 120px !important;
+    text-align: right;
+}
+
+.dgb-small-number input[type="number"] {
+    width: 80px !important;
+}
+
+/* Image Field */
+.dgb-image-field {
+    margin-bottom: 16px;
+}
+
+.dgb-image-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.dgb-image-preview {
+    max-width: 300px;
+    height: auto;
+    border: 1px solid #e2e4e7;
+    border-radius: 4px;
+}
+
+.dgb-image-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* Attributes Repeater */
+.dgb-attributes-container {
+    margin: 20px 0;
+}
+
+.dgb-attributes-container h4 {
+    margin-bottom: 12px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.dgb-attribute-row {
+    margin-bottom: 12px;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.dgb-attribute-inputs {
+    display: grid;
+    grid-template-columns: 1fr 150px 1fr auto;
+    gap: 12px;
+    padding: 12px;
+    align-items: start;
+}
+
+.dgb-attribute-inputs .components-base-control {
+    margin-bottom: 0;
+}
+
+/* Row Repeater */
+.dgb-row-repeater {
+    margin: 20px 0;
+    border: 1px solid #e2e4e7;
+    border-radius: 4px;
+    background: #fff;
+}
+
+.dgb-row-headers {
+    display: flex;
+    gap: 8px;
+    padding: 12px;
+    background: #f7f7f7;
+    border-bottom: 1px solid #e2e4e7;
+    border-radius: 4px 4px 0 0;
+}
+
+.dgb-row-header {
+    flex: 1;
+    font-weight: 600;
+    color: #1e1e1e;
+    font-size: 13px;
+}
+
+.dgb-row {
+    display: flex;
+    gap: 8px;
+    padding: 12px;
+    border-bottom: 1px solid #e2e4e7;
+    align-items: flex-start;
+}
+
+.dgb-row:last-child {
+    border-bottom: none;
+}
+
+.dgb-row-cell {
+    flex: 1;
+    min-width: 0;
+}
+
+.dgb-row-cell:last-child {
+    flex: 0 0 auto;
+}
+
+.dgb-row-cell .dgb-field {
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+.dgb-row-cell .components-base-control {
+    margin-bottom: 0;
+}
+
+/* Inner Blocks Field */
+.dgb-innerblocks-field {
+    padding: 16px;
+    border: 1px solid #e2e4e7;
+    border-radius: 4px;
+    background: #fafafa;
+}
+
+.dgb-innerblocks-field > .components-base-control__label {
+    display: block;
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+
+.dgb-innerblocks-field .block-editor-inner-blocks {
+    padding: 16px;
+    border: 1px solid #e2e4e7;
+    border-radius: 4px;
+    background: #fff;
+}
+
+/* Code Field */
+.dgb-code-field textarea {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    tab-size: 4;
+}
+
+/* Title Field */
+.dgb-title-field input {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+/* Buttons */
+.dgb-attributes-container button,
+.dgb-row-repeater button {
+    cursor: pointer;
+    border: none;
+    border-radius: 3px;
+    padding: 8px 12px;
+    transition: all 0.2s ease;
+}
+
+.dgb-attributes-container button[class*="secondary"],
+.dgb-row-repeater button[class*="secondary"] {
+    background: #2271b1;
+    color: #fff;
+}
+
+.dgb-attributes-container button[class*="secondary"]:hover,
+.dgb-row-repeater button[class*="secondary"]:hover {
+    background: #135e96;
+}
+
+.dgb-attributes-container button[class*="destructive"],
+.dgb-row-repeater button[class*="destructive"] {
+    background: #dc3232;
+    color: #fff;
+    padding: 4px 10px;
+}
+
+.dgb-attributes-container button[class*="destructive"]:hover,
+.dgb-row-repeater button[class*="destructive"]:hover {
+    background: #c62828;
+}
+
+/* Focus States */
+.dgb-field input:focus,
+.dgb-field textarea:focus,
+.dgb-field select:focus {
+    border-color: #2271b1;
+    box-shadow: 0 0 0 1px #2271b1;
+    outline: none;
+}
+
+/* Error States */
+.dgb-field.has-error input,
+.dgb-field.has-error textarea,
+.dgb-field.has-error select {
+    border-color: #dc3232;
+}
+
+.dgb-field .components-base-control__help {
+    margin-top: 8px;
+    font-size: 12px;
+    font-style: italic;
+    color: #757575;
+}
+
+/* Responsive */
+@media (max-width: 782px) {
+    .dgb-attribute-inputs {
+        grid-template-columns: 1fr;
+    }
+    
+    .dgb-tab-button {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+    
+    .dgb-row {
+        flex-direction: column;
+    }
+    
+    .dgb-row-headers {
+        display: none;
+    }
+}
+
+/* Animation */
+.dgb-field {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Radio Field */
+.dgb-radio-field {
+    margin-bottom: 16px;
+}
+
+.dgb-radio-field > .components-base-control__label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.dgb-radio-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.dgb-radio-option {
+    display: flex;
+    align-items: center;
+}
+
+.dgb-radio-option label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.dgb-radio-option label:hover {
+    background-color: #f0f0f0;
+}
+
+.dgb-radio-option input[type="radio"] {
+    margin: 0 8px 0 0;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.dgb-radio-label {
+    font-size: 14px;
+}
+
+/* Checkbox Field */
+.dgb-checkbox-field {
+    margin-bottom: 16px;
+}
+
+.dgb-checkbox-field > .components-base-control__label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.dgb-checkbox-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.dgb-checkbox-option {
+    display: flex;
+    align-items: center;
+}
+
+.dgb-checkbox-option label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.dgb-checkbox-option label:hover {
+    background-color: #f0f0f0;
+}
+
+.dgb-checkbox-option input[type="checkbox"] {
+    margin: 0 8px 0 0;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.dgb-checkbox-label {
+    font-size: 14px;
+}
+
+/* Single Checkbox */
+.dgb-single-checkbox {
+    margin-bottom: 16px;
+}
+
+.dgb-single-checkbox label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.dgb-single-checkbox label:hover {
+    background-color: #f0f0f0;
+}
+
+.dgb-single-checkbox input[type="checkbox"] {
+    margin: 0 8px 0 0;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}

@@ -1,0 +1,38 @@
+{
+  "name": "generic_simple_heading",
+  "title": "Simple Heading (JSON)",
+  "icon": "eicon-heading",
+  "categories": ["basic"],
+  "keywords": ["heading", "title", "json"],
+  "controls": [
+    {
+      "section_id": "section_content",
+      "section_label": "Content",
+      "section_tab": "content",
+      "fields": [
+        {
+          "id": "heading_text",
+          "label": "Heading Text",
+          "type": "textarea",
+          "default": "My Heading From JSON"
+        }
+      ]
+    },
+    {
+      "section_id": "section_style",
+      "section_label": "Style",
+      "section_tab": "style",
+      "fields": [
+        {
+          "id": "heading_color",
+          "label": "Color",
+          "type": "color",
+          "selectors": {
+            "{{WRAPPER}} .generic-widget-heading": "color: {{VALUE}};"
+          }
+        }
+      ]
+    }
+  ],
+  "render_html": "<h2 class='generic-widget-heading'>{{heading_text}}</h2>"
+}

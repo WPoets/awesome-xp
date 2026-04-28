@@ -1,0 +1,184 @@
+{
+  "name": "blog-post-card-claude",
+  "title": "Blog Post Card Claude ",
+  "description": "Display blog posts with customizable options",
+  "icon": "admin-post",
+  "category": "widgets",
+  "keywords": ["blog", "post", "card", "article"],
+  "tabs": [
+    {
+      "name": "content",
+      "title": "Content",
+      "icon": "edit",
+      "fields": [
+        {
+          "type": "title",
+          "name": "card-title",
+          "label": "Title",
+          "attr_name": "content.title"
+        },
+        {
+          "type": "textarea",
+          "name": "excerpt",
+          "label": "Excerpt",
+          "attr_name": "content.excerpt"
+        },
+        {
+          "type": "image",
+          "name": "featured-image",
+          "label": "Featured Image",
+          "attr_name": "content.image"
+        },
+        {
+          "type": "date",
+          "name": "publish-date",
+          "label": "Publish Date",
+          "attr_name": "content.date"
+        },
+        {
+          "type": "text",
+          "name": "author-name",
+          "label": "Author Name",
+          "attr_name": "content.author"
+        },
+        {
+          "type": "text",
+          "name": "read-time",
+          "label": "Reading Time",
+          "attr_name": "content.readTime",
+          "placeholder": "5 min read"
+        }
+      ]
+    },
+    {
+      "name": "display",
+      "title": "Display Options",
+      "icon": "visibility",
+      "fields": [
+        {
+          "type": "checkbox",
+          "name": "show-elements",
+          "label": "Show Elements",
+          "attr_name": "display.showElements",
+          "default": ["image", "title", "excerpt", "date"],
+          "options": [
+            {"label": "Featured Image", "value": "image"},
+            {"label": "Title", "value": "title"},
+            {"label": "Excerpt", "value": "excerpt"},
+            {"label": "Author", "value": "author"},
+            {"label": "Publish Date", "value": "date"},
+            {"label": "Reading Time", "value": "readTime"},
+            {"label": "Read More Button", "value": "button"}
+          ]
+        },
+        {
+          "type": "single-checkbox",
+          "name": "show-category-badge",
+          "checkboxLabel": "Show category badge",
+          "attr_name": "display.showCategoryBadge",
+          "default": true
+        },
+        {
+          "type": "single-checkbox",
+          "name": "use-hover-effect",
+          "checkboxLabel": "Enable hover effect",
+          "attr_name": "display.hoverEffect",
+          "default": true
+        }
+      ]
+    },
+    {
+      "name": "style",
+      "title": "Style",
+      "icon": "admin-appearance",
+      "fields": [
+        {
+          "type": "radio",
+          "name": "card-layout",
+          "label": "Card Layout",
+          "attr_name": "style.layout",
+          "default": "vertical",
+          "options": [
+            {"label": "Vertical (Image on top)", "value": "vertical"},
+            {"label": "Horizontal (Image on side)", "value": "horizontal"},
+            {"label": "Overlay (Image as background)", "value": "overlay"}
+          ]
+        },
+        {
+          "type": "radio",
+          "name": "image-ratio",
+          "label": "Image Aspect Ratio",
+          "attr_name": "style.imageRatio",
+          "default": "16-9",
+          "options": [
+            {"label": "16:9 (Widescreen)", "value": "16-9"},
+            {"label": "4:3 (Standard)", "value": "4-3"},
+            {"label": "1:1 (Square)", "value": "1-1"},
+            {"label": "3:2 (Classic)", "value": "3-2"}
+          ]
+        },
+        {
+          "type": "radio",
+          "name": "text-alignment",
+          "label": "Text Alignment",
+          "attr_name": "style.textAlign",
+          "default": "left",
+          "options": [
+            {"label": "Left", "value": "left"},
+            {"label": "Center", "value": "center"},
+            {"label": "Right", "value": "right"}
+          ]
+        },
+        {
+          "type": "select",
+          "name": "card-style",
+          "label": "Card Style",
+          "attr_name": "style.cardStyle",
+          "default": "bordered",
+          "options": [
+            {"label": "Bordered", "value": "bordered"},
+            {"label": "Shadow", "value": "shadow"},
+            {"label": "Minimal", "value": "minimal"},
+            {"label": "Elevated", "value": "elevated"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "advanced",
+      "title": "Advanced",
+      "icon": "admin-tools",
+      "fields": [
+        {
+          "type": "text",
+          "name": "button-text",
+          "label": "Read More Button Text",
+          "attr_name": "advanced.buttonText",
+          "default": "Read More"
+        },
+        {
+          "type": "text",
+          "name": "button-url",
+          "label": "Button URL",
+          "attr_name": "advanced.buttonUrl",
+          "placeholder": "#"
+        },
+        {
+          "type": "text",
+          "name": "category-label",
+          "label": "Category Label",
+          "attr_name": "advanced.categoryLabel",
+          "placeholder": "Technology"
+        },
+        {
+          "type": "single-checkbox",
+          "name": "open-new-tab",
+          "checkboxLabel": "Open link in new tab",
+          "attr_name": "advanced.openNewTab",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "template_file": "blog-post-card.php"
+}

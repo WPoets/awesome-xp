@@ -23,8 +23,11 @@ function register_acf_blocks(){
 	if( function_exists('acf_register_block_type') ){
 		  
 		  foreach($gutenberg_blocks as $key=>$block){
-		    acf_register_block_type($block);
-			 unset($gutenberg_blocks[$key]);
+            if(isset($block['acf_block']) && $block['acf_block']===true){
+                acf_register_block_type($block);
+			    unset($gutenberg_blocks[$key]);
+            }
+		    
 		  }
 		  
 		 

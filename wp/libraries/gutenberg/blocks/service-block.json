@@ -1,0 +1,91 @@
+{
+  "name": "service-block-awesome",
+  "title": "Service Block Awesome",
+  "description": "A block for displaying services",
+  "icon": "admin-tools",
+  "category": "widgets",
+  "keywords": ["service", "business"],
+  "supports": {
+    "html": false,
+    "align": ["wide", "full"],
+    "className": true,
+    "anchor": true
+  },
+  "tabs": [
+    {
+      "name": "content",
+      "title": "Content",
+      "icon": "edit",
+      "fields": [
+        {
+          "type": "title",
+          "name": "service-title",
+          "label": "Service Title",
+          "attr_name": "content.title",
+          "validation": {
+            "required": true
+          }
+        },
+        {
+          "type": "textarea",
+          "name": "service-description",
+          "label": "Description",
+          "attr_name": "content.description"
+        },
+        {
+          "type": "image",
+          "name": "service-image",
+          "label": "Service Image",
+          "attr_name": "content.image"
+        },
+        {
+          "type": "attributes-repeater",
+          "name": "service-attributes",
+          "label": "Service Attributes",
+          "attr_name": "content.attributes"
+        }
+      ]
+    },
+    {
+      "name": "settings",
+      "title": "Settings",
+      "icon": "admin-settings",
+      "fields": [
+        {
+          "type": "select",
+          "name": "layout",
+          "label": "Layout Style",
+          "attr_name": "settings.layout",
+          "default": "standard",
+          "options": [
+            {"label": "Standard", "value": "standard"},
+            {"label": "Card", "value": "card"},
+            {"label": "Minimal", "value": "minimal"}
+          ]
+        },
+        {
+          "type": "toggle",
+          "name": "show-button",
+          "label": "Show Call-to-Action Button",
+          "attr_name": "settings.showButton",
+          "default": false
+        },
+        {
+          "type": "text",
+          "name": "button-text",
+          "label": "Button Text",
+          "attr_name": "settings.buttonText",
+          "default": "Learn More"
+        }
+      ]
+    }
+  ],
+  "template": "<div class=\"awesome-service-block service-block--{{settings.layout}}\">\n  {{#if content.image}}\n    <div class=\"service-block__image\">\n      <img src=\"{{content.image.url}}\" alt=\"{{content.image.alt}}\" />\n    </div>\n  {{/if}}\n  <div class=\"service-block__content\">\n    <h3 class=\"service-block__title\">{{content.title}}</h3>\n    <p class=\"service-block__description\">{{content.description}}</p>\n    {{#if content.attributes}}\n      <ul class=\"service-block__attributes\">\n        {{#each content.attributes}}\n          <li><strong>{{name}}:</strong> {{value}}</li>\n        {{/each}}\n      </ul>\n    {{/if}}\n    {{#if settings.showButton}}\n      <a href=\"#\" class=\"service-block__button\">{{settings.buttonText}}</a>\n    {{/if}}\n  </div>\n</div>",
+  "enqueue_styles": [
+    {
+      "handle": "service-block-style",
+      "src": "/path/to/service-block.css",
+      "version": "1.0.0"
+    }
+  ]
+}
