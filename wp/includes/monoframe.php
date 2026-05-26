@@ -22,6 +22,7 @@ class Monoframe
 		require_once($plugin_path . '/libraries/basic-maintenance.php');
 		require_once($plugin_path . '/libraries/elementor/elementor-blocks.php');
 		require_once($plugin_path . '/libraries/gutenberg/gutenberg-init.php');
+		require_once($plugin_path . '/includes/awesome-css-tokens.php');
 
 	}
 
@@ -50,6 +51,7 @@ class Monoframe
 			'aw2_core',
 			AWESOME_CORE_POST_TYPE
 		);
+
 		$app_post_types = array();
 		$registered_apps =& aw2_library::get_array_ref('apps');
 		foreach ($registered_apps as $app) {
