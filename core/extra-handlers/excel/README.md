@@ -6,6 +6,9 @@
 
 Add support to work with Excel files in Awesome enterprise. Introduces excel.* shortcodes.
 
+It can be installed using following composer command
+
+`composer require wpoets/excel-handler`
 
 ### Changelog  
 
