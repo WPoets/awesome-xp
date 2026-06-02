@@ -15,6 +15,11 @@ Initial setup requires configuration in wp-config.php.
 
 ### Changelog 
 
+##### 1.0.1
+* Dependency updates
+* Added missing files for introducing shortcodes to register Gutenberg and Elmentor blocks
+* Fixed the issue with utilites file.
+
 
 ##### 1.0.0  
 * Initial release
