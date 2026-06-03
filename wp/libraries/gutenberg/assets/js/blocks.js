@@ -3,20 +3,98 @@
     const { useBlockProps } = blockEditor;
     const { TextControl, TextareaControl, SelectControl, ToggleControl, Button } = components;
     const { InnerBlocks, MediaUpload } = blockEditor;
-    const { useState } = element;
-    
+    const { useState, useEffect, useRef, useMemo } = element;
+
+    /**
+     * Deferred-value hook.
+     *
+     * Keeps a fast local copy of the value so typing updates the input
+     * instantly, and only commits to the block attribute (the expensive
+     * operation that re-serializes the block tree) on a debounce and on blur.
+     *
+     * This is the fix for slow / dropped keystrokes: setAttributes no longer
+     * runs on every character.
+     *
+     * @param {*}        value    Current attribute value.
+     * @param {Function} commit   Called with the value to persist it.
+     * @param {number}   delay    Debounce delay in ms (default 350).
+     * @returns {[*, Function, Function]} [localValue, onChange, onBlur]
+     */
+    function useDeferredValue(value, commit, delay) {
+        delay = delay || 350;
+
+        const [local, setLocal] = useState(value);
+        const timer = useRef(null);
+        const latest = useRef(value);
+
+        // Re-sync when the attribute changes from the outside
+        // (undo/redo, programmatic updates, switching selection).
+        useEffect(function () {
+            setLocal(value);
+            latest.current = value;
+        }, [value]);
+
+        // Make sure any pending change is flushed if the field unmounts.
+        useEffect(function () {
+            return function () {
+                if (timer.current) {
+                    clearTimeout(timer.current);
+                    if (latest.current !== value) {
+                        commit(latest.current);
+                    }
+                }
+            };
+            // eslint-disable-next-line react-hooks/exhaustive-deps
+        }, []);
+
+        const onChange = function (next) {
+            setLocal(next);          // instant UI update, no block round-trip
+            latest.current = next;
+            if (timer.current) {
+                clearTimeout(timer.current);
+            }
+            timer.current = setTimeout(function () {
+                timer.current = null;
+                commit(next);        // persist later
+            }, delay);
+        };
+
+        const onBlur = function () {
+            if (timer.current) {
+                clearTimeout(timer.current);
+                timer.current = null;
+            }
+            commit(latest.current);  // persist immediately when leaving the field
+        };
+
+        return [local, onChange, onBlur];
+    }
+
     // Field type components
     const FIELD_TYPES = {
         'text': {
-            component: TextControl,
+            component: function TextField({ label, value, onChange, placeholder, help }) {
+                const d = useDeferredValue(value || '', onChange);
+                return el(TextControl, {
+                    label: label,
+                    value: d[0],
+                    onChange: d[1],
+                    onBlur: d[2],
+                    placeholder: placeholder,
+                    help: help
+                });
+            },
             getDefault: () => ''
         },
         'textarea': {
-            component: function TextareaField({ label, value, onChange }) {
+            component: function TextareaField({ label, value, onChange, placeholder }) {
+                const d = useDeferredValue(value || '', onChange);
                 return el(TextareaControl, {
                     label: label,
-                    value: value || '',
-                    onChange: onChange,
+                    value: d[0],
+                    onChange: d[1],
+                    onBlur: d[2],
+                    placeholder: placeholder,
                     rows: 4
                 });
             },
@@ -24,10 +102,15 @@
         },
         'number': {
             component: function NumberField({ label, value, onChange }) {
+                const commit = function (val) {
+                    onChange(val !== '' ? Number(val) : '');
+                };
+                const d = useDeferredValue(value === '' || value === undefined ? '' : value, commit);
                 return el(TextControl, {
                     label: label,
-                    value: value,
-                    onChange: val => onChange(val !== '' ? Number(val) : ''),
+                    value: d[0],
+                    onChange: d[1],
+                    onBlur: d[2],
                     type: 'number'
                 });
             },
@@ -35,10 +118,15 @@
         },
         'small-number': {
             component: function SmallNumberField({ label, value, onChange, min, max }) {
+                const commit = function (val) {
+                    onChange(val !== '' ? Number(val) : '');
+                };
+                const d = useDeferredValue(value === '' || value === undefined ? '' : value, commit);
                 return el(TextControl, {
                     label: label,
-                    value: value,
-                    onChange: val => onChange(val !== '' ? Number(val) : ''),
+                    value: d[0],
+                    onChange: d[1],
+                    onBlur: d[2],
                     type: 'number',
                     min: min,
                     max: max,
@@ -110,15 +198,15 @@
         'attributes-repeater': {
             component: function AttributesRepeater({ label, value = [], onChange }) {
                 const attributes = Array.isArray(value) ? value : [];
-                
+
                 const addAttribute = () => {
                     onChange([...attributes, { name: '', type: 'str', value: '' }]);
                 };
-    
+
                 return el('div', { className: 'dgb-attributes-container' },
                     el('h4', {}, label),
-                    attributes.map((attr, index) => 
-                        el('div', { 
+                    attributes.map((attr, index) =>
+                        el('div', {
                             key: index,
                             className: 'dgb-attribute-row'
                         },
@@ -178,7 +266,7 @@
             component: function RowRepeater({ label, value = [], onChange, repeater_fields = [] }) {
                 const rows = Array.isArray(value) ? value : [];
                 const fields = Array.isArray(repeater_fields) ? repeater_fields : [];
-                
+
                 const addRow = () => {
                     const newRow = {};
                     fields.forEach(field => {
@@ -187,12 +275,12 @@
                     });
                     onChange([...rows, newRow]);
                 };
-    
+
                 return el('div', { className: 'dgb-row-repeater' },
                     el('h4', {}, label),
                     el('div', { className: 'dgb-row-headers' },
                         fields.map(field =>
-                            el('div', { 
+                            el('div', {
                                 key: field.name,
                                 className: 'dgb-row-header'
                             }, field.label)
@@ -207,7 +295,7 @@
                             fields.map((field) => {
                                 const fieldType = FIELD_TYPES[field.type];
                                 if (!fieldType) return null;
-    
+
                                 const FieldComponent = fieldType.component;
                                 const fieldProps = {
                                     label: '',
@@ -220,7 +308,7 @@
                                     ...field,
                                     ...(field.type === 'select' ? { options: field.options } : {})
                                 };
-    
+
                                 return el('div', {
                                     key: `${rowIndex}-${field.name}`,
                                     className: 'dgb-row-cell'
@@ -259,10 +347,12 @@
         },
         'title': {
             component: function TitleField({ label, value, onChange }) {
+                const d = useDeferredValue(value || '', onChange);
                 return el(TextControl, {
                     label: label || 'Title',
-                    value: value || '',
-                    onChange: onChange,
+                    value: d[0],
+                    onChange: d[1],
+                    onBlur: d[2],
                     className: 'dgb-title-field'
                 });
             },
@@ -270,10 +360,12 @@
         },
         'purpose': {
             component: function PurposeField({ label, value, onChange }) {
+                const d = useDeferredValue(value || '', onChange);
                 return el(TextareaControl, {
                     label: label || 'Purpose',
-                    value: value || '',
-                    onChange: onChange,
+                    value: d[0],
+                    onChange: d[1],
+                    onBlur: d[2],
                     rows: 4
                 });
             },
@@ -281,10 +373,12 @@
         },
         'query': {
             component: function QueryField({ label, value, onChange }) {
+                const d = useDeferredValue(value || '', onChange);
                 return el(TextareaControl, {
                     label: label,
-                    value: value || '',
-                    onChange: onChange,
+                    value: d[0],
+                    onChange: d[1],
+                    onBlur: d[2],
                     rows: 6,
                     placeholder: 'Enter query'
                 });
@@ -293,10 +387,12 @@
         },
         'date': {
             component: function DateField({ label, value, onChange }) {
+                const d = useDeferredValue(value || '', onChange);
                 return el(TextControl, {
                     label: label,
-                    value: value || '',
-                    onChange: onChange,
+                    value: d[0],
+                    onChange: d[1],
+                    onBlur: d[2],
                     type: 'date'
                 });
             },
@@ -304,10 +400,12 @@
         },
         'service': {
             component: function ServiceField({ label, value, onChange }) {
+                const d = useDeferredValue(value || '', onChange);
                 return el(TextControl, {
                     label: label,
-                    value: value || '',
-                    onChange: onChange,
+                    value: d[0],
+                    onChange: d[1],
+                    onBlur: d[2],
                     placeholder: 'e.g., str.create'
                 });
             },
@@ -315,10 +413,12 @@
         },
         'awesome_code': {
             component: function CodeField({ label, value, onChange }) {
+                const d = useDeferredValue(value || '', onChange);
                 return el(TextareaControl, {
                     label: label,
-                    value: value || '',
-                    onChange: onChange,
+                    value: d[0],
+                    onChange: d[1],
+                    onBlur: d[2],
                     rows: 8,
                     className: 'dgb-code-field'
                 });
@@ -327,10 +427,12 @@
         },
         'env_path': {
             component: function EnvPathField({ label, value, onChange }) {
+                const d = useDeferredValue(value || '', onChange);
                 return el(TextControl, {
                     label: label,
-                    value: value || '',
-                    onChange: onChange,
+                    value: d[0],
+                    onChange: d[1],
+                    onBlur: d[2],
                     placeholder: 'e.g., module.settings.name'
                 });
             },
@@ -365,9 +467,8 @@
         },
         'checkbox': {
             component: function CheckboxField({ label, value, onChange, options = [] }) {
-                // Ensure value is an array
                 const selectedValues = Array.isArray(value) ? value : [];
-                
+
                 const handleChange = (optionValue, checked) => {
                     let newValues;
                     if (checked) {
@@ -377,7 +478,7 @@
                     }
                     onChange(newValues);
                 };
-                
+
                 return el('div', { className: 'dgb-checkbox-field' },
                     el('label', { className: 'components-base-control__label' }, label),
                     el('div', { className: 'dgb-checkbox-options' },
@@ -422,7 +523,7 @@
     // Tab Buttons Component
     function TabButtons({ tabs, activeTab, onTabChange }) {
         return el('div', { className: 'dgb-tab-buttons' },
-            tabs.map(tab => 
+            tabs.map(tab =>
                 el('button', {
                     key: tab.name,
                     type: 'button',
@@ -447,7 +548,7 @@
             name: { type: 'string', default: '' },
             type: { type: 'string' },
             label: { type: 'string', default: '' },
-            value: { 
+            value: {
                 type: ['string', 'array', 'boolean', 'number', 'object'],
                 default: ''
             },
@@ -456,13 +557,14 @@
             options: { type: 'array', default: [] },
             validation: { type: 'object', default: {} },
             repeater_fields: { type: 'array', default: [] },
+            checkboxLabel: { type: 'string', default: '' },
             activeTab: { type: 'string', default: '' }
         },
-        
+
         edit: function({ attributes, setAttributes }) {
             const { type, label, value, tab, options, validation, repeater_fields, activeTab } = attributes;
             const fieldConfig = FIELD_TYPES[type];
-            
+
             if (!fieldConfig) return null;
 
             const className = `dgb-field dgb-field-${tab}${tab === activeTab ? ' dgb-field-active' : ''}`;
@@ -486,6 +588,9 @@
                 onChange: (newValue) => setAttributes({ value: newValue }),
                 ...(validation || {}),
                 ...(type === 'select' ? { options: options } : {}),
+                ...(type === 'radio' ? { options: options } : {}),
+                ...(type === 'checkbox' ? { options: options } : {}),
+                ...(type === 'single-checkbox' ? { checkboxLabel: attributes.checkboxLabel } : {}),
                 ...(type === 'row_repeater' ? { repeater_fields: repeater_fields } : {})
             };
 
@@ -493,11 +598,59 @@
                 el(fieldConfig.component, props)
             );
         },
-        
+
         save: function() {
             return el(InnerBlocks.Content);
         }
     });
+
+    // Build the locked InnerBlocks template for a block config.
+    function buildTemplate(config, activeTab) {
+        const template = [];
+
+        const pushField = (field, tabName) => {
+            let defaultValue = field.default;
+
+            if (field.type === 'attributes-repeater' || field.type === 'row_repeater' || field.type === 'checkbox') {
+                defaultValue = field.default || [];
+            } else if (field.type === 'toggle' || field.type === 'single-checkbox') {
+                defaultValue = Boolean(field.default);
+            } else if (field.type === 'small-number' || field.type === 'number') {
+                defaultValue = field.default !== undefined ? Number(field.default) : 0;
+            } else if (field.type === 'image') {
+                defaultValue = null;
+            }
+
+            template.push([
+                'dgb/field',
+                {
+                    name: field.name,
+                    type: field.type,
+                    label: field.label,
+                    attr_name: field.attr_name,
+                    tab: tabName,
+                    activeTab: activeTab,
+                    options: field.options || [],
+                    validation: field.validation || {},
+                    repeater_fields: field.repeater_fields || [],
+                    checkboxLabel: field.checkboxLabel || '',
+                    value: defaultValue
+                }
+            ]);
+        };
+
+        if (config.tabs && config.tabs.length > 0) {
+            config.tabs.forEach(tab => {
+                (tab.fields || []).forEach(field => pushField(field, tab.name));
+            });
+        }
+
+        if (config.fields && config.fields.length > 0) {
+            config.fields.forEach(field => pushField(field, ''));
+        }
+
+        return template;
+    }
 
     // Register dynamic blocks from configuration
     if (window.dgbBlockConfigs && window.dgbBlockConfigs.blocks) {
@@ -508,13 +661,13 @@
                 icon: config.icon || 'admin-generic',
                 category: config.category || 'widgets',
                 keywords: config.keywords || [],
-                
+
                 edit: function(props) {
                     const blockProps = useBlockProps();
                     const [activeTab, setActiveTab] = useState(
                         config.tabs && config.tabs.length > 0 ? config.tabs[0].name : ''
                     );
-                    
+
                     const setFieldsActiveTab = (tab) => {
                         setActiveTab(tab);
                         const innerBlocks = data.select('core/block-editor').getBlocks(props.clientId);
@@ -528,93 +681,31 @@
                         });
                     };
 
-                    // Create template from configuration
-                    const template = [];
-                    
-                    // Add fields from tabs
-                    if (config.tabs && config.tabs.length > 0) {
-                        config.tabs.forEach(tab => {
-                            if (tab.fields && tab.fields.length > 0) {
-                                tab.fields.forEach(field => {
-                                    let defaultValue = field.default;
-                                    
-                                    if (field.type === 'attributes-repeater' || field.type === 'row_repeater') {
-                                        defaultValue = [];
-                                    } else if (field.type === 'toggle') {
-                                        defaultValue = Boolean(field.default);
-                                    } else if (field.type === 'small-number' || field.type === 'number') {
-                                        defaultValue = field.default !== undefined ? Number(field.default) : 0;
-                                    } else if (field.type === 'image') {
-                                        defaultValue = null;
-                                    }
-
-                                    template.push([
-                                        'dgb/field',
-                                        {
-                                            name: field.name,
-                                            type: field.type,
-                                            label: field.label,
-                                            attr_name: field.attr_name,
-                                            tab: tab.name,
-                                            activeTab: activeTab,
-                                            options: field.options || [],
-                                            validation: field.validation || {},
-                                            repeater_fields: field.repeater_fields || [],
-                                            value: defaultValue
-                                        }
-                                    ]);
-                                });
-                            }
-                        });
-                    }
-                    
-                    // Add fields from top-level (if no tabs)
-                    if (config.fields && config.fields.length > 0) {
-                        config.fields.forEach(field => {
-                            let defaultValue = field.default;
-                            
-                            if (field.type === 'attributes-repeater' || field.type === 'row_repeater') {
-                                defaultValue = [];
-                            } else if (field.type === 'toggle') {
-                                defaultValue = Boolean(field.default);
-                            } else if (field.type === 'small-number' || field.type === 'number') {
-                                defaultValue = field.default !== undefined ? Number(field.default) : 0;
-                            }
-
-                            template.push([
-                                'dgb/field',
-                                {
-                                    name: field.name,
-                                    type: field.type,
-                                    label: field.label,
-                                    attr_name: field.attr_name,
-                                    tab: '',
-                                    activeTab: '',
-                                    options: field.options || [],
-                                    validation: field.validation || {},
-                                    repeater_fields: field.repeater_fields || [],
-                                    value: defaultValue
-                                }
-                            ]);
-                        });
-                    }
+                    // Build the locked template once (it never changes for a
+                    // given config). Rebuilding it every render makes Gutenberg
+                    // re-synchronize the template and adds avoidable work.
+                    const template = useMemo(function () {
+                        return buildTemplate(config, activeTab);
+                        // activeTab only affects initial attrs; tab switching is
+                        // handled imperatively above, so we intentionally build once.
+                        // eslint-disable-next-line react-hooks/exhaustive-deps
+                    }, []);
 
                     const content = [];
-                    
-                    // Add tabs if they exist
+
                     if (config.tabs && config.tabs.length > 0) {
                         content.push(
                             el(TabButtons, {
+                                key: 'tabs',
                                 tabs: config.tabs,
                                 activeTab: activeTab,
                                 onTabChange: setFieldsActiveTab
                             })
                         );
                     }
-                    
-                    // Add inner blocks
+
                     content.push(
-                        el('div', { className: 'dgb-tab-content' },
+                        el('div', { key: 'content', className: 'dgb-tab-content' },
                             el(InnerBlocks, {
                                 template: template,
                                 templateLock: 'all',
@@ -624,7 +715,7 @@
                         )
                     );
 
-                    return el('div', { 
+                    return el('div', {
                         ...blockProps,
                         'data-active-tab': activeTab
                     }, content);
