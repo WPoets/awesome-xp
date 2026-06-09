@@ -1,4 +1,4 @@
-(function(blocks, element, blockEditor, components, data) {
+(function (blocks, element, blockEditor, components, data) {
     const el = element.createElement;
     const { useBlockProps } = blockEditor;
     const { TextControl, TextareaControl, SelectControl, ToggleControl, Button } = components;
@@ -27,6 +27,13 @@
         const timer = useRef(null);
         const latest = useRef(value);
 
+        // Always invoke the freshest commit closure. This matters for fields
+        // whose commit writes into a shared structure (the image object, a
+        // repeater array): a debounce that fires later must build from the
+        // LATEST value, otherwise edits to sibling cells get clobbered.
+        const commitRef = useRef(commit);
+        useEffect(function () { commitRef.current = commit; });
+
         // Re-sync when the attribute changes from the outside
         // (undo/redo, programmatic updates, switching selection).
         useEffect(function () {
@@ -40,7 +47,7 @@
                 if (timer.current) {
                     clearTimeout(timer.current);
                     if (latest.current !== value) {
-                        commit(latest.current);
+                        commitRef.current(latest.current);
                     }
                 }
             };
@@ -55,7 +62,7 @@
             }
             timer.current = setTimeout(function () {
                 timer.current = null;
-                commit(next);        // persist later
+                commitRef.current(next);        // persist later
             }, delay);
         };
 
@@ -64,7 +71,7 @@
                 clearTimeout(timer.current);
                 timer.current = null;
             }
-            commit(latest.current);  // persist immediately when leaving the field
+            commitRef.current(latest.current);  // persist immediately when leaving the field
         };
 
         return [local, onChange, onBlur];
@@ -145,6 +152,17 @@
         },
         'image': {
             component: function ImageField({ label, value, onChange }) {
+                // Deferred sub-fields so typing Alt / Title doesn't rewrite the
+                // whole image object (and re-serialize the block) per keystroke.
+                const altD = useDeferredValue(
+                    value && value.alt ? value.alt : '',
+                    (next) => onChange({ ...value, alt: next })
+                );
+                const titleD = useDeferredValue(
+                    value && value.title ? value.title : '',
+                    (next) => onChange({ ...value, title: next })
+                );
+
                 return el('div', { className: 'dgb-image-field' },
                     el('label', { className: 'components-base-control__label' }, label),
                     el(MediaUpload, {
@@ -169,8 +187,16 @@
                                 el(TextControl, {
                                     key: 'alt',
                                     label: 'Alt Text',
-                                    value: value.alt,
-                                    onChange: (newAlt) => onChange({ ...value, alt: newAlt })
+                                    value: altD[0],
+                                    onChange: altD[1],
+                                    onBlur: altD[2]
+                                }),
+                                el(TextControl, {
+                                    key: 'title',
+                                    label: 'Title',
+                                    value: titleD[0],
+                                    onChange: titleD[1],
+                                    onBlur: titleD[2]
                                 }),
                                 el('div', {
                                     key: 'actions',
@@ -211,7 +237,9 @@
                             className: 'dgb-attribute-row'
                         },
                             el('div', { className: 'dgb-attribute-inputs' },
-                                el(TextControl, {
+                                // Deferred so typing Name / Value doesn't rebuild
+                                // and re-serialize the whole array per keystroke.
+                                el(FIELD_TYPES.text.component, {
                                     label: 'Name',
                                     value: attr.name || '',
                                     onChange: (val) => {
@@ -236,7 +264,7 @@
                                         onChange(newAttributes);
                                     }
                                 }),
-                                el(TextControl, {
+                                el(FIELD_TYPES.text.component, {
                                     label: 'Value',
                                     value: attr.value || '',
                                     onChange: (val) => {
@@ -561,7 +589,7 @@
             activeTab: { type: 'string', default: '' }
         },
 
-        edit: function({ attributes, setAttributes }) {
+        edit: function ({ attributes, setAttributes }) {
             const { type, label, value, tab, options, validation, repeater_fields, activeTab } = attributes;
             const fieldConfig = FIELD_TYPES[type];
 
@@ -599,7 +627,7 @@
             );
         },
 
-        save: function() {
+        save: function () {
             return el(InnerBlocks.Content);
         }
     });
@@ -662,7 +690,7 @@
                 category: config.category || 'widgets',
                 keywords: config.keywords || [],
 
-                edit: function(props) {
+                edit: function (props) {
                     const blockProps = useBlockProps();
                     const [activeTab, setActiveTab] = useState(
                         config.tabs && config.tabs.length > 0 ? config.tabs[0].name : ''
@@ -721,7 +749,7 @@
                     }, content);
                 },
 
-                save: function() {
+                save: function () {
                     return el(InnerBlocks.Content);
                 }
             });
