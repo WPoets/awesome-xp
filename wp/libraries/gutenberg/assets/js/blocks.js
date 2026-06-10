@@ -367,6 +367,10 @@
                 return el('div', { className: 'dgb-innerblocks-field' },
                     el('label', { className: 'components-base-control__label' }, label),
                     el(InnerBlocks, {
+                        // The parent block uses templateLock: 'all', and locks are
+                        // INHERITED by nested InnerBlocks. Without this explicit
+                        // override the appender renders but insertion is blocked.
+                        templateLock: false,
                         renderAppender: InnerBlocks.ButtonBlockAppender
                     })
                 );
