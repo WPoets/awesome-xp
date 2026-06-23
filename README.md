@@ -15,6 +15,10 @@ Initial setup requires configuration in wp-config.php.
 
 ### Changelog 
 
+##### 1.0.2
+* Fixed: innerblock was not allowing to select gutenberg blocks
+* Fixed: issue with keystorkes missing text and text area fields in GT blocks.
+
 ##### 1.0.1
 * Dependency updates
 * Added missing files for introducing shortcodes to register Gutenberg and Elmentor blocks
