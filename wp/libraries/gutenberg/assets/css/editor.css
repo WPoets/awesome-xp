@@ -1,6 +1,6 @@
-/* DGB Editor Styles */
-
-/* Tab Buttons */
+/* ==================================================================
+   TAB BUTTONS
+================================================================== */
 .dgb-tab-buttons {
     display: flex;
     border-bottom: 2px solid #2271b1;
@@ -51,7 +51,9 @@
     font-size: 16px;
 }
 
-/* Tab Content */
+/* ==================================================================
+   TAB CONTENT
+================================================================== */
 .dgb-tab-content {
     padding: 20px;
     background: #fff;
@@ -62,7 +64,9 @@
     margin-top: -2px;
 }
 
-/* Field Visibility */
+/* ==================================================================
+   FIELD VISIBILITY
+================================================================== */
 [data-active-tab] .dgb-field {
     opacity: 0;
     position: absolute;
@@ -78,7 +82,9 @@
     transform: translateY(0);
 }
 
-/* Field Styles */
+/* ==================================================================
+   FIELD BASE STYLES
+================================================================== */
 .dgb-field {
     margin-bottom: 24px;
     padding: 16px;
@@ -96,7 +102,6 @@
     margin-bottom: 0;
 }
 
-/* Number Fields */
 .dgb-field input[type="number"] {
     width: 120px !important;
     text-align: right;
@@ -106,7 +111,9 @@
     width: 80px !important;
 }
 
-/* Image Field */
+/* ==================================================================
+   IMAGE FIELD
+================================================================== */
 .dgb-image-field {
     margin-bottom: 16px;
 }
@@ -129,91 +136,9 @@
     gap: 8px;
 }
 
-/* Attributes Repeater */
-.dgb-attributes-container {
-    margin: 20px 0;
-}
-
-.dgb-attributes-container h4 {
-    margin-bottom: 12px;
-    font-size: 14px;
-    font-weight: 600;
-}
-
-.dgb-attribute-row {
-    margin-bottom: 12px;
-    background: #f8f9fa;
-    border-radius: 4px;
-}
-
-.dgb-attribute-inputs {
-    display: grid;
-    grid-template-columns: 1fr 150px 1fr auto;
-    gap: 12px;
-    padding: 12px;
-    align-items: start;
-}
-
-.dgb-attribute-inputs .components-base-control {
-    margin-bottom: 0;
-}
-
-/* Row Repeater */
-.dgb-row-repeater {
-    margin: 20px 0;
-    border: 1px solid #e2e4e7;
-    border-radius: 4px;
-    background: #fff;
-}
-
-.dgb-row-headers {
-    display: flex;
-    gap: 8px;
-    padding: 12px;
-    background: #f7f7f7;
-    border-bottom: 1px solid #e2e4e7;
-    border-radius: 4px 4px 0 0;
-}
-
-.dgb-row-header {
-    flex: 1;
-    font-weight: 600;
-    color: #1e1e1e;
-    font-size: 13px;
-}
-
-.dgb-row {
-    display: flex;
-    gap: 8px;
-    padding: 12px;
-    border-bottom: 1px solid #e2e4e7;
-    align-items: flex-start;
-}
-
-.dgb-row:last-child {
-    border-bottom: none;
-}
-
-.dgb-row-cell {
-    flex: 1;
-    min-width: 0;
-}
-
-.dgb-row-cell:last-child {
-    flex: 0 0 auto;
-}
-
-.dgb-row-cell .dgb-field {
-    margin: 0;
-    padding: 0;
-    border: none;
-}
-
-.dgb-row-cell .components-base-control {
-    margin-bottom: 0;
-}
-
-/* Inner Blocks Field */
+/* ==================================================================
+   INNER BLOCKS FIELD
+================================================================== */
 .dgb-innerblocks-field {
     padding: 16px;
     border: 1px solid #e2e4e7;
@@ -234,7 +159,9 @@
     background: #fff;
 }
 
-/* Code Field */
+/* ==================================================================
+   CODE FIELD
+================================================================== */
 .dgb-code-field textarea {
     font-family: 'Courier New', Courier, monospace;
     font-size: 13px;
@@ -242,46 +169,17 @@
     tab-size: 4;
 }
 
-/* Title Field */
+/* ==================================================================
+   TITLE FIELD
+================================================================== */
 .dgb-title-field input {
     font-size: 16px;
     font-weight: 500;
 }
 
-/* Buttons */
-.dgb-attributes-container button,
-.dgb-row-repeater button {
-    cursor: pointer;
-    border: none;
-    border-radius: 3px;
-    padding: 8px 12px;
-    transition: all 0.2s ease;
-}
-
-.dgb-attributes-container button[class*="secondary"],
-.dgb-row-repeater button[class*="secondary"] {
-    background: #2271b1;
-    color: #fff;
-}
-
-.dgb-attributes-container button[class*="secondary"]:hover,
-.dgb-row-repeater button[class*="secondary"]:hover {
-    background: #135e96;
-}
-
-.dgb-attributes-container button[class*="destructive"],
-.dgb-row-repeater button[class*="destructive"] {
-    background: #dc3232;
-    color: #fff;
-    padding: 4px 10px;
-}
-
-.dgb-attributes-container button[class*="destructive"]:hover,
-.dgb-row-repeater button[class*="destructive"]:hover {
-    background: #c62828;
-}
-
-/* Focus States */
+/* ==================================================================
+   FOCUS STATES
+================================================================== */
 .dgb-field input:focus,
 .dgb-field textarea:focus,
 .dgb-field select:focus {
@@ -290,7 +188,9 @@
     outline: none;
 }
 
-/* Error States */
+/* ==================================================================
+   ERROR STATES
+================================================================== */
 .dgb-field.has-error input,
 .dgb-field.has-error textarea,
 .dgb-field.has-error select {
@@ -304,29 +204,427 @@
     color: #757575;
 }
 
-/* Responsive */
-@media (max-width: 782px) {
-    .dgb-attribute-inputs {
-        grid-template-columns: 1fr;
+/* ==================================================================
+   ANIMATION
+================================================================== */
+.dgb-field {
+    animation: dgbFadeIn 0.3s ease-in-out;
+}
+
+@keyframes dgbFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
     }
 
-    .dgb-tab-button {
-        padding: 8px 12px;
-        font-size: 13px;
-    }
-
-    .dgb-row {
-        flex-direction: column;
-    }
-
-    .dgb-row-headers {
-        display: none;
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
-/* -------------------------------------------------- *
- * File field
- * -------------------------------------------------- */
+/* ==================================================================
+   RADIO FIELD
+================================================================== */
+.dgb-radio-field {
+    margin-bottom: 16px;
+}
+
+.dgb-radio-field>.components-base-control__label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.dgb-radio-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.dgb-radio-option label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.dgb-radio-option label:hover {
+    background-color: #f0f0f0;
+}
+
+.dgb-radio-option input[type="radio"] {
+    margin: 0 8px 0 0;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.dgb-radio-label {
+    font-size: 14px;
+}
+
+/* ==================================================================
+   CHECKBOX FIELD
+================================================================== */
+.dgb-checkbox-field {
+    margin-bottom: 16px;
+}
+
+.dgb-checkbox-field>.components-base-control__label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.dgb-checkbox-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.dgb-checkbox-option label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.dgb-checkbox-option label:hover {
+    background-color: #f0f0f0;
+}
+
+.dgb-checkbox-option input[type="checkbox"] {
+    margin: 0 8px 0 0;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.dgb-checkbox-label {
+    font-size: 14px;
+}
+
+/* ==================================================================
+   SINGLE CHECKBOX
+================================================================== */
+.dgb-single-checkbox {
+    margin-bottom: 16px;
+}
+
+.dgb-single-checkbox label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.dgb-single-checkbox label:hover {
+    background-color: #f0f0f0;
+}
+
+.dgb-single-checkbox input[type="checkbox"] {
+    margin: 0 8px 0 0;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+/* ==================================================================
+   REMOVE BUTTON — overrides WP core .components-button.is-destructive
+================================================================== */
+.dgb-repeater-remove-btn.components-button,
+.dgb-repeater-remove-btn.components-button.is-destructive {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    padding: 0 10px !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    background: #fff !important;
+    color: #b32d2e !important;
+    border: 1.5px solid #b32d2e !important;
+    border-radius: 3px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    white-space: nowrap !important;
+    line-height: 1 !important;
+    box-shadow: none !important;
+    text-decoration: none !important;
+}
+
+.dgb-repeater-remove-btn.components-button:hover,
+.dgb-repeater-remove-btn.components-button.is-destructive:hover {
+    background: #b32d2e !important;
+    color: #fff !important;
+    border-color: #b32d2e !important;
+}
+
+.dgb-repeater-remove-btn.components-button .dashicons,
+.dgb-repeater-remove-btn.components-button.is-destructive .dashicons {
+    font-size: 14px !important;
+    width: 14px !important;
+    height: 14px !important;
+    color: inherit !important;
+    flex-shrink: 0;
+}
+
+/* ==================================================================
+   ATTRIBUTES REPEATER
+================================================================== */
+.dgb-attributes-container {
+    margin: 20px 0;
+}
+
+.dgb-attributes-container h4 {
+    margin: 0 0 10px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.dgb-attribute-row {
+    background: #fff;
+    border: 1px solid #e2e4e7;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    overflow: hidden;
+}
+
+.dgb-attribute-inputs {
+    display: grid;
+    grid-template-columns: 1fr 140px 1fr;
+    gap: 8px;
+    padding: 12px;
+    align-items: start;
+}
+
+.dgb-attribute-inputs .components-base-control {
+    margin-bottom: 0;
+}
+
+.dgb-attribute-row-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: 6px 12px;
+    background: #f7f7f7;
+    border-top: 1px solid #e2e4e7;
+}
+
+/* ==================================================================
+   ROW REPEATER — shared
+================================================================== */
+.dgb-row-repeater h4 {
+    margin: 0 0 12px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.dgb-repeater-footer {
+    padding: 12px;
+    border-top: 1px solid #e2e4e7;
+}
+
+.dgb-repeater-footer .components-button {
+    width: 100%;
+    justify-content: center;
+}
+
+/* ==================================================================
+   TABLE LAYOUT
+================================================================== */
+.dgb-row-repeater-table .dgb-repeater-table {
+    border: 1px solid #e2e4e7;
+    border-radius: 4px;
+    overflow-x: auto;
+}
+
+.dgb-repeater-table-header {
+    display: flex;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #f7f7f7;
+    border-bottom: 1px solid #e2e4e7;
+}
+
+.dgb-repeater-th {
+    flex: 1;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #757575;
+    min-width: 80px;
+}
+
+.dgb-repeater-th-remove {
+    flex: 0 0 100px;
+}
+
+.dgb-repeater-tr {
+    display: flex;
+    gap: 8px;
+    padding: 10px 12px;
+    border-bottom: 1px solid #f0f0f0;
+    align-items: flex-start;
+}
+
+.dgb-repeater-tr:last-child {
+    border-bottom: none;
+}
+
+.dgb-repeater-td {
+    flex: 1;
+    min-width: 80px;
+}
+
+.dgb-repeater-td .components-base-control {
+    margin-bottom: 0;
+}
+
+.dgb-repeater-td .components-base-control__label {
+    display: none;
+}
+
+.dgb-repeater-td-remove {
+    flex: 0 0 100px;
+    display: flex;
+    align-items: flex-start;
+    padding-top: 2px;
+}
+
+/* ==================================================================
+   CARD LAYOUT
+================================================================== */
+.dgb-row-repeater-card .dgb-repeater-cards,
+.dgb-row-repeater-card-collapsed .dgb-repeater-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.dgb-repeater-card {
+    border: 1px solid #e2e4e7;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #fff;
+}
+
+.dgb-repeater-card:hover {
+    border-color: #2271b1;
+}
+
+.dgb-repeater-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: #f7f7f7;
+    border-bottom: 1px solid #e2e4e7;
+    min-height: 44px;
+}
+
+.dgb-repeater-card-index {
+    font-size: 12px;
+    font-weight: 600;
+    color: #757575;
+    flex-shrink: 0;
+    margin-right: 8px;
+}
+
+.dgb-repeater-card-body {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 16px;
+}
+
+.dgb-repeater-field-full {
+    flex: 0 0 100%;
+}
+
+.dgb-repeater-field-half {
+    flex: 1 1 calc(50% - 6px);
+    min-width: 180px;
+}
+
+.dgb-repeater-field-third {
+    flex: 1 1 calc(33.333% - 8px);
+    min-width: 140px;
+}
+
+.dgb-repeater-field-quarter {
+    flex: 1 1 calc(25% - 9px);
+    min-width: 120px;
+}
+
+.dgb-repeater-card-field .components-base-control {
+    margin-bottom: 0;
+}
+
+/* ==================================================================
+   CARD-COLLAPSED LAYOUT
+================================================================== */
+.dgb-repeater-card-collapsible .dgb-repeater-card-header {
+    cursor: default;
+}
+
+.dgb-repeater-collapse-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 0;
+    flex: 1;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 500;
+    color: #1e1e1e;
+}
+
+.dgb-repeater-collapse-toggle:hover {
+    color: #2271b1;
+}
+
+.dgb-repeater-collapse-toggle .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: #757575;
+    flex-shrink: 0;
+}
+
+.dgb-repeater-card-summary {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 300px;
+}
+
+.dgb-repeater-card-collapsible.is-open .dgb-repeater-card-header {
+    border-bottom: 1px solid #e2e4e7;
+    background: #e8f0fb;
+}
+
+.dgb-repeater-card-collapsible.is-open .dgb-repeater-collapse-toggle {
+    color: #2271b1;
+}
+
+.dgb-repeater-card-collapsible.is-open .dgb-repeater-collapse-toggle .dashicons {
+    color: #2271b1;
+}
+
+/* ==================================================================
+   FILE FIELD
+================================================================== */
 .dgb-file-field {
     margin-bottom: 16px;
 }
@@ -394,9 +692,9 @@
     color: #757575;
 }
 
-/* -------------------------------------------------- *
- * Post select field
- * -------------------------------------------------- */
+/* ==================================================================
+   POST SELECT FIELD
+================================================================== */
 .dgb-post-select {
     margin-bottom: 16px;
 }
@@ -476,7 +774,6 @@
     border-radius: 4px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     padding: 8px;
-    /* position/top/left/width/z-index are set inline by PositionedDropdown */
 }
 
 .dgb-post-select-dropdown .components-base-control {
@@ -526,9 +823,9 @@
     font-size: 13px;
 }
 
-/* -------------------------------------------------- *
- * Taxonomy select field
- * -------------------------------------------------- */
+/* ==================================================================
+   TAXONOMY SELECT FIELD
+================================================================== */
 .dgb-taxonomy-select {
     margin-bottom: 16px;
 }
@@ -623,135 +920,138 @@
     font-size: 13px;
 }
 
-.dgb-field {
-    animation: fadeIn 0.3s ease-in-out;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Radio Field */
-.dgb-radio-field {
+/* ==================================================================
+   FILTERED POST SELECT FIELD
+================================================================== */
+.dgb-fps {
     margin-bottom: 16px;
 }
 
-.dgb-radio-field>.components-base-control__label {
+.dgb-fps>.components-base-control__label {
     display: block;
     margin-bottom: 8px;
     font-weight: 600;
 }
 
-.dgb-radio-options {
+.dgb-fps-filters {
     display: flex;
-    flex-direction: column;
-    gap: 8px;
+    gap: 12px;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #e2e4e7;
+    flex-wrap: wrap;
+    align-items: flex-end;
 }
 
-.dgb-radio-option {
-    display: flex;
-    align-items: center;
+.dgb-fps-filter {
+    flex: 1;
+    min-width: 130px;
 }
 
-.dgb-radio-option label {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    padding: 8px;
-    border-radius: 4px;
-    transition: background-color 0.2s ease;
-}
-
-.dgb-radio-option label:hover {
-    background-color: #f0f0f0;
-}
-
-.dgb-radio-option input[type="radio"] {
-    margin: 0 8px 0 0;
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-}
-
-.dgb-radio-label {
-    font-size: 14px;
-}
-
-/* Checkbox Field */
-.dgb-checkbox-field {
-    margin-bottom: 16px;
-}
-
-.dgb-checkbox-field>.components-base-control__label {
-    display: block;
-    margin-bottom: 8px;
+.dgb-fps-filter-label {
+    font-size: 11px;
     font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #757575;
+    margin-bottom: 4px;
 }
 
-.dgb-checkbox-options {
+.dgb-fps-filter .components-select-control {
+    margin-bottom: 0;
+}
+
+.dgb-fps-filter .components-select-control select {
+    height: 30px;
+    padding-top: 0;
+    padding-bottom: 0;
+    font-size: 13px;
+}
+
+.dgb-fps-filter-loading {
+    padding: 4px 0;
+}
+
+.dgb-fps-filter-terms {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 2px;
+    max-height: 160px;
+    overflow-y: auto;
 }
 
-.dgb-checkbox-option {
+.dgb-fps-term {
     display: flex;
     align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    padding: 4px 6px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background 0.15s ease;
 }
 
-.dgb-checkbox-option label {
+.dgb-fps-term:hover {
+    background: #f0f0f0;
+}
+
+.dgb-fps-term.is-active {
+    background: #e8f0fb;
+    color: #2271b1;
+    font-weight: 500;
+}
+
+.dgb-fps-term input {
+    margin: 0;
+    cursor: pointer;
+}
+
+.dgb-fps-active-filters {
     display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 6px;
+}
+
+.dgb-fps-active-filter-badge {
+    display: inline-flex;
     align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    background: #e8f0fb;
+    color: #2271b1;
+    border: 1px solid #2271b1;
+    border-radius: 3px;
+    font-size: 11px;
+    line-height: 20px;
+}
+
+.dgb-fps-active-filter-badge button {
+    background: none;
+    border: none;
+    color: #2271b1;
     cursor: pointer;
-    padding: 8px;
-    border-radius: 4px;
-    transition: background-color 0.2s ease;
-}
-
-.dgb-checkbox-option label:hover {
-    background-color: #f0f0f0;
-}
-
-.dgb-checkbox-option input[type="checkbox"] {
-    margin: 0 8px 0 0;
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-}
-
-.dgb-checkbox-label {
+    padding: 0;
     font-size: 14px;
+    line-height: 1;
 }
 
-/* Single Checkbox */
-.dgb-single-checkbox {
-    margin-bottom: 16px;
-}
+/* ==================================================================
+   RESPONSIVE
+================================================================== */
+@media (max-width: 782px) {
+    .dgb-attribute-inputs {
+        grid-template-columns: 1fr;
+    }
 
-.dgb-single-checkbox label {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    padding: 8px;
-    border-radius: 4px;
-    transition: background-color 0.2s ease;
-}
+    .dgb-tab-button {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
 
-.dgb-single-checkbox label:hover {
-    background-color: #f0f0f0;
-}
-
-.dgb-single-checkbox input[type="checkbox"] {
-    margin: 0 8px 0 0;
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
+    .dgb-repeater-field-half,
+    .dgb-repeater-field-third,
+    .dgb-repeater-field-quarter {
+        flex: 0 0 100%;
+    }
 }
