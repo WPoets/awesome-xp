@@ -107,7 +107,7 @@ function enqueue_editor_assets() {
    \wp_enqueue_script(
         'dgb-blocks-editor',
         DGB_PLUGIN_URL . 'assets/js/blocks.js',
-        array('wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-i18n', 'wp-data'),
+        array('wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-i18n', 'wp-data', 'wp-server-side-render'),
         DGB_VERSION,
         false
     );

@@ -14,99 +14,104 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class BlockLibrary {
-    
+class BlockLibrary
+{
+
     /**
      * Singleton instance
      */
     private static $instance = null;
-    
+
     /**
      * Registered blocks
      */
     private $blocks = array();
-    
+
     /**
      * Block configurations directory
      */
     private $blocks_dir = '';
-    
+
     /**
      * Assets URL
      */
     private $assets_url = '';
-    
+
     /**
      * Get singleton instance
      */
-    public static function instance() {
+    public static function instance()
+    {
         if (self::$instance === null) {
             self::$instance = new self();
         }
         return self::$instance;
     }
-    
+
     /**
      * Initialize the library
      * 
      * @param string $blocks_directory Path to directory containing block JSON files
      * @param string $assets_url URL to assets directory (optional)
      */
-    public function init( $assets_url = '') {
-       // $this->blocks_dir = trailingslashit($blocks_directory);
+    public function init($assets_url = '')
+    {
+        // $this->blocks_dir = trailingslashit($blocks_directory);
         $this->assets_url = $assets_url ? trailingslashit($assets_url) : plugins_url('assets/', __FILE__);
-        
+
         // Register hooks
-        add_action('init', array($this, 'register_blocks'),15);
+        add_action('init', array($this, 'register_blocks'), 15);
         add_action('enqueue_block_editor_assets', array($this, 'enqueue_editor_assets'));
     }
-    
+
     /**
      * Load and register all blocks from JSON files
      */
-    public function register_blocks() {
+    public function register_blocks()
+    {
         //if (!is_dir($this->blocks_dir)) {
         //    return;
         //}
-        
+
         // Find all JSON files in the blocks directory
         //$json_files = glob($this->blocks_dir . '*.json');
 
-        $gutenberg_blocks=&\aw2_library::get_array_ref('gutenberg_blocks_v2');
-    
+        $gutenberg_blocks =& \aw2_library::get_array_ref('gutenberg_blocks_v2');
+
         foreach ($gutenberg_blocks as $gtb) {
             $this->register_block($gtb);
         }
-        
+
         // Register the field block (used internally)
         $this->register_field_block();
     }
-    
+
     /**
      * Register a single block from JSON configuration
      * 
      * @param string $json_file Path to JSON file
      * @return bool Success status
      */
-    private function register_block($config_data) {
-      //  $json_content = file_get_contents($json_file);
+    private function register_block($config_data)
+    {
+        //  $json_content = file_get_contents($json_file);
 
         //\util::var_dump($config_data);
         //$config = json_decode($json_content, true);
-       
+
         if (!isset($config_data['config'])) {
             error_log("DGB Error: config not found");
             return false;
         }
 
         $config = $config_data['config'];
-        $config['template']=$config_data['render_service'];
+        $config['template'] = $config_data['render_service'];
 
         if (!empty($config_data['controls_service'])) {
-          $sections =\aw2_library::service_run($config_data['controls_service'],null,null,'service');
-          //$config['tabs'] = $sections['sections'] ?? '';
+            $sections = \aw2_library::service_run($config_data['controls_service'], null, null, 'service');
+            //$config['tabs'] = $sections['sections'] ?? '';
 
-          //loop through the $sections['sections'], check if fields array exisits, then loop though it and convert the json to array and update it.  
+            //loop through the $sections['sections'], check if fields array exisits, then loop though it and convert the json to array and update it.  
             // Loop through the sections
             if (!empty($sections['sections'])) {
                 foreach ($sections['sections'] as &$section) {
@@ -120,7 +125,7 @@ class BlockLibrary {
                     }
                 }
                 unset($section); // Break the reference
-                
+
                 $config['tabs'] = $sections['sections'];
             }
 
@@ -132,16 +137,16 @@ class BlockLibrary {
             error_log("DGB Error: Block config missing 'name' or 'title' ");
             return false;
         }
-        
+
         // Set defaults
         $config = $this->set_config_defaults($config);
-        
+
         // Store configuration
         $this->blocks[$config['name']] = $config;
-        
+
         // Register the block type
         $block_name = 'dgb/' . $config['name'];
-        
+
         register_block_type($block_name, array(
             'api_version' => 3,
             'editor_script' => 'dgb-blocks-editor',
@@ -155,14 +160,15 @@ class BlockLibrary {
                 'className' => true
             )
         ));
-        
+
         return true;
     }
-    
+
     /**
      * Set default configuration values
      */
-    private function set_config_defaults($config) {
+    private function set_config_defaults($config)
+    {
         $defaults = array(
             'icon' => 'admin-generic',
             'category' => 'widgets',
@@ -173,19 +179,20 @@ class BlockLibrary {
             'enqueue_scripts' => array(),
             'enqueue_styles' => array()
         );
-        
+
         return array_merge($defaults, $config);
     }
-    
+
     /**
      * Build block attributes from configuration
      */
-    private function build_attributes($config) {
+    private function build_attributes($config)
+    {
         $attributes = array();
-        
+
         // Get fields from both top-level and tabs
         $all_fields = $config['fields'];
-        
+
         if (!empty($config['tabs'])) {
             foreach ($config['tabs'] as $tab) {
                 if (isset($tab['fields']) && is_array($tab['fields'])) {
@@ -193,27 +200,37 @@ class BlockLibrary {
                 }
             }
         }
-        
+
         // Build attributes for each field
         foreach ($all_fields as $field) {
             if (!isset($field['attr_name'])) {
                 continue;
             }
-            
+
             $attr_config = $this->get_attribute_config_for_field($field);
             $attributes[$field['attr_name']] = $attr_config;
         }
-        
+
+        // Flattened snapshot of all field values, kept in sync by the editor.
+        // ServerSideRender only sends attributes (not inner blocks), so this is
+        // what lets the editor preview the real output; the front end can also
+        // render from it without re-parsing inner blocks.
+        $attributes['_data'] = array(
+            'type' => 'object',
+            'default' => array()
+        );
+
         return $attributes;
     }
-    
+
     /**
      * Get attribute configuration for a field type
      */
-    private function get_attribute_config_for_field($field) {
+    private function get_attribute_config_for_field($field)
+    {
         $type = isset($field['type']) ? $field['type'] : 'text';
         $default = isset($field['default']) ? $field['default'] : null;
-        
+
         $type_map = array(
             'text' => 'string',
             'textarea' => 'string',
@@ -224,6 +241,10 @@ class BlockLibrary {
             'radio' => 'string',
             'checkbox' => 'array',
             'single-checkbox' => 'boolean',
+            'file' => 'object',
+            'post-select' => 'object',
+            'filtered-post-select' => 'object',
+            'taxonomy-select' => 'array',
             'image' => 'object',
             'date' => 'string',
             'attributes-repeater' => 'array',
@@ -236,15 +257,17 @@ class BlockLibrary {
             'purpose' => 'string',
             'query' => 'string'
         );
-        
+
         $attr_type = isset($type_map[$type]) ? $type_map[$type] : 'string';
-        
+
         $config = array('type' => $attr_type);
-        
+
         if ($default !== null) {
             $config['default'] = $default;
-        } elseif ($attr_type === 'array') {
+        } elseif (in_array($attr_type, array('array'), true)) {
             $config['default'] = array();
+        } elseif ($attr_type === 'object') {
+            $config['default'] = null;
         } elseif ($attr_type === 'boolean') {
             $config['default'] = false;
         } elseif ($attr_type === 'number') {
@@ -252,14 +275,15 @@ class BlockLibrary {
         } else {
             $config['default'] = '';
         }
-        
+
         return $config;
     }
-    
+
     /**
      * Register the internal field block
      */
-    private function register_field_block() {
+    private function register_field_block()
+    {
         register_block_type('dgb/field', array(
             'api_version' => 3,
             'editor_script' => 'dgb-blocks-editor',
@@ -281,11 +305,12 @@ class BlockLibrary {
             )
         ));
     }
-    
+
     /**
      * Enqueue editor assets
      */
-    public function enqueue_editor_assets() {
+    public function enqueue_editor_assets()
+    {
         // Pass block configurations to JavaScript
         wp_localize_script(
             'dgb-blocks-editor',
@@ -293,51 +318,61 @@ class BlockLibrary {
             array('blocks' => $this->blocks)
         );
     }
-    
+
     /**
      * Render block callback
      */
-    public function render_block($attributes, $content, $block) {
+    public function render_block($attributes, $content, $block)
+    {
         // Get block name without namespace
         $block_name = str_replace('dgb/', '', $block->name);
-        
+
         if (!isset($this->blocks[$block_name])) {
             return '';
         }
-        
+
         $config = $this->blocks[$block_name];
-        
-        // Collect field values from inner blocks
-        $field_values = $this->extract_field_values($block);
-        
-        // Merge with attributes
+
+        // Prefer the flattened snapshot saved on the parent block. Inner blocks
+        // are NOT available during REST / ServerSideRender requests, so the
+        // snapshot is what makes the in-editor preview work. On the front end
+        // both sources are present and the snapshot is authoritative.
+        if (!empty($attributes['_data']) && is_array($attributes['_data'])) {
+            $field_values = $attributes['_data'];
+        } else {
+            $field_values = $this->extract_field_values($block);
+        }
+
+        // Merge with attributes (drop the snapshot key itself)
         $data = array_merge($attributes, $field_values);
-        
+        unset($data['_data']);
+
         // Enqueue block-specific assets
         $this->enqueue_block_assets($config);
-        
+
         // Render using template
         return $this->render_template($config, $data, $content);
     }
-    
+
     /**
      * Extract field values from inner blocks
      */
-    private function extract_field_values($block) {
+    private function extract_field_values($block)
+    {
         $values = array();
-        
+
         if (!isset($block->parsed_block['innerBlocks'])) {
             return $values;
         }
-        
+
         foreach ($block->parsed_block['innerBlocks'] as $inner_block) {
             if ($inner_block['blockName'] === 'dgb/field') {
                 $attrs = $inner_block['attrs'];
-                
+
                 if (!empty($attrs['attr_name']) && isset($attrs['value'])) {
                     // Handle nested attribute names (e.g., "tab1.title")
                     $this->set_nested_value($values, $attrs['attr_name'], $attrs['value']);
-                    
+
                     // Handle innerblocks for field
                     if (!empty($inner_block['innerBlocks'])) {
                         $inner_content = '';
@@ -349,48 +384,51 @@ class BlockLibrary {
                 }
             }
         }
-        
+
         return $values;
     }
-    
+
     /**
      * Set nested value in array using dot notation
      */
-    private function set_nested_value(&$array, $path, $value) {
+    private function set_nested_value(&$array, $path, $value)
+    {
         $keys = explode('.', $path);
         $current = &$array;
-        
+
         foreach ($keys as $key) {
             if (!isset($current[$key])) {
                 $current[$key] = array();
             }
             $current = &$current[$key];
         }
-        
+
         $current = $value;
     }
-    
+
     /**
      * Get nested value from array using dot notation
      */
-    private function get_nested_value($array, $path, $default = '') {
+    private function get_nested_value($array, $path, $default = '')
+    {
         $keys = explode('.', $path);
         $current = $array;
-        
+
         foreach ($keys as $key) {
             if (!isset($current[$key])) {
                 return $default;
             }
             $current = $current[$key];
         }
-        
+
         return $current;
     }
-    
+
     /**
      * Enqueue block-specific assets
      */
-    private function enqueue_block_assets($config) {
+    private function enqueue_block_assets($config)
+    {
         // Enqueue scripts
         if (!empty($config['enqueue_scripts'])) {
             foreach ($config['enqueue_scripts'] as $script) {
@@ -398,13 +436,13 @@ class BlockLibrary {
                 $src = isset($script['src']) ? $script['src'] : '';
                 $deps = isset($script['deps']) ? $script['deps'] : array();
                 $ver = isset($script['version']) ? $script['version'] : '1.0.0';
-                
+
                 if ($handle && $src) {
                     wp_enqueue_script($handle, $src, $deps, $ver, true);
                 }
             }
         }
-        
+
         // Enqueue styles
         if (!empty($config['enqueue_styles'])) {
             foreach ($config['enqueue_styles'] as $style) {
@@ -412,19 +450,19 @@ class BlockLibrary {
                 $src = isset($style['src']) ? $style['src'] : '';
                 $deps = isset($style['deps']) ? $style['deps'] : array();
                 $ver = isset($style['version']) ? $style['version'] : '1.0.0';
-                
+
                 if ($handle && $src) {
                     wp_enqueue_style($handle, $src, $deps, $ver);
                 }
             }
         }
     }
-    
+
     /**
      * Render template with data
      */
-    private function render_template($config, $data, $content) {
-
+    private function render_template($config, $data, $content)
+    {
         // Use template file if specified
         if (!empty($config['template_file']) && file_exists($config['template_file'])) {
             ob_start();
@@ -432,43 +470,45 @@ class BlockLibrary {
             return ob_get_clean();
         }
         if (!empty($config['template'])) {
-           return \aw2_library::service_run($config['template'],$data,null,'service');
+            return \aw2_library::service_run($config['template'], $data, null, 'service');
         }
-        
+
         // Use inline template
         //if (!empty($config['template'])) {
         //    return $this->process_template($config['template'], $data, $content);
-       // }
-        
+        // }
+
         // Default output
         return $content;
     }
-    
+
     /**
      * Process template string with placeholders
      * Supports: {{variable}}, {{nested.variable}}, {{#if variable}}...{{/if}}, {{#each array}}...{{/each}}
      */
-    private function process_template($template, $data, $content = '') {
+    private function process_template($template, $data, $content = '')
+    {
         // Add content to data
         $data['_content'] = $content;
-        
+
         // Process conditionals {{#if variable}}...{{/if}}
         $template = preg_replace_callback(
             '/\{\{#if\s+([a-zA-Z0-9_.]+)\}\}(.*?)\{\{\/if\}\}/s',
-            function($matches) use ($data) {
+            function ($matches) use ($data) {
                 $value = $this->get_nested_value($data, $matches[1]);
                 return $value ? $matches[2] : '';
             },
             $template
         );
-        
+
         // Process loops {{#each array}}...{{/each}}
         $template = preg_replace_callback(
             '/\{\{#each\s+([a-zA-Z0-9_.]+)\}\}(.*?)\{\{\/each\}\}/s',
-            function($matches) use ($data) {
+            function ($matches) use ($data) {
                 $array = $this->get_nested_value($data, $matches[1], array());
-                if (!is_array($array)) return '';
-                
+                if (!is_array($array))
+                    return '';
+
                 $output = '';
                 foreach ($array as $item) {
                     $output .= $this->process_template($matches[2], $item);
@@ -477,35 +517,38 @@ class BlockLibrary {
             },
             $template
         );
-        
+
         // Process variables {{variable}}
         $template = preg_replace_callback(
             '/\{\{([a-zA-Z0-9_.]+)\}\}/',
-            function($matches) use ($data) {
+            function ($matches) use ($data) {
                 return esc_html($this->get_nested_value($data, $matches[1]));
             },
             $template
         );
-        
+
         return $template;
     }
-    
+
     /**
      * Get all registered blocks
      */
-    public function get_blocks() {
+    public function get_blocks()
+    {
         return $this->blocks;
     }
-    
+
     /**
      * Get a specific block configuration
      */
-    public function get_block($name) {
+    public function get_block($name)
+    {
         return isset($this->blocks[$name]) ? $this->blocks[$name] : null;
     }
 }
 
 // Global function to access the library
-function dgb() {
+function dgb()
+{
     return BlockLibrary::instance();
 }
