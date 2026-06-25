@@ -2,7 +2,7 @@
 namespace aw2\content_types;
 
 \aw2_library::add_service('content_types.add','Add a New Content Type',['namespace'=>'aw2\content_types']);
-function add($atts,$content=null,$shortcode){
+function add($atts,$content=null,$shortcode = array()){
 	if(\aw2_library::pre_actions('all',$atts,$content)==false)return;
 	extract(\aw2_library::shortcode_atts( array(
 	'main'=>null,

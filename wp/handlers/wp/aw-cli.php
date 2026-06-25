@@ -23,7 +23,7 @@ function regwp(){
 }
 
 \aw2_library::add_service('awcli.run','run cli command',['namespace'=>__NAMESPACE__]);
-function run($atts,$content=null,$shortcode){
+function run($atts,$content=null,$shortcode = array()){
     
     if(\aw2_library::pre_actions('all',$atts,$content)==false)return;
     
@@ -43,7 +43,7 @@ function run($atts,$content=null,$shortcode){
 }
 
 \aw2_library::add_service('awcli.isrunning','run cli command',['namespace'=>__NAMESPACE__]);
-function isrunning($atts,$content=null,$shortcode){
+function isrunning($atts,$content=null,$shortcode = array()){
 
     if(\aw2_library::pre_actions('all',$atts,$content)==false)return;
     
@@ -60,7 +60,7 @@ function isrunning($atts,$content=null,$shortcode){
 }
 
 \aw2_library::add_service('awcli.allrunning','get all running processes',['namespace'=>__NAMESPACE__]);
-function allrunning($atts,$content=null,$shortcode){
+function allrunning($atts,$content=null,$shortcode = array()){
     $result = shell_exec(sprintf("pgrep -f 'wp aw2 run'"));
     $result = explode(PHP_EOL, $result);
 
@@ -68,7 +68,7 @@ function allrunning($atts,$content=null,$shortcode){
 }
 
 \aw2_library::add_service('awcli.killpid','kill process',['namespace'=>__NAMESPACE__]);
-function killpid($atts,$content=null,$shortcode){
+function killpid($atts,$content=null,$shortcode = array()){
 
     if(\aw2_library::pre_actions('all',$atts,$content)==false)return;
     

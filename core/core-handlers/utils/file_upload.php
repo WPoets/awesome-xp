@@ -2,7 +2,7 @@
 namespace aw2;
 
 \aw2_library::add_service('aw2.upload','Upload',['namespace'=>__NAMESPACE__]);
-function upload($atts,$content=null,$shortcode){
+function upload($atts,$content=null,$shortcode = array()){
 	if(\aw2_library::pre_actions('all',$atts,$content,$shortcode)==false)return;
 
 	extract(\aw2_library::shortcode_atts( array(
@@ -217,7 +217,7 @@ function aw2_woo_set_prodcut_gallery($post_id,$attach_ids){
 }
 
 \aw2_library::add_service('aw2.sideload','Download a File from URL and attach to media',['namespace'=>__NAMESPACE__]);
-function sideload($atts,$content=null,$shortcode){
+function sideload($atts,$content=null,$shortcode = array()){
 	if(\aw2_library::pre_actions('all',$atts,$content,$shortcode)==false)return;
 
 	extract(\aw2_library::shortcode_atts( array(

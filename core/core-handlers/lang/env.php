@@ -6,7 +6,7 @@ if (!defined('AWESOME_LCNC') || AWESOME_LCNC === 'no') {
 
 	\aw2_library::add_service('env','Handles the environment',['namespace'=>__NAMESPACE__]);
 
-	function unhandled($atts,$content=null,$shortcode){
+	function unhandled($atts,$content=null,$shortcode = array()){
 		extract(\aw2_library::shortcode_atts( array(
 		'_prefix'=>null,
 		'default'=>''
@@ -28,7 +28,7 @@ if (!defined('AWESOME_LCNC') || AWESOME_LCNC === 'no') {
 
 	\aw2_library::add_service('env.get','Get an Environment Value',['namespace'=>__NAMESPACE__]);
 
-	function get($atts,$content=null,$shortcode){
+	function get($atts,$content=null,$shortcode = array()){
 		if(\aw2_library::pre_actions('all',$atts,$content)==false)return;
 		
 		extract(\aw2_library::shortcode_atts( array(
@@ -48,7 +48,7 @@ if (!defined('AWESOME_LCNC') || AWESOME_LCNC === 'no') {
 
 	\aw2_library::add_service('env.exists','Get an Environment Value',['namespace'=>__NAMESPACE__]);
 
-	function exists($atts,$content=null,$shortcode){
+	function exists($atts,$content=null,$shortcode = array()){
 		
 		extract(\aw2_library::shortcode_atts( array(
 		'main'=>null,
@@ -66,7 +66,7 @@ if (!defined('AWESOME_LCNC') || AWESOME_LCNC === 'no') {
 
 	\aw2_library::add_service('env.set','Set an Environment Value',['namespace'=>__NAMESPACE__]);
 
-	function set($atts,$content=null,$shortcode){
+	function set($atts,$content=null,$shortcode = array()){
 		if(\aw2_library::pre_actions('all',$atts,$content)==false)return;
 		
 		extract(\aw2_library::shortcode_atts( array(
@@ -99,7 +99,7 @@ if (!defined('AWESOME_LCNC') || AWESOME_LCNC === 'no') {
 
 	//deprecated
 	\aw2_library::add_service('env.set_value','Set an Environment Value',['namespace'=>__NAMESPACE__]);
-	function set_value($atts,$content=null,$shortcode){
+	function set_value($atts,$content=null,$shortcode = array()){
 		
 		extract(\aw2_library::shortcode_atts( array(
 		'_prefix'=>null,
@@ -124,7 +124,7 @@ if (!defined('AWESOME_LCNC') || AWESOME_LCNC === 'no') {
 
 	//deprecated
 	\aw2_library::add_service('env.set.key','Set a complex Environment Value',['func'=>'_key' ,'namespace'=>__NAMESPACE__]);
-	function _key($atts,$content=null,$shortcode){
+	function _key($atts,$content=null,$shortcode = array()){
 		
 		extract(\aw2_library::shortcode_atts( array(
 		'_prefix'=>null,
@@ -140,7 +140,7 @@ if (!defined('AWESOME_LCNC') || AWESOME_LCNC === 'no') {
 
 	//deprecated
 	\aw2_library::add_service('env.set_raw','Set a Raw Value. Will not be parsed',['namespace'=>__NAMESPACE__]);
-	function set_raw($atts,$content=null,$shortcode){
+	function set_raw($atts,$content=null,$shortcode = array()){
 		if(\aw2_library::pre_actions('all',$atts,$content)==false)return;
 		extract(\aw2_library::shortcode_atts( array(
 		'_prefix'=>null,
@@ -158,7 +158,7 @@ if (!defined('AWESOME_LCNC') || AWESOME_LCNC === 'no') {
 	\aw2_library::add_service('env.set_array','Set an Array.',['namespace'=>__NAMESPACE__]);
 
 	//deprecated
-	function set_array($atts,$content=null,$shortcode){
+	function set_array($atts,$content=null,$shortcode = array()){
 		if(\aw2_library::pre_actions('all',$atts,$content)==false)return;
 		
 		extract(\aw2_library::shortcode_atts( array(
@@ -237,7 +237,7 @@ if (!defined('AWESOME_LCNC') || AWESOME_LCNC === 'no') {
 
 	\aw2_library::add_service('env.dump','Dump an environment Value',['namespace'=>__NAMESPACE__]);
 
-	function dump($atts,$content=null,$shortcode){
+	function dump($atts,$content=null,$shortcode = array()){
 		if(\aw2_library::pre_actions('all',$atts,$content)==false)return;
 
 		extract(\aw2_library::shortcode_atts( array(
@@ -258,7 +258,7 @@ if (!defined('AWESOME_LCNC') || AWESOME_LCNC === 'no') {
 
 	\aw2_library::add_service('env.echo','Dump an environment Value',['func'=>'_echo' ,'namespace'=>__NAMESPACE__]);
 
-	function _echo($atts,$content=null,$shortcode){
+	function _echo($atts,$content=null,$shortcode = array()){
 		if(\aw2_library::pre_actions('all',$atts,$content)==false)return;
 
 		extract(\aw2_library::shortcode_atts( array(
@@ -283,26 +283,26 @@ if (defined('AWESOME_LCNC') && AWESOME_LCNC === 'yes') {
     
     // Register env existence check
     \aw2_library::add_service('env.exists', 'Check existence of a path', ['namespace' => __NAMESPACE__]);
-    function exists($atts, $content = null, $shortcode) {
+    function exists($atts, $content = null, $shortcode = array()) {
         $atts['start'] = '';
         return \aw2\common\env_services\exists($atts);
     }
 	
 	\aw2_library::add_service('env.dump', 'Dump env Value', ['namespace' => __NAMESPACE__]);
-	function dump($atts, $content = null, $shortcode) {
+	function dump($atts, $content = null, $shortcode = array()) {
 		$atts['start'] = '';
 		return \aw2\common\env_services\dump($atts);
 	}
 
 	\aw2_library::add_service('env.echo', 'Echo env Value', ['func' => '_echo', 'namespace' => __NAMESPACE__]);
-	function _echo($atts, $content = null, $shortcode) {
+	function _echo($atts, $content = null, $shortcode = array()) {
 		$atts['start'] = '';
 		\aw2\common\env_services\_echo($atts);
 	}
 
 	// Register basic env services
 	\aw2_library::add_service('env.path', 'Get an env Value', ['namespace' => __NAMESPACE__]);
-	function path($atts, $content = null, $shortcode) {
+	function path($atts, $content = null, $shortcode = array()) {
 		$atts['start'] = '';
 		return \aw2\common\env_services\get($atts);
 	}
@@ -315,31 +315,31 @@ if (defined('AWESOME_LCNC') && AWESOME_LCNC === 'yes') {
 
 // Additional set services
 \aw2_library::add_service('env.set.path', 'Set env Value with Path', ['func' => 'set_path', 'namespace' => __NAMESPACE__]);
-function set_path($atts, $content = null, $shortcode) {
+function set_path($atts, $content = null, $shortcode = array()) {
     $atts['start'] = '';
     return \aw2\common\env_services\set_path($atts);
 }
 
 \aw2_library::add_service('env.set.paths', 'Set multiple env Values with Paths', ['func' => 'set_paths', 'namespace' => __NAMESPACE__]);
-function set_paths($atts, $content = null, $shortcode) {
+function set_paths($atts, $content = null, $shortcode = array()) {
     $atts['start'] = '';
     return \aw2\common\env_services\set_paths($atts);
 }
 
 \aw2_library::add_service('env.set.value', 'Set env Value directly', ['func' => 'set_env_value', 'namespace' => __NAMESPACE__]);
-function set_env_value($atts, $content = null, $shortcode) {
+function set_env_value($atts, $content = null, $shortcode = array()) {
     $atts['start'] = '';
     return \aw2\common\env_services\set_value($atts);
 }
 
 \aw2_library::add_service('env.set.content', 'Set env Value from Content', ['func' => 'set_content', 'namespace' => __NAMESPACE__]);
-function set_content($atts, $content = null, $shortcode) {
+function set_content($atts, $content = null, $shortcode = array()) {
     $atts['start'] = '';
     return \aw2\common\env_services\set_content($atts, $content);
 }
 
 \aw2_library::add_service('env.set.raw', 'Set Raw unparsed Content to env', ['func' => 'set_env_raw', 'namespace' => __NAMESPACE__]);
-function set_env_raw($atts, $content = null, $shortcode) {
+function set_env_raw($atts, $content = null, $shortcode = array()) {
     $atts['start'] = '';
     return \aw2\common\env_services\set_raw($atts, $content);
 }

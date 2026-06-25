@@ -4,7 +4,7 @@ namespace aw2\posts;
 
 \aw2_library::add_service('posts.export','Exports posts. Needs a posts array',['namespace'=>__NAMESPACE__]);
 
-function export($atts,$content=null,$shortcode){
+function export($atts,$content=null,$shortcode = array()){
 	if(\aw2_library::pre_actions('all',$atts,$content)==false)return;
 	extract(\aw2_library::shortcode_atts( array(
 	'posts'=>null,

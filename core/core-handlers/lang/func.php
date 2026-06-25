@@ -290,7 +290,7 @@ function run($atts, $content=null, $shortcode=null) {
 /*
 \aw2_library::add_service('func.get','Get a func Value',['namespace'=>__NAMESPACE__]);
 
-function get($atts,$content=null,$shortcode){
+function get($atts,$content=null,$shortcode = array()){
 	
 	extract(\aw2_library::shortcode_atts( array(
 	'main'=>null,
@@ -368,7 +368,7 @@ function set($atts, $content=null, $shortcode=null) {
 
 \aw2_library::add_service('func.return','Return an active func',['func'=>'_return','namespace'=>__NAMESPACE__]);
 
-function _return($atts,$content=null,$shortcode){
+function _return($atts,$content=null,$shortcode = array()){
 	extract(\aw2_library::shortcode_atts( array(
 	'main'=>null
 	), $atts) );
@@ -382,58 +382,58 @@ function _return($atts,$content=null,$shortcode){
 
 // Register basic func services
 \aw2_library::add_service('func.get', 'Get a func Value', ['namespace' => __NAMESPACE__]);
-function get($atts, $content = null, $shortcode) {
+function get($atts, $content = null, $shortcode = array()) {
     $atts['start'] = 'func';
     return \aw2\common\env_services\get($atts);
 }
 
 // Register basic func services
 \aw2_library::add_service('func.exists', 'Check existence of a path', ['namespace' => __NAMESPACE__]);
-function exists($atts, $content = null, $shortcode) {
+function exists($atts, $content = null, $shortcode = array()) {
     $atts['start'] = 'func';
     return \aw2\common\env_services\exists($atts);
 }
 
 
 \aw2_library::add_service('func.dump', 'Dump func Value', ['namespace' => __NAMESPACE__]);
-function dump($atts, $content = null, $shortcode) {
+function dump($atts, $content = null, $shortcode = array()) {
     $atts['start'] = 'func';
     return \aw2\common\env_services\dump($atts);
 }
 
 \aw2_library::add_service('func.echo', 'Echo func Value', ['func' => '_echo', 'namespace' => __NAMESPACE__]);
-function _echo($atts, $content = null, $shortcode) {
+function _echo($atts, $content = null, $shortcode = array()) {
     $atts['start'] = 'func';
     \aw2\common\env_services\_echo($atts);
 }
 
 // Additional set services
 \aw2_library::add_service('func.set.path', 'Set func Value with Path', ['func' => 'set_path','namespace' => __NAMESPACE__]);
-function set_path($atts, $content = null, $shortcode) {
+function set_path($atts, $content = null, $shortcode = array()) {
     $atts['start'] = 'func';
     return \aw2\common\env_services\set_path($atts);
 }
 
 \aw2_library::add_service('func.set.paths', 'Set multiple func Values with Paths', ['func' => 'set_paths','namespace' => __NAMESPACE__]);
-function set_paths($atts, $content = null, $shortcode) {
+function set_paths($atts, $content = null, $shortcode = array()) {
     $atts['start'] = 'func';
     return \aw2\common\env_services\set_paths($atts);
 }
 
 \aw2_library::add_service('func.set.value', 'Set func Value directly', ['func' => 'set_value','namespace' => __NAMESPACE__]);
-function set_value($atts, $content = null, $shortcode) {
+function set_value($atts, $content = null, $shortcode = array()) {
     $atts['start'] = 'func';
     return \aw2\common\env_services\set_value($atts);
 }
 
 \aw2_library::add_service('func.set.content', 'Set func Value from Content', ['func' => 'set_content','namespace' => __NAMESPACE__]);
-function set_content($atts, $content = null, $shortcode) {
+function set_content($atts, $content = null, $shortcode = array()) {
     $atts['start'] = 'func';
     return \aw2\common\env_services\set_content($atts, $content);
 }
 
 \aw2_library::add_service('func.set.raw', 'Set Raw unparsed Content to func', ['func' => 'set_raw','namespace' => __NAMESPACE__]);
-function set_raw($atts, $content = null, $shortcode) {
+function set_raw($atts, $content = null, $shortcode = array()) {
     $atts['start'] = 'func';
     return \aw2\common\env_services\set_raw($atts, $content);
 }

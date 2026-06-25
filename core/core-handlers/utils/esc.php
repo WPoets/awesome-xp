@@ -3,7 +3,7 @@
 namespace aw2\esc;
 
 \aw2_library::add_service('esc.unsafe','Escape the Value and Return',['namespace'=>__NAMESPACE__]);
-function unsafe($atts,$content=null,$shortcode){
+function unsafe($atts,$content=null,$shortcode = array()){
 
 	if(\aw2_library::pre_actions('all',$atts,$content,$shortcode)==false)return;
 	extract(\aw2_library::shortcode_atts( array(
@@ -74,7 +74,7 @@ function unsafe_quotes($main){
 }
 
 \aw2_library::add_service('esc.safe','Return an already escaped Value',['namespace'=>__NAMESPACE__]);
-function safe($atts,$content=null,$shortcode){
+function safe($atts,$content=null,$shortcode = array()){
 	if(\aw2_library::pre_actions('all',$atts,$content,$shortcode)==false)return;
 	extract(\aw2_library::shortcode_atts( array(
 		'main'  	  => ""
@@ -129,7 +129,7 @@ function safe_quotes($main){
 }
 
 \aw2_library::add_service('esc.table','Sanitize table name and return',['namespace'=>__NAMESPACE__]);
-function table($atts,$content=null,$shortcode){
+function table($atts,$content=null,$shortcode = array()){
 	if(\aw2_library::pre_actions('all',$atts,$content,$shortcode)==false)return;
 	extract(\aw2_library::shortcode_atts( array(
 		'main'  	  => ""
@@ -144,7 +144,7 @@ function table($atts,$content=null,$shortcode){
 }
 
 \aw2_library::add_service('esc.int','Remove all characters except 0-9 & - in the beginning',['func'=>'_int','namespace'=>__NAMESPACE__]);
-function _int($atts,$content=null,$shortcode){
+function _int($atts,$content=null,$shortcode = array()){
 	if(\aw2_library::pre_actions('all',$atts,$content,$shortcode)==false)return;
 	extract(\aw2_library::shortcode_atts( array(
 		'main'  	  => ""
@@ -159,7 +159,7 @@ function _int($atts,$content=null,$shortcode){
 }
 
 \aw2_library::add_service('esc.num','Remove all characters except 0-9,. & -',['namespace'=>__NAMESPACE__]);
-function num($atts,$content=null,$shortcode){
+function num($atts,$content=null,$shortcode = array()){
 	if(\aw2_library::pre_actions('all',$atts,$content,$shortcode)==false)return;
 	extract(\aw2_library::shortcode_atts( array(
 		'main'  	  => ""
@@ -174,7 +174,7 @@ function num($atts,$content=null,$shortcode){
 }
 
 \aw2_library::add_service('esc.str','Escape the string and return',['namespace'=>__NAMESPACE__]);
-function str($atts,$content=null,$shortcode){
+function str($atts,$content=null,$shortcode = array()){
 	if(\aw2_library::pre_actions('all',$atts,$content,$shortcode)==false)return;
 	extract(\aw2_library::shortcode_atts( array(
 		'main'  	  => ""
@@ -190,7 +190,7 @@ function str($atts,$content=null,$shortcode){
 }
 
 \aw2_library::add_service('esc.id','Escape the string and return',['namespace'=>__NAMESPACE__]);
-function id($atts,$content=null,$shortcode){
+function id($atts,$content=null,$shortcode = array()){
 	if(\aw2_library::pre_actions('all',$atts,$content,$shortcode)==false)return;
 	extract(\aw2_library::shortcode_atts( array(
 		'main'  	  => ""
@@ -208,7 +208,7 @@ function id($atts,$content=null,$shortcode){
 
 
 \aw2_library::add_service('esc.in','Return the comma seperated string in single quotes',['namespace'=>__NAMESPACE__]);
-function in($atts,$content=null,$shortcode){
+function in($atts,$content=null,$shortcode = array()){
 	if(\aw2_library::pre_actions('all',$atts,$content,$shortcode)==false)return;
 	extract(\aw2_library::shortcode_atts( array(
 		'main'  	  => ""
@@ -227,7 +227,7 @@ function in($atts,$content=null,$shortcode){
 }
 
 \aw2_library::add_service('esc.like','Return the escaped string',['namespace'=>__NAMESPACE__]);
-function like($atts,$content=null,$shortcode){
+function like($atts,$content=null,$shortcode = array()){
 	if(\aw2_library::pre_actions('all',$atts,$content,$shortcode)==false)return;
 	extract(\aw2_library::shortcode_atts( array(
 		'main'  	  => ""
@@ -242,7 +242,7 @@ function like($atts,$content=null,$shortcode){
 }
 
 \aw2_library::add_service('esc.date','Return the string wrapped in DATE function',['func' => '_date','namespace'=>__NAMESPACE__]);
-function _date($atts,$content=null,$shortcode){
+function _date($atts,$content=null,$shortcode = array()){
 	if(\aw2_library::pre_actions('all',$atts,$content,$shortcode)==false)return;
 	extract(\aw2_library::shortcode_atts( array(
 		'main'  	  => ""

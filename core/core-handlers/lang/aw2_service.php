@@ -47,7 +47,7 @@ function aw2_service_run($atts,$content,$shortcode){
 	return $return_value;
 }
 
-function aw2_service_include($atts,$content=null,$shortcode){
+function aw2_service_include($atts,$content=null,$shortcode = array()){
 	if(aw2_library::pre_actions('all',$atts,$content)==false)return;
 	extract(\aw2_library::shortcode_atts( array(
 	'main'=>null,

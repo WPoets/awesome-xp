@@ -2,7 +2,7 @@
 
 namespace aw2\library;
 \aw2_library::add_service('library', 'Unhandled repository services', ['func'=>'_library', 'namespace'=>__NAMESPACE__]);
-function _library($atts, $content=null, $shortcode) {
+function _library($atts, $content=null, $shortcode = array()) {
     // Validate context name is provided
     if(!isset($shortcode['tags_left'][0])) {
         throw new \InvalidArgumentException('You cant call the library directly');

@@ -3,7 +3,7 @@ namespace aw2\workflow;
 
 \aw2_library::add_service('workflow.steps.run', 'Executes workflow steps in sequence', ['func'=>'steps_run', 'namespace'=>__NAMESPACE__]);
 
-function steps_run($atts, $content=null, $shortcode) {
+function steps_run($atts, $content=null, $shortcode = array()) {
     // Validate context name is provided
     if(!isset($shortcode['tags_left'][0])) {
         throw new \InvalidArgumentException('workflow.steps.run: You must specify a context name starting with @');

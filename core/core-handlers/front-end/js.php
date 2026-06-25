@@ -5,7 +5,7 @@ namespace aw2\js;
 
 \aw2_library::add_service('js.minify','Minify JS',['namespace'=>__NAMESPACE__]);
 
-function minify($atts,$content=null,$shortcode){
+function minify($atts,$content=null,$shortcode = array()){
 	
 	$string=\aw2_library::parse_shortcode($content);
 	
@@ -19,7 +19,7 @@ function minify($atts,$content=null,$shortcode){
 
 \aw2_library::add_service('js.run_on_activity','Load scripts and runs the JS code on user interation',['namespace'=>__NAMESPACE__]);
 
-function run_on_activity($atts,$content=null,$shortcode){
+function run_on_activity($atts,$content=null,$shortcode = array()){
 	if(\aw2_library::pre_actions('all',$atts,$content)==false)return;
 	
 	extract(\aw2_library::shortcode_atts( array(

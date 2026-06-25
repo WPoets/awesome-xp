@@ -36,7 +36,7 @@ function set_handler($path, $value){
  * @param mixed $shortcode Shortcode information
  * @return void
  */
-function _set(array $atts, string $content = '#*not_set_#', $shortcode): void {
+function _set(array $atts, string $content = '#*not_set_#', $shortcode = array()): void {
     // Extract prefix if exists
     $prefix = null;
     if (isset($atts['@prefix'])) {
@@ -60,7 +60,7 @@ function _set(array $atts, string $content = '#*not_set_#', $shortcode): void {
 
 \aw2_library::add_service('env2.get', 'Get an Environment Value', ['func'=>'_get', 'namespace'=>__NAMESPACE__]);
 
-function _get($atts,$content=null,$shortcode){
+function _get($atts,$content=null,$shortcode = array()){
 	if(\aw2_library::pre_actions('all',$atts,$content)==false)return;
 	
 	extract(\aw2_library::shortcode_atts( array(

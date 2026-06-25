@@ -7,7 +7,7 @@ namespace aw2\multi;
 \aw2_library::add_service('multi.update','Update Multi Query',['namespace'=>__NAMESPACE__]);
 
 
-function update($atts,$content=null,$shortcode){
+function update($atts,$content=null,$shortcode = array()){
 	if(\aw2_library::pre_actions('all',$atts,$content)==false)return;
 	
 	if(!\aw2_library::$conn)\aw2_library::$conn = new \mysqli(DB_HOST,DB_USER , DB_PASSWORD, DB_NAME);
@@ -55,7 +55,7 @@ function update($atts,$content=null,$shortcode){
 
 \aw2_library::add_service('multi.select','Select Multi Query',['namespace'=>__NAMESPACE__]);
 
-function select($atts,$content=null,$shortcode){
+function select($atts,$content=null,$shortcode = array()){
 	if(\aw2_library::pre_actions('all',$atts,$content)==false)return;
 	
 	if(!\aw2_library::$conn)\aw2_library::$conn = new \mysqli(DB_HOST,DB_USER , DB_PASSWORD, DB_NAME);

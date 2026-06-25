@@ -6,7 +6,7 @@ namespace aw2\query;
 
 \aw2_library::add_service('query.meta_query','Run Custom Meta Query',['namespace'=>__NAMESPACE__]);
 
-function meta_query($atts,$content=null,$shortcode){
+function meta_query($atts,$content=null,$shortcode = array()){
 	if(\aw2_library::pre_actions('all',$atts,$content)==false)return;
 		
 	$dataset=$atts['dataset'];
@@ -47,7 +47,7 @@ function meta_query($atts,$content=null,$shortcode){
 }
 
 
-function unhandled($atts,$content=null,$shortcode){
+function unhandled($atts,$content=null,$shortcode = array()){
 	if(\aw2_library::pre_actions('all',$atts,$content)==false)return;
 
 	$pieces=$shortcode['tags'];

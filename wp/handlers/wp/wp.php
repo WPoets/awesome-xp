@@ -4,7 +4,7 @@ namespace aw2\wp;
 \aw2_library::add_service('wp.signon','Sign in a User',['namespace'=>__NAMESPACE__]);
 
 
-function signon($atts,$content=null,$shortcode){
+function signon($atts,$content=null,$shortcode = array()){
 	if(\aw2_library::pre_actions('all',$atts,$content,$shortcode)== false)return;
 	
 	extract(\aw2_library::shortcode_atts( array(

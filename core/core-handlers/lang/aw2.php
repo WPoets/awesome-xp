@@ -11,7 +11,7 @@ if (!defined('AWESOME_LCNC') || AWESOME_LCNC === 'no') {
 
 	\aw2_library::add_service('aw2.module','Call a Module',['namespace'=>__NAMESPACE__]);
 
-	function module($atts,$content=null,$shortcode){
+	function module($atts,$content=null,$shortcode = array()){
 		if(\aw2_library::pre_actions('all',$atts,$content,$shortcode)==false)return;
 		extract(\aw2_library::shortcode_atts( array(
 			'slug' =>null,
@@ -39,7 +39,7 @@ if (!defined('AWESOME_LCNC') || AWESOME_LCNC === 'no') {
 
 	\aw2_library::add_service('aw2.this','Set Module Parameters',['namespace'=>__NAMESPACE__]);
 
-	function this($atts,$content=null,$shortcode){
+	function this($atts,$content=null,$shortcode = array()){
 
 		if(\aw2_library::pre_actions('all',$atts,$content,$shortcode)==false)return;
 		
@@ -59,7 +59,7 @@ if (!defined('AWESOME_LCNC') || AWESOME_LCNC === 'no') {
 
 	\aw2_library::add_service('aw2.echo','Echo a Chain',['func'=>'_echo','namespace'=>__NAMESPACE__]);
 
-	function _echo($atts,$content=null,$shortcode){
+	function _echo($atts,$content=null,$shortcode = array()){
 		if(\aw2_library::pre_actions('all',$atts,$content)==false)return;
 		extract(\aw2_library::shortcode_atts( array(
 		'main'=>null
@@ -71,7 +71,7 @@ if (!defined('AWESOME_LCNC') || AWESOME_LCNC === 'no') {
 
 
 	\aw2_library::add_service('aw2.set','Set a chain',['namespace'=>__NAMESPACE__]);
-	function set($atts,$content=null,$shortcode){
+	function set($atts,$content=null,$shortcode = array()){
 		if(\aw2_library::pre_actions('all',$atts,$content)==false)return;
 		
 		extract(\aw2_library::shortcode_atts( array(
@@ -100,7 +100,7 @@ if (!defined('AWESOME_LCNC') || AWESOME_LCNC === 'no') {
 	}
 
 	\aw2_library::add_service('aw2.set_array','Set an array',['namespace'=>__NAMESPACE__]);
-	function set_array($atts,$content=null,$shortcode){
+	function set_array($atts,$content=null,$shortcode = array()){
 			if(\aw2_library::pre_actions('all',$atts,$content)==false)return;
 		
 		extract(\aw2_library::shortcode_atts( array(
@@ -139,7 +139,7 @@ if (!defined('AWESOME_LCNC') || AWESOME_LCNC === 'no') {
 
 if (defined('AWESOME_LCNC') && AWESOME_LCNC === 'yes') {
 
-	function get($atts, $content = null, $shortcode) {
+	function get($atts, $content = null, $shortcode = array()) {
 		$atts['start'] = '';
 		return \aw2\common\env_services\get($atts);
 	}
@@ -147,7 +147,7 @@ if (defined('AWESOME_LCNC') && AWESOME_LCNC === 'yes') {
 
 
 if (!defined('AWESOME_LCNC') || AWESOME_LCNC === 'no') {
-	function get($atts,$content=null,$shortcode){
+	function get($atts,$content=null,$shortcode = array()){
 		if(\aw2_library::pre_actions('all',$atts,$content)==false)return;
 		
 		extract(\aw2_library::shortcode_atts( array(
@@ -168,7 +168,7 @@ if (!defined('AWESOME_LCNC') || AWESOME_LCNC === 'no') {
 	}
 
 	\aw2_library::add_service('aw2.raw','Get a Raw Value. Will not be parsed',['namespace'=>__NAMESPACE__]);
-	function raw($atts,$content=null,$shortcode){
+	function raw($atts,$content=null,$shortcode = array()){
 		if(\aw2_library::pre_actions('all',$atts,$content)==false)return;
 		
 		extract(\aw2_library::shortcode_atts( array(
@@ -190,14 +190,14 @@ if (!defined('AWESOME_LCNC') || AWESOME_LCNC === 'no') {
 	
 	
 	\aw2_library::add_service('aw2.die','Echo a chain and die',['namespace'=>__NAMESPACE__]);
-	function awesome2_die($atts,$content=null,$shortcode){
+	function awesome2_die($atts,$content=null,$shortcode = array()){
 		if(\aw2_library::pre_actions('all',$atts,$content)==false)return;
 		if($content)echo \aw2_library::parse_shortcode($content);
 		die();
 	}
 	
 	\aw2_library::add_service('aw2.switch','Initiate a switch case',['func'=>'_switch','namespace'=>__NAMESPACE__]);
-	function _switch($atts,$content=null,$shortcode){
+	function _switch($atts,$content=null,$shortcode = array()){
 		if(\aw2_library::pre_actions('all',$atts,$content,$shortcode)==false)return;
 		$stack_id=\aw2_library::push_child('switch','switch');
 		$call_stack=&\aw2_library::get_array_ref('call_stack',$stack_id);
@@ -208,7 +208,7 @@ if (!defined('AWESOME_LCNC') || AWESOME_LCNC === 'no') {
 	}
 	
 	\aw2_library::add_service('aw2.case','Conditional check of the case',['func'=>'_case','namespace'=>__NAMESPACE__]);
-	function _case($atts,$content=null,$shortcode){
+	function _case($atts,$content=null,$shortcode = array()){
 		$cond=\aw2_library::pre_actions('all',$atts,$content,$shortcode);
 	
 		extract(\aw2_library::shortcode_atts( array(
@@ -239,7 +239,7 @@ if (!defined('AWESOME_LCNC') || AWESOME_LCNC === 'no') {
 	}
 	
 	\aw2_library::add_service('aw2.case_else','Default case',['namespace'=>__NAMESPACE__]);
-	function case_else($atts,$content=null,$shortcode){
+	function case_else($atts,$content=null,$shortcode = array()){
 		if(\aw2_library::pre_actions('all',$atts,$content,$shortcode)==false)return;
 		$return_value='';
 		$stack_id=\aw2_library::last_child('switch');
@@ -260,7 +260,7 @@ if (!defined('AWESOME_LCNC') || AWESOME_LCNC === 'no') {
 	
 	
 	\aw2_library::add_service('aw2.save_form','Save Form',['namespace'=>__NAMESPACE__]);
-	function save_form($atts,$content=null,$shortcode){
+	function save_form($atts,$content=null,$shortcode = array()){
 		if(\aw2_library::pre_actions('all',$atts,$content,$shortcode)==false)return;
 		
 		extract(\aw2_library::shortcode_atts( array(
@@ -328,7 +328,7 @@ if (!defined('AWESOME_LCNC') || AWESOME_LCNC === 'no') {
 	\aw2_library::add_service('aw2.destroy_sessions','Destroy Sessions',['namespace'=>__NAMESPACE__]);
 	
 	
-	function destroy_sessions($atts,$content=null,$shortcode){
+	function destroy_sessions($atts,$content=null,$shortcode = array()){
 		if(aw2_library::pre_actions('all',$atts,$content,$shortcode)==false)return;
 		 extract(\aw2_library::shortcode_atts( array(
 			'main'=>null,

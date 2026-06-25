@@ -7,14 +7,14 @@ if (!defined('AWESOME_LCNC') || AWESOME_LCNC === 'no') {
 
     //deprecated
     \aw2_library::add_service('module.set', 'Set module Value', ['namespace' => __NAMESPACE__]);
-    function set($atts, $content = null, $shortcode) {
+    function set($atts, $content = null, $shortcode = array()) {
         $atts['_prefix'] = 'module';
         return \aw2\env\set($atts,$content,null);
     }
 
     \aw2_library::add_service('module.register','Register an arbitrary module',['namespace'=>__NAMESPACE__]);
 
-    function register($atts,$content=null,$shortcode){
+    function register($atts,$content=null,$shortcode = array()){
         if(\aw2_library::pre_actions('all',$atts,$content)==false)return;
 
 
@@ -62,7 +62,7 @@ if (!defined('AWESOME_LCNC') || AWESOME_LCNC === 'no') {
 
     \aw2_library::add_service('module.template.register','register a template for a module',['func'=>'template_register','namespace'=>__NAMESPACE__]);
 
-    function template_register($atts,$content=null,$shortcode){
+    function template_register($atts,$content=null,$shortcode = array()){
         \util::var_dump('template_register');
         \util::var_dump(\aw2_library::get('module'));
         \util::var_dump($atts);
@@ -89,7 +89,7 @@ if (!defined('AWESOME_LCNC') || AWESOME_LCNC === 'no') {
 
     \aw2_library::add_service('module.service.register','register a service for a module',['func'=>'service_register','namespace'=>__NAMESPACE__]);
 
-    function service_register($atts,$content=null,$shortcode){
+    function service_register($atts,$content=null,$shortcode = array()){
         \util::var_dump('service_register');
         \util::var_dump(\aw2_library::get('module'));
         \util::var_dump($atts);
@@ -120,7 +120,7 @@ if (!defined('AWESOME_LCNC') || AWESOME_LCNC === 'no') {
 	
 \aw2_library::add_service('module.run','Run an arbitrary module',['namespace'=>__NAMESPACE__]);
 
-function run($atts,$content=null,$shortcode){
+function run($atts,$content=null,$shortcode = array()){
 	if(\aw2_library::pre_actions('all',$atts,$content)==false)return;
 	extract(\aw2_library::shortcode_atts( array(
 	'main'=>null,
@@ -136,7 +136,7 @@ function run($atts,$content=null,$shortcode){
 
 \aw2_library::add_service('module.include','Include an arbitrary module',['func'=>'_include','namespace'=>__NAMESPACE__]);
 
-function _include($atts,$content=null,$shortcode){
+function _include($atts,$content=null,$shortcode = array()){
 	if(\aw2_library::pre_actions('all',$atts,$content)==false)return;
 	extract(\aw2_library::shortcode_atts( array(
 	'main'=>null
@@ -148,7 +148,7 @@ function _include($atts,$content=null,$shortcode){
 
 \aw2_library::add_service('module.return','Return an active module',['func'=>'_return','namespace'=>__NAMESPACE__]);
 
-function _return($atts,$content=null,$shortcode){
+function _return($atts,$content=null,$shortcode = array()){
 	if(\aw2_library::pre_actions('all',$atts,$content)==false)return;
 	extract(\aw2_library::shortcode_atts( array(
 	'main'=>null
@@ -162,13 +162,13 @@ function _return($atts,$content=null,$shortcode){
 
 
 \aw2_library::add_service('module.dump', 'Dump module Value', ['namespace' => __NAMESPACE__]);
-function dump($atts, $content = null, $shortcode) {
+function dump($atts, $content = null, $shortcode = array()) {
     $atts['start'] = 'module';
     return \aw2\common\env_services\dump($atts);
 }
 
 \aw2_library::add_service('module.echo', 'Echo module Value', ['func' => '_echo', 'namespace' => __NAMESPACE__]);
-function _echo($atts, $content = null, $shortcode) {
+function _echo($atts, $content = null, $shortcode = array()) {
     $atts['start'] = 'module';
     \aw2\common\env_services\_echo($atts);
 }
@@ -178,31 +178,31 @@ function _echo($atts, $content = null, $shortcode) {
 
 // Additional set services
 \aw2_library::add_service('module.set.path', 'Set module Value with Path', ['func' => 'set_path', 'namespace' => __NAMESPACE__]);
-function set_path($atts, $content = null, $shortcode) {
+function set_path($atts, $content = null, $shortcode = array()) {
     $atts['start'] = 'module';
     return \aw2\common\env_services\set_path($atts);
 }
 
 \aw2_library::add_service('module.set.paths', 'Set multiple module Values with Paths', ['func' => 'set_paths', 'namespace' => __NAMESPACE__]);
-function set_paths($atts, $content = null, $shortcode) {
+function set_paths($atts, $content = null, $shortcode = array()) {
     $atts['start'] = 'module';
     return \aw2\common\env_services\set_paths($atts);
 }
 
 \aw2_library::add_service('module.set.value', 'Set module Value directly', ['func' => 'set_value', 'namespace' => __NAMESPACE__]);
-function set_value($atts, $content = null, $shortcode) {
+function set_value($atts, $content = null, $shortcode = array()) {
     $atts['start'] = 'module';
     return \aw2\common\env_services\set_value($atts);
 }
 
 \aw2_library::add_service('module.set.content', 'Set module Value from Content', ['func' => 'set_content', 'namespace' => __NAMESPACE__]);
-function set_content($atts, $content = null, $shortcode) {
+function set_content($atts, $content = null, $shortcode = array()) {
     $atts['start'] = 'module';
     return \aw2\common\env_services\set_content($atts, $content);
 }
 
 \aw2_library::add_service('module.set.raw', 'Set Raw unparsed Content to module', ['func' => 'set_raw', 'namespace' => __NAMESPACE__]);
-function set_raw($atts, $content = null, $shortcode) {
+function set_raw($atts, $content = null, $shortcode = array()) {
     $atts['start'] = 'module';
     return \aw2\common\env_services\set_raw($atts, $content);
 }
@@ -213,14 +213,14 @@ if (defined('AWESOME_LCNC') && AWESOME_LCNC === 'yes') {
 
     // Register basic func services
     \aw2_library::add_service('module.path', 'Get a module Value', ['namespace' => __NAMESPACE__]);
-    function path($atts, $content = null, $shortcode) {
+    function path($atts, $content = null, $shortcode = array()) {
         $atts['start'] = 'module';
         return \aw2\common\env_services\get($atts);
     }    
 
 	// Register basic func services
 	\aw2_library::add_service('module.exists', 'Check existence of a path', ['namespace' => __NAMESPACE__]);
-	function exists($atts, $content = null, $shortcode) {
+	function exists($atts, $content = null, $shortcode = array()) {
 		$atts['start'] = 'module';
 		return \aw2\common\env_services\exists($atts);
 	}

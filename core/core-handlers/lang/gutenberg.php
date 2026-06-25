@@ -171,7 +171,7 @@ function resolve_value($value){
 
 \aw2_library::add_service('gb.register', 'Register a gutenberg block', ['func' => 'gb_register', 'namespace' => __NAMESPACE__]);
 
-function gb_register($atts, $content = null, $shortcode) {
+function gb_register($atts, $content = null, $shortcode = array()) {
     // Check if main attribute exists
     if (!isset($atts['main']) || empty($atts['main'])) {
         throw new \Exception('Main attribute is required for Gutenberg block registration');
@@ -202,7 +202,7 @@ function gb_register($atts, $content = null, $shortcode) {
 
 \aw2_library::add_service('gb.render.blocks', 'Register a gutenberg block', ['func' => 'render_blocks', 'namespace' => __NAMESPACE__]);
 
-function render_blocks($atts, $content = null, $shortcode) {
+function render_blocks($atts, $content = null, $shortcode = array()) {
     // Check if main attribute exists
     if (!isset($atts['main'])) {
         throw new \Exception('Main attribute is required for Gutenberg block registration');

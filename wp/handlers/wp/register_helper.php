@@ -5,7 +5,7 @@ namespace aw2\register;
 
 
 
-function unhandled($atts,$content=null,$shortcode){
+function unhandled($atts,$content=null,$shortcode = array()){
 	if(\aw2_library::pre_actions('all',$atts,$content)==false)return;
 
 	$pieces=$shortcode['tags'];

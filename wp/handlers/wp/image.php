@@ -4,7 +4,7 @@ namespace aw2\wp;
 \aw2_library::add_service('wp.image_resize','Will resize the image file using WordPress functions',['namespace'=>__NAMESPACE__]);
 
 
-function image_resize($atts,$content=null,$shortcode){
+function image_resize($atts,$content=null,$shortcode = array()){
 	
 	if(\aw2_library::pre_actions('all',$atts,$content,$shortcode)==false)return;
 	

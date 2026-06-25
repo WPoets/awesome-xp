@@ -50,7 +50,7 @@ function add_comment_to_sql($sql){
 }
 
 \aw2_library::add_service('mysqli.cud','Create/Update/Delete Query',['namespace'=>__NAMESPACE__]);
-function cud($atts,$content=null,$shortcode){
+function cud($atts,$content=null,$shortcode = array()){
 	if(\aw2_library::pre_actions('all',$atts,$content,$shortcode)==false)return;
 
 	if(\aw2_library::is_live_debug()){
@@ -126,7 +126,7 @@ function cud($atts,$content=null,$shortcode){
 }
 
 \aw2_library::add_service('mysqli.fetch','Fetch Associative Array Query',['namespace'=>__NAMESPACE__]);	
-function fetch($atts,$content=null,$shortcode){
+function fetch($atts,$content=null,$shortcode = array()){
 	
 	if(\aw2_library::pre_actions('all',$atts,$content,$shortcode)==false)return;
 
@@ -281,7 +281,7 @@ function common_fetch($obj,$action){
 }
 
 \aw2_library::add_service('mysqli.multi','Multi Queries',['namespace'=>__NAMESPACE__]);	
-function multi($atts,$content=null,$shortcode){
+function multi($atts,$content=null,$shortcode = array()){
 	if(\aw2_library::pre_actions('all',$atts,$content,$shortcode)==false)return;
 
 	$start=microtime(true);
@@ -529,7 +529,7 @@ function multi_cud($atts,$content,$tags_left){
 
 
 \aw2_library::add_service('mysqli.transaction','Multi Queries with transaction',['namespace'=>__NAMESPACE__]);	
-function transaction($atts,$content=null,$shortcode){
+function transaction($atts,$content=null,$shortcode = array()){
 	if(\aw2_library::pre_actions('all',$atts,$content,$shortcode)==false)return;
 	
 	extract( \aw2_library::shortcode_atts( array(

@@ -3,7 +3,7 @@ namespace aw2\elementor_widgets;
 
 \aw2_library::add_service('element_widgets','Handles the registration of ctp, less variables etc.',['namespace'=>__NAMESPACE__]);
 
-function unhandled($atts,$content=null,$shortcode){
+function unhandled($atts,$content=null,$shortcode = array()){
 	if(\aw2_library::pre_actions('all',$atts,$content)==false)return;
 
 	$pieces=$shortcode['tags'];
