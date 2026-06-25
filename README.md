@@ -15,6 +15,12 @@ Initial setup requires configuration in wp-config.php.
 
 ### Changelog 
 
+##### 1.0.3
+* Improved: Added layout option to sub fields in row_repeater field, so that they look good
+* Improved: Added three new fields - post-select,taxonomy-select,filtered-post-select
+* Fixed: Remove button in repeater fields were not looking good.
+
+
 ##### 1.0.2
 * Fixed: innerblock was not allowing to select gutenberg blocks
 * Fixed: issue with keystorkes missing text and text area fields in GT blocks.
