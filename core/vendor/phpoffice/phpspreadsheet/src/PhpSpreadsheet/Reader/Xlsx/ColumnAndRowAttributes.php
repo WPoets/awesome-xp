@@ -2,7 +2,6 @@
 
 namespace PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 
-use PhpOffice\PhpSpreadsheet\Cell\AddressRange;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Reader\DefaultReadFilter;
 use PhpOffice\PhpSpreadsheet\Reader\IReadFilter;
@@ -197,31 +196,24 @@ class ColumnAndRowAttributes extends BaseParserClass
     {
         $rowAttributes = [];
 
-        $rowIndex = 0;
         foreach ($worksheetRow as $rowx) {
+            /** @scrutinizer ignore-call */
             $row = $rowx->attributes();
-            ++$rowIndex;
             if ($row !== null) {
-                if (isset($row['r'])) {
-                    $rowIndex = (int) $row['r'];
-                }
-                if ($rowIndex < 1 || $rowIndex > AddressRange::MAX_ROW) {
-                    continue;
-                }
                 if (isset($row['ht']) && !$readDataOnly) {
-                    $rowAttributes[$rowIndex]['rowHeight'] = (float) $row['ht'];
+                    $rowAttributes[(int) $row['r']]['rowHeight'] = (float) $row['ht'];
                 }
                 if (isset($row['hidden']) && self::boolean($row['hidden'])) {
-                    $rowAttributes[$rowIndex]['visible'] = false;
+                    $rowAttributes[(int) $row['r']]['visible'] = false;
                 }
                 if (isset($row['collapsed']) && self::boolean($row['collapsed'])) {
-                    $rowAttributes[$rowIndex]['collapsed'] = true;
+                    $rowAttributes[(int) $row['r']]['collapsed'] = true;
                 }
                 if (isset($row['outlineLevel']) && (int) $row['outlineLevel'] > 0) {
-                    $rowAttributes[$rowIndex]['outlineLevel'] = (int) $row['outlineLevel'];
+                    $rowAttributes[(int) $row['r']]['outlineLevel'] = (int) $row['outlineLevel'];
                 }
                 if (isset($row['s']) && !$readDataOnly) {
-                    $rowAttributes[$rowIndex]['xfIndex'] = (int) $row['s'];
+                    $rowAttributes[(int) $row['r']]['xfIndex'] = (int) $row['s'];
                 }
             }
         }

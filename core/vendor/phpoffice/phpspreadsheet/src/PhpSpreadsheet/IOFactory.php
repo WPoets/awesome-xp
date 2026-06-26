@@ -30,7 +30,7 @@ abstract class IOFactory
     public const WRITER_CSV = 'Csv';
     public const WRITER_HTML = 'Html';
 
-    /** @var array<string, class-string<IReader>> */
+    /** @var string[] */
     private static $readers = [
         self::READER_XLSX => Reader\Xlsx::class,
         self::READER_XLS => Reader\Xls::class,
@@ -235,17 +235,5 @@ abstract class IOFactory
         }
 
         self::$readers[$readerType] = $readerClass;
-    }
-
-    /**
-     * @return array<string, class-string<IReader>>
-     *
-     * @internal
-     *
-     * @codeCoverageIgnore
-     */
-    public static function getReaders(): array
-    {
-        return self::$readers;
     }
 }

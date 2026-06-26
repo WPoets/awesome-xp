@@ -172,9 +172,12 @@ function publish_event($atts=null,$content=null,$shortcode=null){
 	event_set(['event_title'=>$event_title,'message'=>$event]);
 	
 	//check the conditions to see if publishing has started
-	
+	if(publish_is_active()){
+		output_decide();
+		return	;
+	}
+
 	publish_decide();
-	
 	if(!publish_is_active())return;
 	
 	output_decide();
@@ -458,6 +461,8 @@ function collect($atts=null,$content=null,$shortcode=null){
 	if($count >= $max_events) return;
 	$count++; //to be used as hashfield key
 	
+	$now = \DateTime::createFromFormat('U.u', microtime(true));
+	$val=$now->format("m-d-Y H:i:s.u");
 	
 	$arr=array();			
 	
@@ -465,7 +470,8 @@ function collect($atts=null,$content=null,$shortcode=null){
 	
 	$arr['event_title']=$active_event;
 	$arr['bg_color']= \aw2_library::get('@live_debug.event.bg_color');
-	$arr['extra_info']='<small><strong>app:</strong><em>' . \aw2_library::get('app.slug') .'</em>' .
+	$arr['extra_info']='<small><strong>time:</strong><em>' . $val .'</em>' .
+	'<strong>app:</strong><em>' . \aw2_library::get('app.slug') .'</em>' .
 	' <strong>post_type:</strong><em>' . \aw2_library::get('module.collection.post_type').'</em>' .
 	' <strong>module:</strong><em>' . \aw2_library::get('module.slug') .'</em>'.
 	' <strong>tpl:</strong><em>' . \aw2_library::get('template.name').'</em>' .

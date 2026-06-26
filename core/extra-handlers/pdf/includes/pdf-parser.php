@@ -1,6 +1,7 @@
 <?php 
 
 class pdf_parser {
+	public $data;
 
 	function __construct($filename, $data_format = NULL, $give_attachments = false, $attachment_extension) {
 		$this->data = $this->parseForm($filename, $data_format, $give_attachments, $attachment_extension);
@@ -8,6 +9,7 @@ class pdf_parser {
 	
 	function parseForm($file_path, $data_format = '', $give_attachments = false, $attachment_extension)
 	{
+		$final_attrs = null;
 		$start = false;
 	    $content = @file_get_contents($file_path, FILE_BINARY);
 		
@@ -85,14 +87,14 @@ class pdf_parser {
 		$xmlstring = array_pop($match[1]);
 
 		/* Sometimes its taking the closing tag from the last element to here */
-		if($xmlstring{0}=='>'){ $xmlstring = substr($xmlstring, 1); }
+		if($xmlstring[0]=='>'){ $xmlstring = substr($xmlstring, 1); }
 		/* Sometimes its missing the closing tag becuase of the next stream to here */
-		if($xmlstring{strlen($xmlstring)-1}!='>'){ $xmlstring .= '>'; }
+		if($xmlstring[strlen($xmlstring)-1]!='>'){ $xmlstring .= '>'; }
 
 		/* Remove special characters from the tags <frm:data> */
 		$xmlstring = preg_replace(array('/<([a-zA-Z0-9 _-])+[@|:|,|*|!|]/', '/<\/([a-zA-Z0-9 _-])+[@|:|,|*|!|]/'), array('<','</'), $xmlstring);
         /* Load the xml data and get it parsed */
-        $xml = simplexml_load_string(utf8_encode((string)$xmlstring), "SimpleXMLElement", LIBXML_NOCDATA);
+        $xml = simplexml_load_string(mb_convert_encoding((string)$xmlstring, 'UTF-8', 'ISO-8859-1'), "SimpleXMLElement", LIBXML_NOCDATA);
 
 		if('' == $data_format){
 			return $xml;

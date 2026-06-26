@@ -3,7 +3,6 @@
 namespace PhpOffice\PhpSpreadsheet\Worksheet;
 
 use ArrayObject;
-use Composer\Pcre\Preg;
 use PhpOffice\PhpSpreadsheet\Calculation\Calculation;
 use PhpOffice\PhpSpreadsheet\Calculation\Functions;
 use PhpOffice\PhpSpreadsheet\Cell\AddressRange;
@@ -21,6 +20,7 @@ use PhpOffice\PhpSpreadsheet\Collection\CellsFactory;
 use PhpOffice\PhpSpreadsheet\Comment;
 use PhpOffice\PhpSpreadsheet\DefinedName;
 use PhpOffice\PhpSpreadsheet\Exception;
+use PhpOffice\PhpSpreadsheet\IComparable;
 use PhpOffice\PhpSpreadsheet\ReferenceHelper;
 use PhpOffice\PhpSpreadsheet\RichText\RichText;
 use PhpOffice\PhpSpreadsheet\Shared;
@@ -31,7 +31,7 @@ use PhpOffice\PhpSpreadsheet\Style\Conditional;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use PhpOffice\PhpSpreadsheet\Style\Style;
 
-class Worksheet
+class Worksheet implements IComparable
 {
     // Break types
     public const BREAK_NONE = 0;
@@ -339,9 +339,16 @@ class Worksheet
     private $tabColor;
 
     /**
+     * Dirty flag.
+     *
+     * @var bool
+     */
+    private $dirty = true;
+
+    /**
      * Hash.
      *
-     * @var int
+     * @var string
      */
     private $hash;
 
@@ -361,7 +368,6 @@ class Worksheet
     {
         // Set parent and title
         $this->parent = $parent;
-        $this->hash = spl_object_id($this);
         $this->setTitle($title, false);
         // setTitle can change $pTitle
         $this->setCodeName($this->getTitle());
@@ -416,11 +422,6 @@ class Worksheet
 
         $this->disconnectCells();
         $this->rowDimensions = [];
-    }
-
-    public function __wakeup(): void
-    {
-        $this->hash = spl_object_id($this);
     }
 
     /**
@@ -913,7 +914,7 @@ class Worksheet
             // Syntax check
             self::checkSheetTitle($title);
 
-            if ($this->parent && $this->parent->getIndex($this, true) >= 0) {
+            if ($this->parent) {
                 // Is there already such sheet name?
                 if ($this->parent->sheetNameExists($title)) {
                     // Use name, but append with lowest possible integer
@@ -942,8 +943,9 @@ class Worksheet
 
         // Set title
         $this->title = $title;
+        $this->dirty = true;
 
-        if ($this->parent && $this->parent->getIndex($this, true) >= 0 && $this->parent->getCalculationEngine()) {
+        if ($this->parent && $this->parent->getCalculationEngine()) {
             // New title
             $newTitle = $this->getTitle();
             $this->parent->getCalculationEngine()
@@ -1086,6 +1088,7 @@ class Worksheet
     public function setProtection(Protection $protection)
     {
         $this->protection = $protection;
+        $this->dirty = true;
 
         return $this;
     }
@@ -1308,8 +1311,8 @@ class Worksheet
                 throw new Exception('Sheet not found for name: ' . $worksheetReference[0]);
             }
         } elseif (
-            !Preg::isMatch('/^' . Calculation::CALCULATION_REGEXP_CELLREF . '$/i', $coordinate) &&
-            Preg::isMatch('/^' . Calculation::CALCULATION_REGEXP_DEFINEDNAME . '$/iu', $coordinate)
+            !preg_match('/^' . Calculation::CALCULATION_REGEXP_CELLREF . '$/i', $coordinate) &&
+            preg_match('/^' . Calculation::CALCULATION_REGEXP_DEFINEDNAME . '$/iu', $coordinate)
         ) {
             // Named range?
             $namedRange = $this->validateNamedRange($coordinate, true);
@@ -1894,7 +1897,7 @@ class Worksheet
             $range .= ":{$range}";
         }
 
-        if (!Preg::isMatch('/^([A-Z]+)(\d+):([A-Z]+)(\d+)$/', $range, $matches)) {
+        if (preg_match('/^([A-Z]+)(\\d+):([A-Z]+)(\\d+)$/', $range, $matches) !== 1) {
             throw new Exception('Merge must be on a valid range of cells.');
         }
 
@@ -2551,42 +2554,6 @@ class Worksheet
         if ($row < 1) {
             throw new Exception('Rows to be deleted should at least start from row 1.');
         }
-        $startRow = $row;
-        $endRow = $startRow + $numberOfRows - 1;
-        $removeKeys = [];
-        $addKeys = [];
-        foreach ($this->mergeCells as $key => $value) {
-            if (
-                Preg::isMatch(
-                    '/^([a-z]{1,3})(\d+):([a-z]{1,3})(\d+)/i',
-                    $key,
-                    $matches
-                )
-            ) {
-                $startMergeInt = (int) $matches[2];
-                $endMergeInt = (int) $matches[4];
-                if ($startMergeInt >= $startRow) {
-                    if ($startMergeInt <= $endRow) {
-                        $removeKeys[] = $key;
-                    }
-                } elseif ($endMergeInt >= $startRow) {
-                    if ($endMergeInt <= $endRow) {
-                        $temp = $endMergeInt - 1;
-                        $removeKeys[] = $key;
-                        if ($temp !== $startMergeInt) {
-                            $temp3 = $matches[1] . $matches[2] . ':' . $matches[3] . $temp;
-                            $addKeys[] = $temp3;
-                        }
-                    }
-                }
-            }
-        }
-        foreach ($removeKeys as $key) {
-            unset($this->mergeCells[$key]);
-        }
-        foreach ($addKeys as $key) {
-            $this->mergeCells[$key] = $key;
-        }
 
         $holdRowDimensions = $this->removeRowDimensions($row, $numberOfRows);
         $highestRow = $this->getHighestDataRow();
@@ -2642,43 +2609,6 @@ class Worksheet
     {
         if (is_numeric($column)) {
             throw new Exception('Column references should not be numeric.');
-        }
-        $startColumnInt = Coordinate::columnIndexFromString($column);
-        $endColumnInt = $startColumnInt + $numberOfColumns - 1;
-        $removeKeys = [];
-        $addKeys = [];
-        foreach ($this->mergeCells as $key => $value) {
-            if (
-                Preg::isMatch(
-                    '/^([a-z]{1,3})(\d+):([a-z]{1,3})(\d+)/i',
-                    $key,
-                    $matches
-                )
-            ) {
-                $startMergeInt = Coordinate::columnIndexFromString($matches[1]);
-                $endMergeInt = Coordinate::columnIndexFromString($matches[3]);
-                if ($startMergeInt >= $startColumnInt) {
-                    if ($startMergeInt <= $endColumnInt) {
-                        $removeKeys[] = $key;
-                    }
-                } elseif ($endMergeInt >= $startColumnInt) {
-                    if ($endMergeInt <= $endColumnInt) {
-                        $temp = Coordinate::columnIndexFromString($matches[3]) - 1;
-                        $temp2 = Coordinate::stringFromColumnIndex($temp);
-                        $removeKeys[] = $key;
-                        if ($temp2 !== $matches[1]) {
-                            $temp3 = $matches[1] . $matches[2] . ':' . $temp2 . $matches[4];
-                            $addKeys[] = $temp3;
-                        }
-                    }
-                }
-            }
-        }
-        foreach ($removeKeys as $key) {
-            unset($this->mergeCells[$key]);
-        }
-        foreach ($addKeys as $key) {
-            $this->mergeCells[$key] = $key;
         }
 
         $highestColumn = $this->getHighestDataColumn();
@@ -3207,7 +3137,7 @@ class Worksheet
 
         if ($namedRange->getLocalOnly()) {
             $worksheet = $namedRange->getWorksheet();
-            if ($worksheet === null || $this->getHashInt() !== $worksheet->getHashInt()) {
+            if ($worksheet === null || $this->getHashCode() !== $worksheet->getHashCode()) {
                 if ($returnNullIfInvalid) {
                     return null;
                 }
@@ -3348,20 +3278,17 @@ class Worksheet
     }
 
     /**
-     * @deprecated 3.5.0 use getHashInt instead.
+     * Get hash code.
      *
      * @return string Hash code
      */
     public function getHashCode()
     {
-        return (string) $this->hash;
-    }
+        if ($this->dirty) {
+            $this->hash = md5($this->title . $this->autoFilter . ($this->protection->isProtectionEnabled() ? 't' : 'f') . __CLASS__);
+            $this->dirty = false;
+        }
 
-    /**
-     * @return int Hash code
-     */
-    public function getHashInt()
-    {
         return $this->hash;
     }
 
@@ -3693,7 +3620,6 @@ class Worksheet
                 }
             }
         }
-        $this->hash = spl_object_id($this);
     }
 
     /**
@@ -3776,6 +3702,6 @@ class Worksheet
 
     public static function nameRequiresQuotes(string $sheetName): bool
     {
-        return !Preg::isMatch(self::SHEET_NAME_REQUIRES_NO_QUOTES, $sheetName);
+        return preg_match(self::SHEET_NAME_REQUIRES_NO_QUOTES, $sheetName) !== 1;
     }
 }

@@ -122,9 +122,6 @@ class Worksheet extends WriterPart
         // Breaks
         $this->writeBreaks($objWriter, $worksheet);
 
-        // IgnoredErrors
-        $this->writeIgnoredErrors($objWriter);
-
         // Drawings and/or Charts
         $this->writeDrawings($objWriter, $worksheet, $includeCharts);
 
@@ -136,6 +133,9 @@ class Worksheet extends WriterPart
 
         // AlternateContent
         $this->writeAlternateContent($objWriter, $worksheet);
+
+        // IgnoredErrors
+        $this->writeIgnoredErrors($objWriter);
 
         // Table
         $this->writeTable($objWriter, $worksheet);

@@ -17,7 +17,7 @@
     },
     "require": {
         "php": ">=7.0",
-        "google/apiclient": "^2.7",
+        "google/apiclient": "^2.15",
         "composer/installers": "~1.0",
         "oomphinc/composer-installers-extender": "^2.0"
     },

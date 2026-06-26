@@ -107,7 +107,6 @@ class ComposerStaticInit17c617ddef9e3603207a4a07080e4627
         ),
         'C' => 
         array (
-            'Composer\\Pcre\\' => 14,
             'Composer\\Installers\\' => 20,
             'Complex\\' => 8,
             'Clue\\React\\Buzz\\' => 16,
@@ -287,10 +286,6 @@ class ComposerStaticInit17c617ddef9e3603207a4a07080e4627
         'DebugBar\\' => 
         array (
             0 => __DIR__ . '/..' . '/maximebf/debugbar/src/DebugBar',
-        ),
-        'Composer\\Pcre\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/composer/pcre/src',
         ),
         'Composer\\Installers\\' => 
         array (

@@ -486,7 +486,7 @@ class Xls extends BaseWriter
 
     private function processBaseDrawing(BstoreContainer &$bstoreContainer, BaseDrawing $drawing): void
     {
-        if ($drawing instanceof Drawing && $drawing->getPath() !== '') {
+        if ($drawing instanceof Drawing) {
             $this->processDrawing($bstoreContainer, $drawing);
         } elseif ($drawing instanceof MemoryDrawing) {
             $this->processMemoryDrawing($bstoreContainer, $drawing, $drawing->getRenderingFunction());

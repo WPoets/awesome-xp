@@ -275,11 +275,14 @@ function extractHeaders($headerBlock){
 	  $status_message = array_shift($headers_indexed_arr);
   
 	  // Create an associative array containing the response headers
+	  if(!empty($headers_indexed_arr)){
 	  foreach ($headers_indexed_arr as $value) {
-		  if(false !== ($matches = explode(':', $value, 2))) {
-			  $headers_arr["{$matches[0]}"] = trim($matches[1]);
-		  }                
+	    $matches = explode(':', $value, 2);
+	    if (count($matches) === 2) {
+		$headers_arr[trim($matches[0])] = trim($matches[1]);
+	    }
 	  }
+	 }
 	  $headers_arr = array_filter($headers_arr);
 	  return $headers_arr;
 }

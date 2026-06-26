@@ -5,6 +5,8 @@ namespace PhpOffice\PhpSpreadsheet;
 use PhpOffice\PhpSpreadsheet\Calculation\Calculation;
 use PhpOffice\PhpSpreadsheet\Chart\Renderer\IRenderer;
 use PhpOffice\PhpSpreadsheet\Collection\Memory;
+use Psr\Http\Client\ClientInterface;
+use Psr\Http\Message\RequestFactoryInterface;
 use Psr\SimpleCache\CacheInterface;
 use ReflectionClass;
 
@@ -35,12 +37,12 @@ class Settings
     /**
      * The HTTP client implementation to be used for network request.
      *
-     * @var mixed
+     * @var null|ClientInterface
      */
     private static $httpClient;
 
     /**
-     * @var mixed
+     * @var null|RequestFactoryInterface
      */
     private static $requestFactory;
 
@@ -96,8 +98,6 @@ class Settings
      * Set default options for libxml loader.
      *
      * @param ?int $options Default options for libxml loader
-     *
-     * @deprecated 3.5.0 no longer needed
      */
     public static function setLibXmlLoaderOptions($options): int
     {
@@ -114,12 +114,14 @@ class Settings
      * Defaults to LIBXML_DTDLOAD | LIBXML_DTDATTR when not set explicitly.
      *
      * @return int Default options for libxml loader
-     *
-     * @deprecated 3.5.0 no longer needed
      */
     public static function getLibXmlLoaderOptions(): int
     {
-        return self::$libXmlLoaderOptions ?? (defined('LIBXML_DTDLOAD') ? (LIBXML_DTDLOAD | LIBXML_DTDATTR) : 0);
+        if (self::$libXmlLoaderOptions === null) {
+            return self::setLibXmlLoaderOptions(null);
+        }
+
+        return self::$libXmlLoaderOptions;
     }
 
     /**
@@ -179,13 +181,8 @@ class Settings
 
     /**
      * Set the HTTP client implementation to be used for network request.
-     *
-     * @param mixed $httpClient
-     * @param mixed $requestFactory
-     *
-     * @deprecated 1.30.2 No replacement.
      */
-    public static function setHttpClient($httpClient, $requestFactory): void
+    public static function setHttpClient(ClientInterface $httpClient, RequestFactoryInterface $requestFactory): void
     {
         self::$httpClient = $httpClient;
         self::$requestFactory = $requestFactory;
@@ -193,8 +190,6 @@ class Settings
 
     /**
      * Unset the HTTP client configuration.
-     *
-     * @deprecated 1.30.2 No replacement.
      */
     public static function unsetHttpClient(): void
     {
@@ -204,25 +199,25 @@ class Settings
 
     /**
      * Get the HTTP client implementation to be used for network request.
-     *
-     * @return mixed
-     *
-     * @deprecated 1.30.2 No replacement.
      */
-    public static function getHttpClient()
+    public static function getHttpClient(): ClientInterface
     {
+        if (!self::$httpClient || !self::$requestFactory) {
+            throw new Exception('HTTP client must be configured via Settings::setHttpClient() to be able to use WEBSERVICE function.');
+        }
+
         return self::$httpClient;
     }
 
     /**
      * Get the HTTP request factory.
-     *
-     * @return mixed
-     *
-     * @deprecated 1.30.2 No replacement.
      */
-    public static function getRequestFactory()
+    public static function getRequestFactory(): RequestFactoryInterface
     {
+        if (!self::$httpClient || !self::$requestFactory) {
+            throw new Exception('HTTP client must be configured via Settings::setHttpClient() to be able to use WEBSERVICE function.');
+        }
+
         return self::$requestFactory;
     }
 }

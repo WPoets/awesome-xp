@@ -19,7 +19,7 @@
         "php": ">=7.0",
         "composer/installers": "~1.0",
         "oomphinc/composer-installers-extender": "^2.0",
-        "tecnickcom/tcpdf": "^6.3"
+        "tecnickcom/tcpdf": "^6.6"
     },
 	 "extra": { 
 		"installer-name": "pdf"
