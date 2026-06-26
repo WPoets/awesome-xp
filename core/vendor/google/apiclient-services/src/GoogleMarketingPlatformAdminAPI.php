@@ -26,8 +26,8 @@ use Google\Client;
  * The Google Marketing Platform Admin API allows for programmatic access to the
  * Google Marketing Platform configuration data. You can use the Google
  * Marketing Platform Admin API to manage links between your Google Marketing
- * Platform organization and Google Analytics accounts, set the service level of
- * your GA4 properties.</p>
+ * Platform organization and Google Analytics accounts, and to set the service
+ * level of your GA4 properties.</p>
  *
  * <p>
  * For more information about this service, see the API
@@ -73,11 +73,44 @@ class GoogleMarketingPlatformAdminAPI extends \Google\Service
         'organizations',
         [
           'methods' => [
-            'get' => [
+            'findSalesPartnerManagedClients' => [
+              'path' => 'v1alpha/{+organization}:findSalesPartnerManagedClients',
+              'httpMethod' => 'POST',
+              'parameters' => [
+                'organization' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+              ],
+            ],'get' => [
               'path' => 'v1alpha/{+name}',
               'httpMethod' => 'GET',
               'parameters' => [
                 'name' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+              ],
+            ],'list' => [
+              'path' => 'v1alpha/organizations',
+              'httpMethod' => 'GET',
+              'parameters' => [
+                'pageSize' => [
+                  'location' => 'query',
+                  'type' => 'integer',
+                ],
+                'pageToken' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+              ],
+            ],'reportPropertyUsage' => [
+              'path' => 'v1alpha/{+organization}:reportPropertyUsage',
+              'httpMethod' => 'POST',
+              'parameters' => [
+                'organization' => [
                   'location' => 'path',
                   'type' => 'string',
                   'required' => true,

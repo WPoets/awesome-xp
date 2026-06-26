@@ -22,6 +22,8 @@ use Google\Service\Bigquery\ListRoutinesResponse;
 use Google\Service\Bigquery\Policy;
 use Google\Service\Bigquery\Routine;
 use Google\Service\Bigquery\SetIamPolicyRequest;
+use Google\Service\Bigquery\TestIamPermissionsRequest;
+use Google\Service\Bigquery\TestIamPermissionsResponse;
 
 /**
  * The "routines" collection of methods.
@@ -34,8 +36,9 @@ use Google\Service\Bigquery\SetIamPolicyRequest;
 class Routines extends \Google\Service\Resource
 {
   /**
-   * Deletes the routine specified by routineId from the dataset.
-   * (routines.delete)
+   * Deletes the routine specified by routineId from the dataset. # IAM
+   * Permissions Requires the `bigquery.routines.delete` permission on the
+   * routine. (routines.delete)
    *
    * @param string $projectId Required. Project ID of the routine to delete
    * @param string $datasetId Required. Dataset ID of the routine to delete
@@ -50,7 +53,8 @@ class Routines extends \Google\Service\Resource
     return $this->call('delete', [$params]);
   }
   /**
-   * Gets the specified routine resource by routine ID. (routines.get)
+   * Gets the specified routine resource by routine ID. # IAM Permissions Requires
+   * the `bigquery.routines.get` permission on the routine. (routines.get)
    *
    * @param string $projectId Required. Project ID of the requested routine
    * @param string $datasetId Required. Dataset ID of the requested routine
@@ -88,7 +92,8 @@ class Routines extends \Google\Service\Resource
     return $this->call('getIamPolicy', [$params], Policy::class);
   }
   /**
-   * Creates a new routine in the dataset. (routines.insert)
+   * Creates a new routine in the dataset. # IAM Permissions Requires the
+   * `bigquery.routines.create` permission on the dataset. (routines.insert)
    *
    * @param string $projectId Required. Project ID of the new routine
    * @param string $datasetId Required. Dataset ID of the new routine
@@ -105,7 +110,8 @@ class Routines extends \Google\Service\Resource
   }
   /**
    * Lists all routines in the specified dataset. Requires the READER dataset
-   * role. (routines.listRoutines)
+   * role. # IAM Permissions Requires the `bigquery.routines.list` permission on
+   * the dataset. (routines.listRoutines)
    *
    * @param string $projectId Required. Project ID of the routines to list
    * @param string $datasetId Required. Dataset ID of the routines to list
@@ -155,8 +161,31 @@ class Routines extends \Google\Service\Resource
     return $this->call('setIamPolicy', [$params], Policy::class);
   }
   /**
+   * Returns permissions that a caller has on the specified resource. If the
+   * resource does not exist, this will return an empty set of permissions, not a
+   * `NOT_FOUND` error. Note: This operation is designed to be used for building
+   * permission-aware UIs and command-line tools, not for authorization checking.
+   * This operation may "fail open" without warning. (routines.testIamPermissions)
+   *
+   * @param string $resource REQUIRED: The resource for which the policy detail is
+   * being requested. See [Resource
+   * names](https://cloud.google.com/apis/design/resource_names) for the
+   * appropriate value for this field.
+   * @param TestIamPermissionsRequest $postBody
+   * @param array $optParams Optional parameters.
+   * @return TestIamPermissionsResponse
+   * @throws \Google\Service\Exception
+   */
+  public function testIamPermissions($resource, TestIamPermissionsRequest $postBody, $optParams = [])
+  {
+    $params = ['resource' => $resource, 'postBody' => $postBody];
+    $params = array_merge($params, $optParams);
+    return $this->call('testIamPermissions', [$params], TestIamPermissionsResponse::class);
+  }
+  /**
    * Updates information in an existing routine. The update method replaces the
-   * entire Routine resource. (routines.update)
+   * entire Routine resource. # IAM Permissions Requires the
+   * `bigquery.routines.update` permission on the routine. (routines.update)
    *
    * @param string $projectId Required. Project ID of the routine to update
    * @param string $datasetId Required. Dataset ID of the routine to update

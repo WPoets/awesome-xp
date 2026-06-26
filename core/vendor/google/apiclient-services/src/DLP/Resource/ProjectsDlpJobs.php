@@ -66,8 +66,8 @@ class ProjectsDlpJobs extends \Google\Service\Resource
    * value varies depending on whether you have [specified a processing
    * location](https://cloud.google.com/sensitive-data-protection/docs/specifying-
    * location): + Projects scope, location specified:
-   * `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no location
-   * specified (defaults to global): `projects/`PROJECT_ID The following example
+   * `projects/{project_id}/locations/{location_id}` + Projects scope, no location
+   * specified (defaults to global): `projects/{project_id}` The following example
    * `parent` string specifies a parent project with the identifier `example-
    * project`, and specifies the `europe-west3` location for processing data:
    * parent=projects/example-project/locations/europe-west3
@@ -127,8 +127,8 @@ class ProjectsDlpJobs extends \Google\Service\Resource
    * value varies depending on whether you have [specified a processing
    * location](https://cloud.google.com/sensitive-data-protection/docs/specifying-
    * location): + Projects scope, location specified:
-   * `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no location
-   * specified (defaults to global): `projects/`PROJECT_ID The following example
+   * `projects/{project_id}/locations/{location_id}` + Projects scope, no location
+   * specified (defaults to global): `projects/{project_id}` The following example
    * `parent` string specifies a parent project with the identifier `example-
    * project`, and specifies the `europe-west3` location for processing data:
    * parent=projects/example-project/locations/europe-west3
@@ -146,13 +146,14 @@ class ProjectsDlpJobs extends \Google\Service\Resource
    * Supported fields for risk analysis jobs: - `state` -
    * RUNNING|CANCELED|FINISHED|FAILED - 'end_time` - Corresponds to the time the
    * job finished. - 'start_time` - Corresponds to the time the job finished. *
-   * The operator must be `=` or `!=`. Examples: * inspected_storage =
-   * cloud_storage AND state = done * inspected_storage = cloud_storage OR
-   * inspected_storage = bigquery * inspected_storage = cloud_storage AND (state =
-   * done OR state = canceled) * end_time > \"2017-12-12T00:00:00+00:00\" The
-   * length of this field should be no more than 500 characters.
+   * The operator must be `=` or `!=`. The syntax is based on
+   * https://google.aip.dev/160. Examples: * inspected_storage = cloud_storage AND
+   * state = done * inspected_storage = cloud_storage OR inspected_storage =
+   * bigquery * inspected_storage = cloud_storage AND (state = done OR state =
+   * canceled) * end_time > \"2017-12-12T00:00:00+00:00\" The length of this field
+   * should be no more than 500 characters.
    * @opt_param string locationId Deprecated. This field has no effect.
-   * @opt_param string orderBy Comma separated list of fields to order by,
+   * @opt_param string orderBy Comma-separated list of fields to order by,
    * followed by `asc` or `desc` postfix. This list is case insensitive. The
    * default sorting order is ascending. Redundant space characters are
    * insignificant. Example: `name asc, end_time asc, create_time desc` Supported

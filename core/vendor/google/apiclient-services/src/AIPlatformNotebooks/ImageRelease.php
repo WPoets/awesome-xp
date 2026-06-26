@@ -20,16 +20,70 @@ namespace Google\Service\AIPlatformNotebooks;
 class ImageRelease extends \Google\Model
 {
   /**
+   * Output only. The description of the image.
+   *
+   * @var string
+   */
+  public $description;
+  /**
+   * Output only. The image family of the image. (ex: workbench-instances or
+   * workbench-2603)
+   *
+   * @var string
+   */
+  public $imageFamily;
+  /**
+   * Output only. The name of the image of the form workbench-instances-
+   * vYYYYmmdd--
+   *
    * @var string
    */
   public $imageName;
   /**
+   * Output only. The release of the image of the form m123
+   *
    * @var string
    */
   public $releaseName;
 
   /**
-   * @param string
+   * Output only. The description of the image.
+   *
+   * @param string $description
+   */
+  public function setDescription($description)
+  {
+    $this->description = $description;
+  }
+  /**
+   * @return string
+   */
+  public function getDescription()
+  {
+    return $this->description;
+  }
+  /**
+   * Output only. The image family of the image. (ex: workbench-instances or
+   * workbench-2603)
+   *
+   * @param string $imageFamily
+   */
+  public function setImageFamily($imageFamily)
+  {
+    $this->imageFamily = $imageFamily;
+  }
+  /**
+   * @return string
+   */
+  public function getImageFamily()
+  {
+    return $this->imageFamily;
+  }
+  /**
+   * Output only. The name of the image of the form workbench-instances-
+   * vYYYYmmdd--
+   *
+   * @param string $imageName
    */
   public function setImageName($imageName)
   {
@@ -43,7 +97,9 @@ class ImageRelease extends \Google\Model
     return $this->imageName;
   }
   /**
-   * @param string
+   * Output only. The release of the image of the form m123
+   *
+   * @param string $releaseName
    */
   public function setReleaseName($releaseName)
   {

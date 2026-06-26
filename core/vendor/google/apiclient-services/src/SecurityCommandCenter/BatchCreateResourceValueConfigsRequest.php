@@ -24,7 +24,7 @@ class BatchCreateResourceValueConfigsRequest extends \Google\Collection
   protected $requestsDataType = 'array';
 
   /**
-   * @param CreateResourceValueConfigRequest[]
+   * @param CreateResourceValueConfigRequest[] $requests
    */
   public function setRequests($requests)
   {

@@ -19,15 +19,40 @@ namespace Google\Service\BigtableAdmin;
 
 class GoogleBigtableAdminV2TypeAggregate extends \Google\Model
 {
+  protected $hllppUniqueCountType = GoogleBigtableAdminV2TypeAggregateHyperLogLogPlusPlusUniqueCount::class;
+  protected $hllppUniqueCountDataType = '';
   protected $inputTypeType = Type::class;
   protected $inputTypeDataType = '';
+  protected $maxType = GoogleBigtableAdminV2TypeAggregateMax::class;
+  protected $maxDataType = '';
+  protected $minType = GoogleBigtableAdminV2TypeAggregateMin::class;
+  protected $minDataType = '';
   protected $stateTypeType = Type::class;
   protected $stateTypeDataType = '';
   protected $sumType = GoogleBigtableAdminV2TypeAggregateSum::class;
   protected $sumDataType = '';
 
   /**
-   * @param Type
+   * HyperLogLogPlusPlusUniqueCount aggregator.
+   *
+   * @param GoogleBigtableAdminV2TypeAggregateHyperLogLogPlusPlusUniqueCount $hllppUniqueCount
+   */
+  public function setHllppUniqueCount(GoogleBigtableAdminV2TypeAggregateHyperLogLogPlusPlusUniqueCount $hllppUniqueCount)
+  {
+    $this->hllppUniqueCount = $hllppUniqueCount;
+  }
+  /**
+   * @return GoogleBigtableAdminV2TypeAggregateHyperLogLogPlusPlusUniqueCount
+   */
+  public function getHllppUniqueCount()
+  {
+    return $this->hllppUniqueCount;
+  }
+  /**
+   * Type of the inputs that are accumulated by this `Aggregate`. Use `AddInput`
+   * mutations to accumulate new inputs.
+   *
+   * @param Type $inputType
    */
   public function setInputType(Type $inputType)
   {
@@ -41,7 +66,43 @@ class GoogleBigtableAdminV2TypeAggregate extends \Google\Model
     return $this->inputType;
   }
   /**
-   * @param Type
+   * Max aggregator.
+   *
+   * @param GoogleBigtableAdminV2TypeAggregateMax $max
+   */
+  public function setMax(GoogleBigtableAdminV2TypeAggregateMax $max)
+  {
+    $this->max = $max;
+  }
+  /**
+   * @return GoogleBigtableAdminV2TypeAggregateMax
+   */
+  public function getMax()
+  {
+    return $this->max;
+  }
+  /**
+   * Min aggregator.
+   *
+   * @param GoogleBigtableAdminV2TypeAggregateMin $min
+   */
+  public function setMin(GoogleBigtableAdminV2TypeAggregateMin $min)
+  {
+    $this->min = $min;
+  }
+  /**
+   * @return GoogleBigtableAdminV2TypeAggregateMin
+   */
+  public function getMin()
+  {
+    return $this->min;
+  }
+  /**
+   * Output only. Type that holds the internal accumulator state for the
+   * `Aggregate`. This is a function of the `input_type` and `aggregator`
+   * chosen.
+   *
+   * @param Type $stateType
    */
   public function setStateType(Type $stateType)
   {
@@ -55,7 +116,9 @@ class GoogleBigtableAdminV2TypeAggregate extends \Google\Model
     return $this->stateType;
   }
   /**
-   * @param GoogleBigtableAdminV2TypeAggregateSum
+   * Sum aggregator.
+   *
+   * @param GoogleBigtableAdminV2TypeAggregateSum $sum
    */
   public function setSum(GoogleBigtableAdminV2TypeAggregateSum $sum)
   {

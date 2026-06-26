@@ -37,14 +37,15 @@ class ProjectsImage extends \Google\Service\Resource
    * data-images to learn more. When no InfoTypes or CustomInfoTypes are specified
    * in this request, the system will automatically choose what detectors to run.
    * By default this may be all types, but may change over time as detectors are
-   * updated. (image.redact)
+   * updated. Only the first frame of each multiframe image is redacted. Metadata
+   * and other frames are omitted in the response. (image.redact)
    *
    * @param string $parent Parent resource name. The format of this value varies
    * depending on whether you have [specified a processing
    * location](https://cloud.google.com/sensitive-data-protection/docs/specifying-
    * location): + Projects scope, location specified:
-   * `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no location
-   * specified (defaults to global): `projects/`PROJECT_ID The following example
+   * `projects/{project_id}/locations/{location_id}` + Projects scope, no location
+   * specified (defaults to global): `projects/{project_id}` The following example
    * `parent` string specifies a parent project with the identifier `example-
    * project`, and specifies the `europe-west3` location for processing data:
    * parent=projects/example-project/locations/europe-west3

@@ -23,7 +23,7 @@ class GoogleCloudSecuritycenterV2LogEntry extends \Google\Model
   protected $cloudLoggingEntryDataType = '';
 
   /**
-   * @param GoogleCloudSecuritycenterV2CloudLoggingEntry
+   * @param GoogleCloudSecuritycenterV2CloudLoggingEntry $cloudLoggingEntry
    */
   public function setCloudLoggingEntry(GoogleCloudSecuritycenterV2CloudLoggingEntry $cloudLoggingEntry)
   {

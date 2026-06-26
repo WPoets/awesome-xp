@@ -33,7 +33,7 @@ class SecurityPolicy extends \Google\Model
   public $type;
 
   /**
-   * @param string
+   * @param string $name
    */
   public function setName($name)
   {
@@ -47,7 +47,7 @@ class SecurityPolicy extends \Google\Model
     return $this->name;
   }
   /**
-   * @param bool
+   * @param bool $preview
    */
   public function setPreview($preview)
   {
@@ -61,7 +61,7 @@ class SecurityPolicy extends \Google\Model
     return $this->preview;
   }
   /**
-   * @param string
+   * @param string $type
    */
   public function setType($type)
   {

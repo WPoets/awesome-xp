@@ -36,7 +36,7 @@ class PropertiesFirebaseLinks extends \Google\Service\Resource
    * (firebaseLinks.create)
    *
    * @param string $parent Required. Format: properties/{property_id} Example:
-   * properties/1234
+   * `properties/1234`
    * @param GoogleAnalyticsAdminV1betaFirebaseLink $postBody
    * @param array $optParams Optional parameters.
    * @return GoogleAnalyticsAdminV1betaFirebaseLink
@@ -53,7 +53,7 @@ class PropertiesFirebaseLinks extends \Google\Service\Resource
    *
    * @param string $name Required. Format:
    * properties/{property_id}/firebaseLinks/{firebase_link_id} Example:
-   * properties/1234/firebaseLinks/5678
+   * `properties/1234/firebaseLinks/5678`
    * @param array $optParams Optional parameters.
    * @return GoogleProtobufEmpty
    * @throws \Google\Service\Exception
@@ -69,14 +69,14 @@ class PropertiesFirebaseLinks extends \Google\Service\Resource
    * FirebaseLink. (firebaseLinks.listPropertiesFirebaseLinks)
    *
    * @param string $parent Required. Format: properties/{property_id} Example:
-   * properties/1234
+   * `properties/1234`
    * @param array $optParams Optional parameters.
    *
-   * @opt_param int pageSize The maximum number of resources to return. The
-   * service may return fewer than this value, even if there are additional pages.
-   * If unspecified, at most 50 resources will be returned. The maximum value is
-   * 200; (higher values will be coerced to the maximum)
-   * @opt_param string pageToken A page token, received from a previous
+   * @opt_param int pageSize Optional. The maximum number of resources to return.
+   * The service may return fewer than this value, even if there are additional
+   * pages. If unspecified, at most 50 resources will be returned. The maximum
+   * value is 200; (higher values will be coerced to the maximum)
+   * @opt_param string pageToken Optional. A page token, received from a previous
    * `ListFirebaseLinks` call. Provide this to retrieve the subsequent page. When
    * paginating, all other parameters provided to `ListFirebaseLinks` must match
    * the call that provided the page token.

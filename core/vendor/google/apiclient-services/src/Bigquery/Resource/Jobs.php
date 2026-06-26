@@ -37,18 +37,21 @@ class Jobs extends \Google\Service\Resource
   /**
    * Requests that a job be cancelled. This call will return immediately, and the
    * client will need to poll for the job status to see if the cancel completed
-   * successfully. Cancelled jobs may still incur costs. (jobs.cancel)
+   * successfully. Cancelled jobs may still incur costs. # IAM Permissions
+   * Requires the `bigquery.jobs.update` permission on the job resource. If the
+   * user matches the creator of the job, the `bigquery.jobs.create` permission on
+   * the project is required instead. (jobs.cancel)
    *
    * @param string $projectId Required. Project ID of the job to cancel
    * @param string $jobId Required. Job ID of the job to cancel
    * @param array $optParams Optional parameters.
    *
    * @opt_param string location The geographic location of the job. You must
-   * specify the location to run the job for the following scenarios: - If the
-   * location to run a job is not in the `us` or the `eu` multi-regional location
-   * - If the job's location is in a single region (for example, `us-central1`)
-   * For more information, see
-   * https://cloud.google.com/bigquery/docs/locations#specifying_your_location.
+   * [specify the
+   * location](https://cloud.google.com/bigquery/docs/locations#specify_locations)
+   * to run the job for the following scenarios: * If the location to run a job is
+   * not in the `us` or the `eu` multi-regional location * If the job's location
+   * is in a single region (for example, `us-central1`)
    * @return JobCancelResponse
    * @throws \Google\Service\Exception
    */
@@ -60,7 +63,8 @@ class Jobs extends \Google\Service\Resource
   }
   /**
    * Requests the deletion of the metadata of a job. This call returns when the
-   * job's metadata is deleted. (jobs.delete)
+   * job's metadata is deleted. # IAM Permissions Requires the
+   * `bigquery.jobs.delete` permission on the job resource. (jobs.delete)
    *
    * @param string $projectId Required. Project ID of the job for which metadata
    * is to be deleted.
@@ -70,9 +74,9 @@ class Jobs extends \Google\Service\Resource
    * jobs is not allowed.
    * @param array $optParams Optional parameters.
    *
-   * @opt_param string location The geographic location of the job. Required. See
-   * details at:
-   * https://cloud.google.com/bigquery/docs/locations#specifying_your_location.
+   * @opt_param string location The geographic location of the job. Required. For
+   * more information, see how to [specify locations](https://cloud.google.com/big
+   * query/docs/locations#specify_locations).
    * @throws \Google\Service\Exception
    */
   public function delete($projectId, $jobId, $optParams = [])
@@ -84,18 +88,21 @@ class Jobs extends \Google\Service\Resource
   /**
    * Returns information about a specific job. Job information is available for a
    * six month period after creation. Requires that you're the person who ran the
-   * job, or have the Is Owner project role. (jobs.get)
+   * job, or have the Is Owner project role. # IAM Permissions Requires the
+   * `bigquery.jobs.get` permission on the job resource. If the user matches the
+   * creator of the job, the `bigquery.jobs.create` permission on the project is
+   * required instead. (jobs.get)
    *
    * @param string $projectId Required. Project ID of the requested job.
    * @param string $jobId Required. Job ID of the requested job.
    * @param array $optParams Optional parameters.
    *
    * @opt_param string location The geographic location of the job. You must
-   * specify the location to run the job for the following scenarios: - If the
+   * specify the location to run the job for the following scenarios: * If the
    * location to run a job is not in the `us` or the `eu` multi-regional location
-   * - If the job's location is in a single region (for example, `us-central1`)
-   * For more information, see
-   * https://cloud.google.com/bigquery/docs/locations#specifying_your_location.
+   * * If the job's location is in a single region (for example, `us-central1`)
+   * For more information, see how to [specify locations](https://cloud.google.com
+   * /bigquery/docs/locations#specify_locations).
    * @return Job
    * @throws \Google\Service\Exception
    */
@@ -106,20 +113,29 @@ class Jobs extends \Google\Service\Resource
     return $this->call('get', [$params], Job::class);
   }
   /**
-   * RPC to get the results of a query job. (jobs.getQueryResults)
+   * RPC to get the results of a query job. # IAM Permissions Requires the
+   * following IAM permission(s) to use this method: - `bigquery.jobs.get` on the
+   * job. - `bigquery.tables.getData` on the destination table. If the user
+   * matches the creator of the job, the following IAM permission(s) are required
+   * instead: - `bigquery.jobs.create` on the project. - `bigquery.tables.getData`
+   * on the destination table. (jobs.getQueryResults)
    *
    * @param string $projectId Required. Project ID of the query job.
    * @param string $jobId Required. Job ID of the query job.
    * @param array $optParams Optional parameters.
    *
+   * @opt_param string formatOptions.timestampOutputFormat Optional. The API
+   * output format for a timestamp. This offers more explicit control over the
+   * timestamp output format as compared to the existing `use_int64_timestamp`
+   * option.
    * @opt_param bool formatOptions.useInt64Timestamp Optional. Output timestamp as
    * usec int64. Default is false.
    * @opt_param string location The geographic location of the job. You must
-   * specify the location to run the job for the following scenarios: - If the
+   * specify the location to run the job for the following scenarios: * If the
    * location to run a job is not in the `us` or the `eu` multi-regional location
-   * - If the job's location is in a single region (for example, `us-central1`)
-   * For more information, see
-   * https://cloud.google.com/bigquery/docs/locations#specifying_your_location.
+   * * If the job's location is in a single region (for example, `us-central1`)
+   * For more information, see how to [specify locations](https://cloud.google.com
+   * /bigquery/docs/locations#specify_locations).
    * @opt_param string maxResults Maximum number of results to read.
    * @opt_param string pageToken Page token, returned by a previous call, to
    * request the next page of results.
@@ -151,7 +167,13 @@ class Jobs extends \Google\Service\Resource
    * The *Upload* URI is ONLY for the case when you're sending both a load job
    * configuration and a data stream together. In this case, the Upload URI
    * accepts the job configuration and the data as two distinct multipart MIME
-   * parts. (jobs.insert)
+   * parts. # IAM Permissions Requires the `bigquery.jobs.create` permission on
+   * the project resource. Additional permissions are required depending on the
+   * job type: - **Load, Export, and Copy jobs**: Generally require data-level
+   * permissions such as `bigquery.tables.export` or access to external storage. -
+   * **Query jobs**: Permissions are dependent on the SQL statement. Complex
+   * queries (DDL, DCL) may require additional permissions to create reservations,
+   * modify IAM policies, or update project settings. (jobs.insert)
    *
    * @param string $projectId Project ID of project that will be billed for the
    * job.
@@ -171,7 +193,12 @@ class Jobs extends \Google\Service\Resource
    * available for a six month period after creation. The job list is sorted in
    * reverse chronological order, by job creation time. Requires the Can View
    * project role, or the Is Owner project role if you set the allUsers property.
-   * (jobs.listJobs)
+   * # IAM Permissions Requires no specific IAM permission(s) to use this method.
+   * Users are able to list the jobs they created. Additional access is granted
+   * based on the following permissions: - Users with the `bigquery.jobs.listAll`
+   * permission can list all jobs with all metadata. - Users with the
+   * `bigquery.jobs.list` permission can list all jobs, but with redacted
+   * information for jobs they did not create. (jobs.listJobs)
    *
    * @param string $projectId Project ID of the jobs to list.
    * @param array $optParams Optional parameters.
@@ -205,7 +232,12 @@ class Jobs extends \Google\Service\Resource
   }
   /**
    * Runs a BigQuery SQL query synchronously and returns query results if the
-   * query completes within a specified timeout. (jobs.query)
+   * query completes within a specified timeout. # IAM Permissions Requires the
+   * `bigquery.jobs.create` permission on the project resource. Data-level
+   * permissions are highly dependent on the SQL statement being executed. While
+   * standard queries require data access (such as `bigquery.tables.getData`),
+   * complex operations like DDL or DCL may require permissions to manage
+   * reservations, IAM policies, or project settings. (jobs.query)
    *
    * @param string $projectId Required. Project ID of the query request.
    * @param QueryRequest $postBody

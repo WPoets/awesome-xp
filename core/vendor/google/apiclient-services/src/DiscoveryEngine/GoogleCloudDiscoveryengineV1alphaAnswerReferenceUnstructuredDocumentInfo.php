@@ -23,20 +23,35 @@ class GoogleCloudDiscoveryengineV1alphaAnswerReferenceUnstructuredDocumentInfo e
   protected $chunkContentsType = GoogleCloudDiscoveryengineV1alphaAnswerReferenceUnstructuredDocumentInfoChunkContent::class;
   protected $chunkContentsDataType = 'array';
   /**
+   * Document resource name.
+   *
    * @var string
    */
   public $document;
   /**
+   * The structured JSON metadata for the document. It is populated from the
+   * struct data from the Chunk in search result.
+   *
+   * @var array[]
+   */
+  public $structData;
+  /**
+   * Title.
+   *
    * @var string
    */
   public $title;
   /**
+   * URI for the document.
+   *
    * @var string
    */
   public $uri;
 
   /**
-   * @param GoogleCloudDiscoveryengineV1alphaAnswerReferenceUnstructuredDocumentInfoChunkContent[]
+   * List of cited chunk contents derived from document content.
+   *
+   * @param GoogleCloudDiscoveryengineV1alphaAnswerReferenceUnstructuredDocumentInfoChunkContent[] $chunkContents
    */
   public function setChunkContents($chunkContents)
   {
@@ -50,7 +65,9 @@ class GoogleCloudDiscoveryengineV1alphaAnswerReferenceUnstructuredDocumentInfo e
     return $this->chunkContents;
   }
   /**
-   * @param string
+   * Document resource name.
+   *
+   * @param string $document
    */
   public function setDocument($document)
   {
@@ -64,7 +81,26 @@ class GoogleCloudDiscoveryengineV1alphaAnswerReferenceUnstructuredDocumentInfo e
     return $this->document;
   }
   /**
-   * @param string
+   * The structured JSON metadata for the document. It is populated from the
+   * struct data from the Chunk in search result.
+   *
+   * @param array[] $structData
+   */
+  public function setStructData($structData)
+  {
+    $this->structData = $structData;
+  }
+  /**
+   * @return array[]
+   */
+  public function getStructData()
+  {
+    return $this->structData;
+  }
+  /**
+   * Title.
+   *
+   * @param string $title
    */
   public function setTitle($title)
   {
@@ -78,7 +114,9 @@ class GoogleCloudDiscoveryengineV1alphaAnswerReferenceUnstructuredDocumentInfo e
     return $this->title;
   }
   /**
-   * @param string
+   * URI for the document.
+   *
+   * @param string $uri
    */
   public function setUri($uri)
   {

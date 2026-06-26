@@ -52,6 +52,27 @@ class Folders extends \Google\Service\Resource
     return $this->call('delete', [$params]);
   }
   /**
+   * Deletes a folder recursively. Only applicable to buckets with hierarchical
+   * namespace enabled. (folders.deleteRecursive)
+   *
+   * @param string $bucket Name of the bucket in which the folder resides.
+   * @param string $folder Name of a folder.
+   * @param array $optParams Optional parameters.
+   *
+   * @opt_param string ifMetagenerationMatch If set, only deletes the folder if
+   * its metageneration matches this value.
+   * @opt_param string ifMetagenerationNotMatch If set, only deletes the folder if
+   * its metageneration does not match this value.
+   * @return GoogleLongrunningOperation
+   * @throws \Google\Service\Exception
+   */
+  public function deleteRecursive($bucket, $folder, $optParams = [])
+  {
+    $params = ['bucket' => $bucket, 'folder' => $folder];
+    $params = array_merge($params, $optParams);
+    return $this->call('deleteRecursive', [$params], GoogleLongrunningOperation::class);
+  }
+  /**
    * Returns metadata for the specified folder. Only applicable to buckets with
    * hierarchical namespace enabled. (folders.get)
    *
@@ -82,7 +103,7 @@ class Folders extends \Google\Service\Resource
    * @param Folder $postBody
    * @param array $optParams Optional parameters.
    *
-   * @opt_param bool recursive If true, any parent folder which doesn’t exist will
+   * @opt_param bool recursive If true, any parent folder which doesn't exist will
    * be created automatically.
    * @return Folder
    * @throws \Google\Service\Exception

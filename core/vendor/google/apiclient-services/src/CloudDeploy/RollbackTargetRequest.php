@@ -17,33 +17,76 @@
 
 namespace Google\Service\CloudDeploy;
 
-class RollbackTargetRequest extends \Google\Model
+class RollbackTargetRequest extends \Google\Collection
 {
+  protected $collection_key = 'overrideDeployPolicy';
   /**
+   * Optional. Deploy policies to override. Format is
+   * `projects/{project}/locations/{location}/deployPolicies/{deploy_policy}`.
+   *
+   * @var string[]
+   */
+  public $overrideDeployPolicy;
+  /**
+   * Optional. ID of the `Release` to roll back to. If this isn't specified, the
+   * previous successful `Rollout` to the specified target will be used to
+   * determine the `Release`.
+   *
    * @var string
    */
   public $releaseId;
   protected $rollbackConfigType = RollbackTargetConfig::class;
   protected $rollbackConfigDataType = '';
   /**
+   * Required. ID of the rollback `Rollout` to create.
+   *
    * @var string
    */
   public $rolloutId;
   /**
+   * Optional. If provided, this must be the latest `Rollout` that is on the
+   * `Target`.
+   *
    * @var string
    */
   public $rolloutToRollBack;
   /**
+   * Required. ID of the `Target` that is being rolled back.
+   *
    * @var string
    */
   public $targetId;
   /**
+   * Optional. If set to true, the request is validated and the user is provided
+   * with a `RollbackTargetResponse`.
+   *
    * @var bool
    */
   public $validateOnly;
 
   /**
-   * @param string
+   * Optional. Deploy policies to override. Format is
+   * `projects/{project}/locations/{location}/deployPolicies/{deploy_policy}`.
+   *
+   * @param string[] $overrideDeployPolicy
+   */
+  public function setOverrideDeployPolicy($overrideDeployPolicy)
+  {
+    $this->overrideDeployPolicy = $overrideDeployPolicy;
+  }
+  /**
+   * @return string[]
+   */
+  public function getOverrideDeployPolicy()
+  {
+    return $this->overrideDeployPolicy;
+  }
+  /**
+   * Optional. ID of the `Release` to roll back to. If this isn't specified, the
+   * previous successful `Rollout` to the specified target will be used to
+   * determine the `Release`.
+   *
+   * @param string $releaseId
    */
   public function setReleaseId($releaseId)
   {
@@ -57,7 +100,9 @@ class RollbackTargetRequest extends \Google\Model
     return $this->releaseId;
   }
   /**
-   * @param RollbackTargetConfig
+   * Optional. Configs for the rollback `Rollout`.
+   *
+   * @param RollbackTargetConfig $rollbackConfig
    */
   public function setRollbackConfig(RollbackTargetConfig $rollbackConfig)
   {
@@ -71,7 +116,9 @@ class RollbackTargetRequest extends \Google\Model
     return $this->rollbackConfig;
   }
   /**
-   * @param string
+   * Required. ID of the rollback `Rollout` to create.
+   *
+   * @param string $rolloutId
    */
   public function setRolloutId($rolloutId)
   {
@@ -85,7 +132,10 @@ class RollbackTargetRequest extends \Google\Model
     return $this->rolloutId;
   }
   /**
-   * @param string
+   * Optional. If provided, this must be the latest `Rollout` that is on the
+   * `Target`.
+   *
+   * @param string $rolloutToRollBack
    */
   public function setRolloutToRollBack($rolloutToRollBack)
   {
@@ -99,7 +149,9 @@ class RollbackTargetRequest extends \Google\Model
     return $this->rolloutToRollBack;
   }
   /**
-   * @param string
+   * Required. ID of the `Target` that is being rolled back.
+   *
+   * @param string $targetId
    */
   public function setTargetId($targetId)
   {
@@ -113,7 +165,10 @@ class RollbackTargetRequest extends \Google\Model
     return $this->targetId;
   }
   /**
-   * @param bool
+   * Optional. If set to true, the request is validated and the user is provided
+   * with a `RollbackTargetResponse`.
+   *
+   * @param bool $validateOnly
    */
   public function setValidateOnly($validateOnly)
   {

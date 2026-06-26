@@ -62,7 +62,7 @@ class GoogleCloudSecuritycenterV2BackupDisasterRecovery extends \Google\Collecti
   public $storagePool;
 
   /**
-   * @param string
+   * @param string $appliance
    */
   public function setAppliance($appliance)
   {
@@ -76,7 +76,7 @@ class GoogleCloudSecuritycenterV2BackupDisasterRecovery extends \Google\Collecti
     return $this->appliance;
   }
   /**
-   * @param string[]
+   * @param string[] $applications
    */
   public function setApplications($applications)
   {
@@ -90,7 +90,7 @@ class GoogleCloudSecuritycenterV2BackupDisasterRecovery extends \Google\Collecti
     return $this->applications;
   }
   /**
-   * @param string
+   * @param string $backupCreateTime
    */
   public function setBackupCreateTime($backupCreateTime)
   {
@@ -104,7 +104,7 @@ class GoogleCloudSecuritycenterV2BackupDisasterRecovery extends \Google\Collecti
     return $this->backupCreateTime;
   }
   /**
-   * @param string
+   * @param string $backupTemplate
    */
   public function setBackupTemplate($backupTemplate)
   {
@@ -118,7 +118,7 @@ class GoogleCloudSecuritycenterV2BackupDisasterRecovery extends \Google\Collecti
     return $this->backupTemplate;
   }
   /**
-   * @param string
+   * @param string $backupType
    */
   public function setBackupType($backupType)
   {
@@ -132,7 +132,7 @@ class GoogleCloudSecuritycenterV2BackupDisasterRecovery extends \Google\Collecti
     return $this->backupType;
   }
   /**
-   * @param string
+   * @param string $host
    */
   public function setHost($host)
   {
@@ -146,7 +146,7 @@ class GoogleCloudSecuritycenterV2BackupDisasterRecovery extends \Google\Collecti
     return $this->host;
   }
   /**
-   * @param string[]
+   * @param string[] $policies
    */
   public function setPolicies($policies)
   {
@@ -160,7 +160,7 @@ class GoogleCloudSecuritycenterV2BackupDisasterRecovery extends \Google\Collecti
     return $this->policies;
   }
   /**
-   * @param string[]
+   * @param string[] $policyOptions
    */
   public function setPolicyOptions($policyOptions)
   {
@@ -174,7 +174,7 @@ class GoogleCloudSecuritycenterV2BackupDisasterRecovery extends \Google\Collecti
     return $this->policyOptions;
   }
   /**
-   * @param string
+   * @param string $profile
    */
   public function setProfile($profile)
   {
@@ -188,7 +188,7 @@ class GoogleCloudSecuritycenterV2BackupDisasterRecovery extends \Google\Collecti
     return $this->profile;
   }
   /**
-   * @param string
+   * @param string $storagePool
    */
   public function setStoragePool($storagePool)
   {

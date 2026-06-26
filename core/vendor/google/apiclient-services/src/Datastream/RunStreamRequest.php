@@ -21,9 +21,18 @@ class RunStreamRequest extends \Google\Model
 {
   protected $cdcStrategyType = CdcStrategy::class;
   protected $cdcStrategyDataType = '';
+  /**
+   * Optional. Update the stream without validating it.
+   *
+   * @var bool
+   */
+  public $force;
 
   /**
-   * @param CdcStrategy
+   * Optional. The CDC strategy of the stream. If not set, the system's default
+   * value will be used.
+   *
+   * @param CdcStrategy $cdcStrategy
    */
   public function setCdcStrategy(CdcStrategy $cdcStrategy)
   {
@@ -35,6 +44,22 @@ class RunStreamRequest extends \Google\Model
   public function getCdcStrategy()
   {
     return $this->cdcStrategy;
+  }
+  /**
+   * Optional. Update the stream without validating it.
+   *
+   * @param bool $force
+   */
+  public function setForce($force)
+  {
+    $this->force = $force;
+  }
+  /**
+   * @return bool
+   */
+  public function getForce()
+  {
+    return $this->force;
   }
 }
 

@@ -17,19 +17,25 @@
 
 namespace Google\Service\SecurityCommandCenter;
 
-class GoogleCloudSecuritycenterV2CloudDlpDataProfile extends \Google\Model
+class GoogleCloudSecuritycenterV2CloudDlpDataProfile extends \Google\Collection
 {
+  public const PARENT_TYPE_PARENT_TYPE_UNSPECIFIED = 'PARENT_TYPE_UNSPECIFIED';
+  public const PARENT_TYPE_ORGANIZATION = 'ORGANIZATION';
+  public const PARENT_TYPE_PROJECT = 'PROJECT';
+  protected $collection_key = 'infoTypes';
   /**
    * @var string
    */
   public $dataProfile;
+  protected $infoTypesType = GoogleCloudSecuritycenterV2InfoType::class;
+  protected $infoTypesDataType = 'array';
   /**
    * @var string
    */
   public $parentType;
 
   /**
-   * @param string
+   * @param string $dataProfile
    */
   public function setDataProfile($dataProfile)
   {
@@ -43,14 +49,28 @@ class GoogleCloudSecuritycenterV2CloudDlpDataProfile extends \Google\Model
     return $this->dataProfile;
   }
   /**
-   * @param string
+   * @param GoogleCloudSecuritycenterV2InfoType[] $infoTypes
+   */
+  public function setInfoTypes($infoTypes)
+  {
+    $this->infoTypes = $infoTypes;
+  }
+  /**
+   * @return GoogleCloudSecuritycenterV2InfoType[]
+   */
+  public function getInfoTypes()
+  {
+    return $this->infoTypes;
+  }
+  /**
+   * @param self::PARENT_TYPE_* $parentType
    */
   public function setParentType($parentType)
   {
     $this->parentType = $parentType;
   }
   /**
-   * @return string
+   * @return self::PARENT_TYPE_*
    */
   public function getParentType()
   {

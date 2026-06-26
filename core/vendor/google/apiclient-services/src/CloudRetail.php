@@ -23,7 +23,7 @@ use Google\Client;
  * Service definition for CloudRetail (v2).
  *
  * <p>
- * Vertex AI Search for Retail API is made up of Retail Search, Browse and
+ * Vertex AI Search for commerce API is made up of Retail Search, Browse and
  * Recommendations. These discovery AI solutions help you implement personalized
  * search, browse and recommendations, based on machine learning models, across
  * your websites and mobile applications.</p>
@@ -47,6 +47,8 @@ class CloudRetail extends \Google\Service
   public $projects_locations_catalogs_branches_products;
   public $projects_locations_catalogs_completionData;
   public $projects_locations_catalogs_controls;
+  public $projects_locations_catalogs_generativeQuestion;
+  public $projects_locations_catalogs_generativeQuestions;
   public $projects_locations_catalogs_models;
   public $projects_locations_catalogs_operations;
   public $projects_locations_catalogs_placements;
@@ -152,8 +154,28 @@ class CloudRetail extends \Google\Service
                   'required' => true,
                 ],
               ],
+            ],'getConversationalSearchCustomizationConfig' => [
+              'path' => 'v2/{+name}/conversationalSearchCustomizationConfig',
+              'httpMethod' => 'GET',
+              'parameters' => [
+                'name' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+              ],
             ],'getDefaultBranch' => [
               'path' => 'v2/{+catalog}:getDefaultBranch',
+              'httpMethod' => 'GET',
+              'parameters' => [
+                'catalog' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+              ],
+            ],'getGenerativeQuestionFeature' => [
+              'path' => 'v2/{+catalog}/generativeQuestionFeature',
               'httpMethod' => 'GET',
               'parameters' => [
                 'catalog' => [
@@ -223,6 +245,48 @@ class CloudRetail extends \Google\Service
               'httpMethod' => 'PATCH',
               'parameters' => [
                 'name' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'updateMask' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+              ],
+            ],'updateConversationalSearchCustomizationConfig' => [
+              'path' => 'v2/{+catalog}/conversationalSearchCustomizationConfig',
+              'httpMethod' => 'PATCH',
+              'parameters' => [
+                'catalog' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'updateMask' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+              ],
+            ],'updateGenerativeQuestion' => [
+              'path' => 'v2/{+catalog}/generativeQuestion',
+              'httpMethod' => 'PATCH',
+              'parameters' => [
+                'catalog' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'updateMask' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+              ],
+            ],'updateGenerativeQuestionFeature' => [
+              'path' => 'v2/{+catalog}/generativeQuestionFeature',
+              'httpMethod' => 'PATCH',
+              'parameters' => [
+                'catalog' => [
                   'location' => 'path',
                   'type' => 'string',
                   'required' => true,
@@ -554,6 +618,46 @@ class CloudRetail extends \Google\Service
           ]
         ]
     );
+    $this->projects_locations_catalogs_generativeQuestion = new CloudRetail\Resource\ProjectsLocationsCatalogsGenerativeQuestion(
+        $this,
+        $this->serviceName,
+        'generativeQuestion',
+        [
+          'methods' => [
+            'batchUpdate' => [
+              'path' => 'v2/{+parent}/generativeQuestion:batchUpdate',
+              'httpMethod' => 'POST',
+              'parameters' => [
+                'parent' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+              ],
+            ],
+          ]
+        ]
+    );
+    $this->projects_locations_catalogs_generativeQuestions = new CloudRetail\Resource\ProjectsLocationsCatalogsGenerativeQuestions(
+        $this,
+        $this->serviceName,
+        'generativeQuestions',
+        [
+          'methods' => [
+            'list' => [
+              'path' => 'v2/{+parent}/generativeQuestions',
+              'httpMethod' => 'GET',
+              'parameters' => [
+                'parent' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+              ],
+            ],
+          ]
+        ]
+    );
     $this->projects_locations_catalogs_models = new CloudRetail\Resource\ProjectsLocationsCatalogsModels(
         $this,
         $this->serviceName,
@@ -697,6 +801,10 @@ class CloudRetail extends \Google\Service
                   'location' => 'query',
                   'type' => 'string',
                 ],
+                'returnPartialSuccess' => [
+                  'location' => 'query',
+                  'type' => 'boolean',
+                ],
               ],
             ],
           ]
@@ -708,7 +816,17 @@ class CloudRetail extends \Google\Service
         'placements',
         [
           'methods' => [
-            'predict' => [
+            'conversationalSearch' => [
+              'path' => 'v2/{+placement}:conversationalSearch',
+              'httpMethod' => 'POST',
+              'parameters' => [
+                'placement' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+              ],
+            ],'predict' => [
               'path' => 'v2/{+placement}:predict',
               'httpMethod' => 'POST',
               'parameters' => [
@@ -743,6 +861,16 @@ class CloudRetail extends \Google\Service
               'httpMethod' => 'POST',
               'parameters' => [
                 'servingConfig' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+              ],
+            ],'conversationalSearch' => [
+              'path' => 'v2/{+placement}:conversationalSearch',
+              'httpMethod' => 'POST',
+              'parameters' => [
+                'placement' => [
                   'location' => 'path',
                   'type' => 'string',
                   'required' => true,
@@ -856,32 +984,12 @@ class CloudRetail extends \Google\Service
           'methods' => [
             'collect' => [
               'path' => 'v2/{+parent}/userEvents:collect',
-              'httpMethod' => 'GET',
+              'httpMethod' => 'POST',
               'parameters' => [
                 'parent' => [
                   'location' => 'path',
                   'type' => 'string',
                   'required' => true,
-                ],
-                'ets' => [
-                  'location' => 'query',
-                  'type' => 'string',
-                ],
-                'prebuiltRule' => [
-                  'location' => 'query',
-                  'type' => 'string',
-                ],
-                'rawJson' => [
-                  'location' => 'query',
-                  'type' => 'string',
-                ],
-                'uri' => [
-                  'location' => 'query',
-                  'type' => 'string',
-                ],
-                'userEvent' => [
-                  'location' => 'query',
-                  'type' => 'string',
                 ],
               ],
             ],'import' => [
@@ -969,6 +1077,10 @@ class CloudRetail extends \Google\Service
                   'location' => 'query',
                   'type' => 'string',
                 ],
+                'returnPartialSuccess' => [
+                  'location' => 'query',
+                  'type' => 'boolean',
+                ],
               ],
             ],
           ]
@@ -1010,6 +1122,10 @@ class CloudRetail extends \Google\Service
                 'pageToken' => [
                   'location' => 'query',
                   'type' => 'string',
+                ],
+                'returnPartialSuccess' => [
+                  'location' => 'query',
+                  'type' => 'boolean',
                 ],
               ],
             ],

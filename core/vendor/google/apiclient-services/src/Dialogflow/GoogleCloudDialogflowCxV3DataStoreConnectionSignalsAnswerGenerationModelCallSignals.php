@@ -22,6 +22,10 @@ class GoogleCloudDialogflowCxV3DataStoreConnectionSignalsAnswerGenerationModelCa
   /**
    * @var string
    */
+  public $model;
+  /**
+   * @var string
+   */
   public $modelOutput;
   /**
    * @var string
@@ -29,7 +33,21 @@ class GoogleCloudDialogflowCxV3DataStoreConnectionSignalsAnswerGenerationModelCa
   public $renderedPrompt;
 
   /**
-   * @param string
+   * @param string $model
+   */
+  public function setModel($model)
+  {
+    $this->model = $model;
+  }
+  /**
+   * @return string
+   */
+  public function getModel()
+  {
+    return $this->model;
+  }
+  /**
+   * @param string $modelOutput
    */
   public function setModelOutput($modelOutput)
   {
@@ -43,7 +61,7 @@ class GoogleCloudDialogflowCxV3DataStoreConnectionSignalsAnswerGenerationModelCa
     return $this->modelOutput;
   }
   /**
-   * @param string
+   * @param string $renderedPrompt
    */
   public function setRenderedPrompt($renderedPrompt)
   {

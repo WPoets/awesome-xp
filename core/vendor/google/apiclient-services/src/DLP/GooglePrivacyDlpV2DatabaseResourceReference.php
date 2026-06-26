@@ -20,16 +20,71 @@ namespace Google\Service\DLP;
 class GooglePrivacyDlpV2DatabaseResourceReference extends \Google\Model
 {
   /**
+   * Required. Name of a database within the instance.
+   *
+   * @var string
+   */
+  public $database;
+  /**
+   * Required. Name of a database resource, for example, a table within the
+   * database.
+   *
+   * @var string
+   */
+  public $databaseResource;
+  /**
+   * Required. The instance where this resource is located. For example: Cloud
+   * SQL instance ID.
+   *
    * @var string
    */
   public $instance;
   /**
+   * Required. If within a project-level config, then this must match the
+   * config's project ID.
+   *
    * @var string
    */
   public $projectId;
 
   /**
-   * @param string
+   * Required. Name of a database within the instance.
+   *
+   * @param string $database
+   */
+  public function setDatabase($database)
+  {
+    $this->database = $database;
+  }
+  /**
+   * @return string
+   */
+  public function getDatabase()
+  {
+    return $this->database;
+  }
+  /**
+   * Required. Name of a database resource, for example, a table within the
+   * database.
+   *
+   * @param string $databaseResource
+   */
+  public function setDatabaseResource($databaseResource)
+  {
+    $this->databaseResource = $databaseResource;
+  }
+  /**
+   * @return string
+   */
+  public function getDatabaseResource()
+  {
+    return $this->databaseResource;
+  }
+  /**
+   * Required. The instance where this resource is located. For example: Cloud
+   * SQL instance ID.
+   *
+   * @param string $instance
    */
   public function setInstance($instance)
   {
@@ -43,7 +98,10 @@ class GooglePrivacyDlpV2DatabaseResourceReference extends \Google\Model
     return $this->instance;
   }
   /**
-   * @param string
+   * Required. If within a project-level config, then this must match the
+   * config's project ID.
+   *
+   * @param string $projectId
    */
   public function setProjectId($projectId)
   {

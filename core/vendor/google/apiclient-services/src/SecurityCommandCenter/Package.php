@@ -37,7 +37,7 @@ class Package extends \Google\Model
   public $packageVersion;
 
   /**
-   * @param string
+   * @param string $cpeUri
    */
   public function setCpeUri($cpeUri)
   {
@@ -51,7 +51,7 @@ class Package extends \Google\Model
     return $this->cpeUri;
   }
   /**
-   * @param string
+   * @param string $packageName
    */
   public function setPackageName($packageName)
   {
@@ -65,7 +65,7 @@ class Package extends \Google\Model
     return $this->packageName;
   }
   /**
-   * @param string
+   * @param string $packageType
    */
   public function setPackageType($packageType)
   {
@@ -79,7 +79,7 @@ class Package extends \Google\Model
     return $this->packageType;
   }
   /**
-   * @param string
+   * @param string $packageVersion
    */
   public function setPackageVersion($packageVersion)
   {

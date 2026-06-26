@@ -23,22 +23,39 @@ class GoogleCloudDiscoveryengineV1alphaAnswerStepActionObservationSearchResult e
   protected $chunkInfoType = GoogleCloudDiscoveryengineV1alphaAnswerStepActionObservationSearchResultChunkInfo::class;
   protected $chunkInfoDataType = 'array';
   /**
+   * Document resource name.
+   *
    * @var string
    */
   public $document;
   protected $snippetInfoType = GoogleCloudDiscoveryengineV1alphaAnswerStepActionObservationSearchResultSnippetInfo::class;
   protected $snippetInfoDataType = 'array';
   /**
+   * Data representation. The structured JSON data for the document. It's
+   * populated from the struct data from the Document, or the Chunk in search
+   * result.
+   *
+   * @var array[]
+   */
+  public $structData;
+  /**
+   * Title.
+   *
    * @var string
    */
   public $title;
   /**
+   * URI for the document.
+   *
    * @var string
    */
   public $uri;
 
   /**
-   * @param GoogleCloudDiscoveryengineV1alphaAnswerStepActionObservationSearchResultChunkInfo[]
+   * If citation_type is CHUNK_LEVEL_CITATION and chunk mode is on, populate
+   * chunk info.
+   *
+   * @param GoogleCloudDiscoveryengineV1alphaAnswerStepActionObservationSearchResultChunkInfo[] $chunkInfo
    */
   public function setChunkInfo($chunkInfo)
   {
@@ -52,7 +69,9 @@ class GoogleCloudDiscoveryengineV1alphaAnswerStepActionObservationSearchResult e
     return $this->chunkInfo;
   }
   /**
-   * @param string
+   * Document resource name.
+   *
+   * @param string $document
    */
   public function setDocument($document)
   {
@@ -66,7 +85,10 @@ class GoogleCloudDiscoveryengineV1alphaAnswerStepActionObservationSearchResult e
     return $this->document;
   }
   /**
-   * @param GoogleCloudDiscoveryengineV1alphaAnswerStepActionObservationSearchResultSnippetInfo[]
+   * If citation_type is DOCUMENT_LEVEL_CITATION, populate document level
+   * snippets.
+   *
+   * @param GoogleCloudDiscoveryengineV1alphaAnswerStepActionObservationSearchResultSnippetInfo[] $snippetInfo
    */
   public function setSnippetInfo($snippetInfo)
   {
@@ -80,7 +102,27 @@ class GoogleCloudDiscoveryengineV1alphaAnswerStepActionObservationSearchResult e
     return $this->snippetInfo;
   }
   /**
-   * @param string
+   * Data representation. The structured JSON data for the document. It's
+   * populated from the struct data from the Document, or the Chunk in search
+   * result.
+   *
+   * @param array[] $structData
+   */
+  public function setStructData($structData)
+  {
+    $this->structData = $structData;
+  }
+  /**
+   * @return array[]
+   */
+  public function getStructData()
+  {
+    return $this->structData;
+  }
+  /**
+   * Title.
+   *
+   * @param string $title
    */
   public function setTitle($title)
   {
@@ -94,7 +136,9 @@ class GoogleCloudDiscoveryengineV1alphaAnswerStepActionObservationSearchResult e
     return $this->title;
   }
   /**
-   * @param string
+   * URI for the document.
+   *
+   * @param string $uri
    */
   public function setUri($uri)
   {

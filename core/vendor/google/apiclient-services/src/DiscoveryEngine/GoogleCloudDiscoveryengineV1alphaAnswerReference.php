@@ -21,11 +21,15 @@ class GoogleCloudDiscoveryengineV1alphaAnswerReference extends \Google\Model
 {
   protected $chunkInfoType = GoogleCloudDiscoveryengineV1alphaAnswerReferenceChunkInfo::class;
   protected $chunkInfoDataType = '';
+  protected $structuredDocumentInfoType = GoogleCloudDiscoveryengineV1alphaAnswerReferenceStructuredDocumentInfo::class;
+  protected $structuredDocumentInfoDataType = '';
   protected $unstructuredDocumentInfoType = GoogleCloudDiscoveryengineV1alphaAnswerReferenceUnstructuredDocumentInfo::class;
   protected $unstructuredDocumentInfoDataType = '';
 
   /**
-   * @param GoogleCloudDiscoveryengineV1alphaAnswerReferenceChunkInfo
+   * Chunk information.
+   *
+   * @param GoogleCloudDiscoveryengineV1alphaAnswerReferenceChunkInfo $chunkInfo
    */
   public function setChunkInfo(GoogleCloudDiscoveryengineV1alphaAnswerReferenceChunkInfo $chunkInfo)
   {
@@ -39,7 +43,25 @@ class GoogleCloudDiscoveryengineV1alphaAnswerReference extends \Google\Model
     return $this->chunkInfo;
   }
   /**
-   * @param GoogleCloudDiscoveryengineV1alphaAnswerReferenceUnstructuredDocumentInfo
+   * Structured document information.
+   *
+   * @param GoogleCloudDiscoveryengineV1alphaAnswerReferenceStructuredDocumentInfo $structuredDocumentInfo
+   */
+  public function setStructuredDocumentInfo(GoogleCloudDiscoveryengineV1alphaAnswerReferenceStructuredDocumentInfo $structuredDocumentInfo)
+  {
+    $this->structuredDocumentInfo = $structuredDocumentInfo;
+  }
+  /**
+   * @return GoogleCloudDiscoveryengineV1alphaAnswerReferenceStructuredDocumentInfo
+   */
+  public function getStructuredDocumentInfo()
+  {
+    return $this->structuredDocumentInfo;
+  }
+  /**
+   * Unstructured document information.
+   *
+   * @param GoogleCloudDiscoveryengineV1alphaAnswerReferenceUnstructuredDocumentInfo $unstructuredDocumentInfo
    */
   public function setUnstructuredDocumentInfo(GoogleCloudDiscoveryengineV1alphaAnswerReferenceUnstructuredDocumentInfo $unstructuredDocumentInfo)
   {

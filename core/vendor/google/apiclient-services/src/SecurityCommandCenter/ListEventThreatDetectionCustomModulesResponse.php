@@ -28,7 +28,7 @@ class ListEventThreatDetectionCustomModulesResponse extends \Google\Collection
   public $nextPageToken;
 
   /**
-   * @param EventThreatDetectionCustomModule[]
+   * @param EventThreatDetectionCustomModule[] $eventThreatDetectionCustomModules
    */
   public function setEventThreatDetectionCustomModules($eventThreatDetectionCustomModules)
   {
@@ -42,7 +42,7 @@ class ListEventThreatDetectionCustomModulesResponse extends \Google\Collection
     return $this->eventThreatDetectionCustomModules;
   }
   /**
-   * @param string
+   * @param string $nextPageToken
    */
   public function setNextPageToken($nextPageToken)
   {

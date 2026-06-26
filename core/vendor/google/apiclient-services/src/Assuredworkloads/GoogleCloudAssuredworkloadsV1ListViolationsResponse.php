@@ -21,14 +21,24 @@ class GoogleCloudAssuredworkloadsV1ListViolationsResponse extends \Google\Collec
 {
   protected $collection_key = 'violations';
   /**
+   * The next page token. Returns empty if reached the last page.
+   *
    * @var string
    */
   public $nextPageToken;
+  /**
+   * The total number of violations.
+   *
+   * @var int
+   */
+  public $totalSize;
   protected $violationsType = GoogleCloudAssuredworkloadsV1Violation::class;
   protected $violationsDataType = 'array';
 
   /**
-   * @param string
+   * The next page token. Returns empty if reached the last page.
+   *
+   * @param string $nextPageToken
    */
   public function setNextPageToken($nextPageToken)
   {
@@ -42,7 +52,25 @@ class GoogleCloudAssuredworkloadsV1ListViolationsResponse extends \Google\Collec
     return $this->nextPageToken;
   }
   /**
-   * @param GoogleCloudAssuredworkloadsV1Violation[]
+   * The total number of violations.
+   *
+   * @param int $totalSize
+   */
+  public function setTotalSize($totalSize)
+  {
+    $this->totalSize = $totalSize;
+  }
+  /**
+   * @return int
+   */
+  public function getTotalSize()
+  {
+    return $this->totalSize;
+  }
+  /**
+   * List of Violations under a Workload.
+   *
+   * @param GoogleCloudAssuredworkloadsV1Violation[] $violations
    */
   public function setViolations($violations)
   {

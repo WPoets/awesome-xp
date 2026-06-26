@@ -33,7 +33,7 @@ class PolicyDriftDetails extends \Google\Model
   public $field;
 
   /**
-   * @param string
+   * @param string $detectedValue
    */
   public function setDetectedValue($detectedValue)
   {
@@ -47,7 +47,7 @@ class PolicyDriftDetails extends \Google\Model
     return $this->detectedValue;
   }
   /**
-   * @param string
+   * @param string $expectedValue
    */
   public function setExpectedValue($expectedValue)
   {
@@ -61,7 +61,7 @@ class PolicyDriftDetails extends \Google\Model
     return $this->expectedValue;
   }
   /**
-   * @param string
+   * @param string $field
    */
   public function setField($field)
   {

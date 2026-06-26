@@ -27,7 +27,7 @@ use Google\Client;
  *
  * <p>
  * For more information about this service, see the API
- * <a href="https://developers.google.com/docs/" target="_blank">Documentation</a>
+ * <a href="https://developers.google.com/workspace/docs/" target="_blank">Documentation</a>
  * </p>
  *
  * @author Google, Inc.
@@ -98,6 +98,10 @@ class Docs extends \Google\Service
                   'location' => 'path',
                   'type' => 'string',
                   'required' => true,
+                ],
+                'includeTabsContent' => [
+                  'location' => 'query',
+                  'type' => 'boolean',
                 ],
                 'suggestionsViewMode' => [
                   'location' => 'query',

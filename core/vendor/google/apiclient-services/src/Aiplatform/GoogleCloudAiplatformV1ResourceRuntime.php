@@ -19,6 +19,33 @@ namespace Google\Service\Aiplatform;
 
 class GoogleCloudAiplatformV1ResourceRuntime extends \Google\Model
 {
+  /**
+   * Output only. URIs for user to connect to the Cluster. Example: {
+   * "RAY_HEAD_NODE_INTERNAL_IP": "head-node-IP:10001" "RAY_DASHBOARD_URI":
+   * "ray-dashboard-address:8888" }
+   *
+   * @var string[]
+   */
+  public $accessUris;
+
+  /**
+   * Output only. URIs for user to connect to the Cluster. Example: {
+   * "RAY_HEAD_NODE_INTERNAL_IP": "head-node-IP:10001" "RAY_DASHBOARD_URI":
+   * "ray-dashboard-address:8888" }
+   *
+   * @param string[] $accessUris
+   */
+  public function setAccessUris($accessUris)
+  {
+    $this->accessUris = $accessUris;
+  }
+  /**
+   * @return string[]
+   */
+  public function getAccessUris()
+  {
+    return $this->accessUris;
+  }
 }
 
 // Adding a class alias for backwards compatibility with the previous class name.

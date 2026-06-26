@@ -17,8 +17,8 @@
 
 namespace Google\Service\CivicInfo\Resource;
 
-use Google\Service\CivicInfo\ElectionsQueryResponse;
-use Google\Service\CivicInfo\VoterInfoResponse;
+use Google\Service\CivicInfo\CivicinfoApiprotosV2ElectionsQueryResponse;
+use Google\Service\CivicInfo\CivicinfoApiprotosV2VoterInfoResponse;
 
 /**
  * The "elections" collection of methods.
@@ -37,22 +37,22 @@ class Elections extends \Google\Service\Resource
    *
    * @opt_param bool productionDataOnly Whether to include data that has not been
    * allowlisted yet
-   * @return ElectionsQueryResponse
+   * @return CivicinfoApiprotosV2ElectionsQueryResponse
    * @throws \Google\Service\Exception
    */
   public function electionQuery($optParams = [])
   {
     $params = [];
     $params = array_merge($params, $optParams);
-    return $this->call('electionQuery', [$params], ElectionsQueryResponse::class);
+    return $this->call('electionQuery', [$params], CivicinfoApiprotosV2ElectionsQueryResponse::class);
   }
   /**
    * Looks up information relevant to a voter based on the voter's registered
    * address. (elections.voterInfoQuery)
    *
-   * @param string $address The registered address of the voter to look up.
    * @param array $optParams Optional parameters.
    *
+   * @opt_param string address The registered address of the voter to look up.
    * @opt_param string electionId The unique ID of the election to look up. A list
    * of election IDs can be obtained at
    * https://www.googleapis.com/civicinfo/{version}/elections. If no election ID
@@ -69,14 +69,14 @@ class Elections extends \Google\Service\Resource
    * the success code and include any partial information when it is unable to
    * determine a matching address or unable to determine the election for
    * electionId=0 queries.
-   * @return VoterInfoResponse
+   * @return CivicinfoApiprotosV2VoterInfoResponse
    * @throws \Google\Service\Exception
    */
-  public function voterInfoQuery($address, $optParams = [])
+  public function voterInfoQuery($optParams = [])
   {
-    $params = ['address' => $address];
+    $params = [];
     $params = array_merge($params, $optParams);
-    return $this->call('voterInfoQuery', [$params], VoterInfoResponse::class);
+    return $this->call('voterInfoQuery', [$params], CivicinfoApiprotosV2VoterInfoResponse::class);
   }
 }
 

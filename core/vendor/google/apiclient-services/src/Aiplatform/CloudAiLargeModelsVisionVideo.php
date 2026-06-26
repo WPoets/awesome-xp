@@ -20,16 +20,88 @@ namespace Google\Service\Aiplatform;
 class CloudAiLargeModelsVisionVideo extends \Google\Model
 {
   /**
+   * Base 64 encoded video bytes.
+   *
+   * @var string
+   */
+  public $encodedVideo;
+  /**
+   * Video encoding, for example "video/mp4".
+   *
+   * @var string
+   */
+  public $encoding;
+  /**
+   * Text/Expanded text input for Help Me Write.
+   *
+   * @var string
+   */
+  public $text;
+  /**
+   * Path to another storage (typically Google Cloud Storage).
+   *
    * @var string
    */
   public $uri;
   /**
+   * Raw bytes.
+   *
    * @var string
    */
   public $video;
 
   /**
-   * @param string
+   * Base 64 encoded video bytes.
+   *
+   * @param string $encodedVideo
+   */
+  public function setEncodedVideo($encodedVideo)
+  {
+    $this->encodedVideo = $encodedVideo;
+  }
+  /**
+   * @return string
+   */
+  public function getEncodedVideo()
+  {
+    return $this->encodedVideo;
+  }
+  /**
+   * Video encoding, for example "video/mp4".
+   *
+   * @param string $encoding
+   */
+  public function setEncoding($encoding)
+  {
+    $this->encoding = $encoding;
+  }
+  /**
+   * @return string
+   */
+  public function getEncoding()
+  {
+    return $this->encoding;
+  }
+  /**
+   * Text/Expanded text input for Help Me Write.
+   *
+   * @param string $text
+   */
+  public function setText($text)
+  {
+    $this->text = $text;
+  }
+  /**
+   * @return string
+   */
+  public function getText()
+  {
+    return $this->text;
+  }
+  /**
+   * Path to another storage (typically Google Cloud Storage).
+   *
+   * @param string $uri
    */
   public function setUri($uri)
   {
@@ -43,7 +115,9 @@ class CloudAiLargeModelsVisionVideo extends \Google\Model
     return $this->uri;
   }
   /**
-   * @param string
+   * Raw bytes.
+   *
+   * @param string $video
    */
   public function setVideo($video)
   {

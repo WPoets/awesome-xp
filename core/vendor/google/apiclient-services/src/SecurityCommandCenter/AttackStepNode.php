@@ -19,6 +19,11 @@ namespace Google\Service\SecurityCommandCenter;
 
 class AttackStepNode extends \Google\Model
 {
+  public const TYPE_NODE_TYPE_UNSPECIFIED = 'NODE_TYPE_UNSPECIFIED';
+  public const TYPE_NODE_TYPE_AND = 'NODE_TYPE_AND';
+  public const TYPE_NODE_TYPE_OR = 'NODE_TYPE_OR';
+  public const TYPE_NODE_TYPE_DEFENSE = 'NODE_TYPE_DEFENSE';
+  public const TYPE_NODE_TYPE_ATTACKER = 'NODE_TYPE_ATTACKER';
   /**
    * @var string
    */
@@ -41,7 +46,7 @@ class AttackStepNode extends \Google\Model
   public $uuid;
 
   /**
-   * @param string
+   * @param string $description
    */
   public function setDescription($description)
   {
@@ -55,7 +60,7 @@ class AttackStepNode extends \Google\Model
     return $this->description;
   }
   /**
-   * @param string
+   * @param string $displayName
    */
   public function setDisplayName($displayName)
   {
@@ -69,7 +74,7 @@ class AttackStepNode extends \Google\Model
     return $this->displayName;
   }
   /**
-   * @param string[]
+   * @param string[] $labels
    */
   public function setLabels($labels)
   {
@@ -83,21 +88,21 @@ class AttackStepNode extends \Google\Model
     return $this->labels;
   }
   /**
-   * @param string
+   * @param self::TYPE_* $type
    */
   public function setType($type)
   {
     $this->type = $type;
   }
   /**
-   * @return string
+   * @return self::TYPE_*
    */
   public function getType()
   {
     return $this->type;
   }
   /**
-   * @param string
+   * @param string $uuid
    */
   public function setUuid($uuid)
   {

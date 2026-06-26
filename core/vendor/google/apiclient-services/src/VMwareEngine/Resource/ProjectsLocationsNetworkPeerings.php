@@ -64,6 +64,9 @@ class ProjectsLocationsNetworkPeerings extends \Google\Service\Resource
    * second request. This prevents clients from accidentally creating duplicate
    * commitments. The request ID must be a valid UUID with the exception that zero
    * UUID is not supported (00000000-0000-0000-0000-000000000000).
+   * @opt_param bool validateOnly Optional. If set to `true`, only validates the
+   * request but doesn’t execute the request. If set to `false`, validates and
+   * executes the request.
    * @return Operation
    * @throws \Google\Service\Exception
    */
@@ -173,9 +176,9 @@ class ProjectsLocationsNetworkPeerings extends \Google\Service\Resource
    * updated. Only fields specified in `updateMask` are applied. NetworkPeering is
    * a global resource and location can only be global. (networkPeerings.patch)
    *
-   * @param string $name Output only. The resource name of the network peering.
-   * NetworkPeering is a global resource and location can only be global. Resource
-   * names are scheme-less URIs that follow the conventions in
+   * @param string $name Output only. Identifier. The resource name of the network
+   * peering. NetworkPeering is a global resource and location can only be global.
+   * Resource names are scheme-less URIs that follow the conventions in
    * https://cloud.google.com/apis/design/resource_names. For example:
    * `projects/my-project/locations/global/networkPeerings/my-peering`
    * @param NetworkPeering $postBody
@@ -197,6 +200,9 @@ class ProjectsLocationsNetworkPeerings extends \Google\Service\Resource
    * fields specified in the `update_mask` are relative to the resource, not the
    * full request. A field will be overwritten if it is in the mask. If the user
    * does not provide a mask then all fields will be overwritten.
+   * @opt_param bool validateOnly Optional. If set to `true`, only validates the
+   * request but doesn’t execute the request. If set to `false`, validates and
+   * executes the request.
    * @return Operation
    * @throws \Google\Service\Exception
    */

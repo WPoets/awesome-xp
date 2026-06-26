@@ -17,9 +17,15 @@
 
 namespace Google\Service\ArtifactRegistry\Resource;
 
+use Google\Service\ArtifactRegistry\CheckPrewarmedArtifactRequest;
+use Google\Service\ArtifactRegistry\CheckPrewarmedArtifactResponse;
+use Google\Service\ArtifactRegistry\ExportArtifactRequest;
 use Google\Service\ArtifactRegistry\ListRepositoriesResponse;
 use Google\Service\ArtifactRegistry\Operation;
 use Google\Service\ArtifactRegistry\Policy;
+use Google\Service\ArtifactRegistry\PrewarmArtifactRequest;
+use Google\Service\ArtifactRegistry\RemovePrewarmedArtifactRequest;
+use Google\Service\ArtifactRegistry\RemovePrewarmedArtifactResponse;
 use Google\Service\ArtifactRegistry\Repository;
 use Google\Service\ArtifactRegistry\SetIamPolicyRequest;
 use Google\Service\ArtifactRegistry\TestIamPermissionsRequest;
@@ -35,6 +41,23 @@ use Google\Service\ArtifactRegistry\TestIamPermissionsResponse;
  */
 class ProjectsLocationsRepositories extends \Google\Service\Resource
 {
+  /**
+   * Checks an artifact streaming. (repositories.checkPrewarmedArtifact)
+   *
+   * @param string $repository Required. The name of the repository, for example:
+   * `projects/p1/locations/us-central1/repositories/repo1`. If the package or
+   * version ID parts contain slashes, the slashes are escaped.
+   * @param CheckPrewarmedArtifactRequest $postBody
+   * @param array $optParams Optional parameters.
+   * @return CheckPrewarmedArtifactResponse
+   * @throws \Google\Service\Exception
+   */
+  public function checkPrewarmedArtifact($repository, CheckPrewarmedArtifactRequest $postBody, $optParams = [])
+  {
+    $params = ['repository' => $repository, 'postBody' => $postBody];
+    $params = array_merge($params, $optParams);
+    return $this->call('checkPrewarmedArtifact', [$params], CheckPrewarmedArtifactResponse::class);
+  }
   /**
    * Creates a repository. The returned Operation will finish once the repository
    * has been created. Its response will be the created Repository.
@@ -72,6 +95,22 @@ class ProjectsLocationsRepositories extends \Google\Service\Resource
     $params = ['name' => $name];
     $params = array_merge($params, $optParams);
     return $this->call('delete', [$params], Operation::class);
+  }
+  /**
+   * Exports an artifact to a Cloud Storage bucket. (repositories.exportArtifact)
+   *
+   * @param string $repository Required. The repository of the artifact to export.
+   * Format: projects/{project}/locations/{location}/repositories/{repository}
+   * @param ExportArtifactRequest $postBody
+   * @param array $optParams Optional parameters.
+   * @return Operation
+   * @throws \Google\Service\Exception
+   */
+  public function exportArtifact($repository, ExportArtifactRequest $postBody, $optParams = [])
+  {
+    $params = ['repository' => $repository, 'postBody' => $postBody];
+    $params = array_merge($params, $optParams);
+    return $this->call('exportArtifact', [$params], Operation::class);
   }
   /**
    * Gets a repository. (repositories.get)
@@ -124,6 +163,18 @@ class ProjectsLocationsRepositories extends \Google\Service\Resource
    * repositories will be listed.
    * @param array $optParams Optional parameters.
    *
+   * @opt_param string filter Optional. An expression for filtering the results of
+   * the request. Filter rules are case insensitive. The fields eligible for
+   * filtering are: * `name` Examples of using a filter: To filter the results of
+   * your request to repositories with the name `my-repo` in project `my-project`
+   * in the `us-central` region, append the following filter expression to your
+   * request: * `name="projects/my-project/locations/us-central1/repositories/my-
+   * repo"` You can also use wildcards to match any number of characters before or
+   * after the value: * `name="projects/my-project/locations/us-
+   * central1/repositories/my-*"` * `name="projects/my-project/locations/us-
+   * central1/repositoriesrepo"` * `name="projects/my-project/locations/us-
+   * central1/repositoriesrepo*"`
+   * @opt_param string orderBy Optional. The field to order the results by.
    * @opt_param int pageSize The maximum number of repositories to return. Maximum
    * page size is 1,000.
    * @opt_param string pageToken The next_page_token value returned from a
@@ -157,6 +208,39 @@ class ProjectsLocationsRepositories extends \Google\Service\Resource
     $params = ['name' => $name, 'postBody' => $postBody];
     $params = array_merge($params, $optParams);
     return $this->call('patch', [$params], Repository::class);
+  }
+  /**
+   * Prewarms an artifact for streaming. (repositories.prewarmArtifact)
+   *
+   * @param string $repository Required. The repository name, for example:
+   * `projects/p1/locations/us-central1/repositories/repo1`. If the package or
+   * version ID parts contain slashes, the slashes are escaped.
+   * @param PrewarmArtifactRequest $postBody
+   * @param array $optParams Optional parameters.
+   * @return Operation
+   * @throws \Google\Service\Exception
+   */
+  public function prewarmArtifact($repository, PrewarmArtifactRequest $postBody, $optParams = [])
+  {
+    $params = ['repository' => $repository, 'postBody' => $postBody];
+    $params = array_merge($params, $optParams);
+    return $this->call('prewarmArtifact', [$params], Operation::class);
+  }
+  /**
+   * Removes an artifact from streaming. (repositories.removePrewarmedArtifact)
+   *
+   * @param string $repository Required. The repository name, for example:
+   * `projects/p1/locations/us-central1/repositories/repo1`.
+   * @param RemovePrewarmedArtifactRequest $postBody
+   * @param array $optParams Optional parameters.
+   * @return RemovePrewarmedArtifactResponse
+   * @throws \Google\Service\Exception
+   */
+  public function removePrewarmedArtifact($repository, RemovePrewarmedArtifactRequest $postBody, $optParams = [])
+  {
+    $params = ['repository' => $repository, 'postBody' => $postBody];
+    $params = array_merge($params, $optParams);
+    return $this->call('removePrewarmedArtifact', [$params], RemovePrewarmedArtifactResponse::class);
   }
   /**
    * Updates the IAM policy for a given resource. (repositories.setIamPolicy)

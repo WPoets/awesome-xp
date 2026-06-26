@@ -17,6 +17,8 @@
 
 namespace Google\Auth\Credentials;
 
+use COM;
+use com_exception;
 use Google\Auth\CredentialsLoader;
 use Google\Auth\GetQuotaProjectInterface;
 use Google\Auth\HttpHandler\HttpClientCache;
@@ -38,23 +40,25 @@ use InvalidArgumentException;
  * It can be used to authorize requests using the AuthTokenMiddleware, but will
  * only succeed if being run on GCE:
  *
- *   use Google\Auth\Credentials\GCECredentials;
- *   use Google\Auth\Middleware\AuthTokenMiddleware;
- *   use GuzzleHttp\Client;
- *   use GuzzleHttp\HandlerStack;
+ * ```
+ * use Google\Auth\Credentials\GCECredentials;
+ * use Google\Auth\Middleware\AuthTokenMiddleware;
+ * use GuzzleHttp\Client;
+ * use GuzzleHttp\HandlerStack;
  *
- *   $gce = new GCECredentials();
- *   $middleware = new AuthTokenMiddleware($gce);
- *   $stack = HandlerStack::create();
- *   $stack->push($middleware);
+ * $gce = new GCECredentials();
+ * $middleware = new AuthTokenMiddleware($gce);
+ * $stack = HandlerStack::create();
+ * $stack->push($middleware);
  *
- *   $client = new Client([
- *      'handler' => $stack,
- *      'base_uri' => 'https://www.googleapis.com/taskqueue/v1beta2/projects/',
- *      'auth' => 'google_auth'
- *   ]);
+ * $client = new Client([
+ *    'handler' => $stack,
+ *    'base_uri' => 'https://www.googleapis.com/taskqueue/v1beta2/projects/',
+ *    'auth' => 'google_auth'
+ * ]);
  *
- *   $res = $client->get('myproject/taskqueues/myqueue');
+ * $res = $client->get('myproject/taskqueues/myqueue');
+ * ```
  */
 class GCECredentials extends CredentialsLoader implements
     SignBlobInterface,
@@ -62,6 +66,7 @@ class GCECredentials extends CredentialsLoader implements
     GetQuotaProjectInterface
 {
     use IamSignerTrait;
+    use RegionalAccessBoundaryTrait;
 
     // phpcs:disable
     const cacheKey = 'GOOGLE_AUTH_PHP_GCE';
@@ -98,7 +103,7 @@ class GCECredentials extends CredentialsLoader implements
     /**
      * The metadata path of the project ID.
      */
-    const UNIVERSE_DOMAIN_URI_PATH = 'v1/universe/universe_domain';
+    const UNIVERSE_DOMAIN_URI_PATH = 'v1/universe/universe-domain';
 
     /**
      * The header whose presence indicates GCE presence.
@@ -109,6 +114,23 @@ class GCECredentials extends CredentialsLoader implements
      * The Linux file which contains the product name.
      */
     private const GKE_PRODUCT_NAME_FILE = '/sys/class/dmi/id/product_name';
+
+    /**
+     * The Windows Registry key path to the product name
+     */
+    private const WINDOWS_REGISTRY_KEY_PATH = 'HKEY_LOCAL_MACHINE\\SYSTEM\\HardwareConfig\\Current\\';
+
+    /**
+     * The Windows registry key name for the product name
+     */
+    private const WINDOWS_REGISTRY_KEY_NAME = 'SystemProductName';
+
+    /**
+     * The Name of the product expected from the windows registry
+     */
+    private const PRODUCT_NAME = 'Google';
+
+    private const CRED_TYPE = 'mds';
 
     /**
      * Note: the explicit `timeout` and `tries` below is a workaround. The underlying
@@ -180,7 +202,7 @@ class GCECredentials extends CredentialsLoader implements
     private ?string $universeDomain;
 
     /**
-     * @param Iam $iam [optional] An IAM instance.
+     * @param Iam|null $iam [optional] An IAM instance.
      * @param string|string[] $scope [optional] the scope of the access request,
      *        expressed either as an array or as a space-delimited string.
      * @param string $targetAudience [optional] The audience for the ID token.
@@ -188,8 +210,9 @@ class GCECredentials extends CredentialsLoader implements
      *   charges associated with the request.
      * @param string $serviceAccountIdentity [optional] Specify a service
      *   account identity name to use instead of "default".
-     * @param string $universeDomain [optional] Specify a universe domain to use
+     * @param string|null $universeDomain [optional] Specify a universe domain to use
      *   instead of fetching one from the metadata server.
+     * @param bool $enableRegionalAccessBoundary Lookup and include the regional access boundary header.
      */
     public function __construct(
         ?Iam $iam = null,
@@ -197,7 +220,8 @@ class GCECredentials extends CredentialsLoader implements
         $targetAudience = null,
         $quotaProject = null,
         $serviceAccountIdentity = null,
-        ?string $universeDomain = null
+        ?string $universeDomain = null,
+        bool $enableRegionalAccessBoundary = false
     ) {
         $this->iam = $iam;
 
@@ -226,6 +250,7 @@ class GCECredentials extends CredentialsLoader implements
         $this->quotaProject = $quotaProject;
         $this->serviceAccountIdentity = $serviceAccountIdentity;
         $this->universeDomain = $universeDomain;
+        $this->enableRegionalAccessBoundary = $enableRegionalAccessBoundary;
     }
 
     /**
@@ -336,7 +361,7 @@ class GCECredentials extends CredentialsLoader implements
      * host.
      * If $httpHandler is not specified a the default HttpHandler is used.
      *
-     * @param callable $httpHandler callback which delivers psr7 request
+     * @param callable|null $httpHandler callback which delivers psr7 request
      * @return bool True if this a GCEInstance, false otherwise
      */
     public static function onGce(?callable $httpHandler = null)
@@ -359,7 +384,10 @@ class GCECredentials extends CredentialsLoader implements
                     new Request(
                         'GET',
                         $checkUri,
-                        [self::FLAVOR_HEADER => 'Google']
+                        [
+                            self::FLAVOR_HEADER => 'Google',
+                            self::$metricMetadataKey => self::getMetricsHeader('', 'mds')
+                        ]
                     ),
                     ['timeout' => self::COMPUTE_PING_CONNECTION_TIMEOUT_S]
                 );
@@ -372,9 +400,10 @@ class GCECredentials extends CredentialsLoader implements
             }
         }
 
-        if (PHP_OS === 'Windows') {
-            // @TODO: implement GCE residency detection on Windows
-            return false;
+        if (PHP_OS === 'Windows' || PHP_OS === 'WINNT') {
+            return self::detectResidencyWindows(
+                self::WINDOWS_REGISTRY_KEY_PATH . self::WINDOWS_REGISTRY_KEY_NAME
+            );
         }
 
         // Detect GCE residency on Linux
@@ -385,9 +414,31 @@ class GCECredentials extends CredentialsLoader implements
     {
         if (file_exists($productNameFile)) {
             $productName = trim((string) file_get_contents($productNameFile));
-            return 0 === strpos($productName, 'Google');
+            return 0 === strpos($productName, self::PRODUCT_NAME);
         }
         return false;
+    }
+
+    private static function detectResidencyWindows(string $registryProductKey): bool
+    {
+        if (!class_exists(COM::class)) {
+            // the COM extension must be installed and enabled to detect Windows residency
+            // see https://www.php.net/manual/en/book.com.php
+            return false;
+        }
+
+        $shell = new COM('WScript.Shell');
+        $productName = null;
+
+        try {
+            $productName = $shell->regRead($registryProductKey);
+        } catch (com_exception) {
+            // This means that we tried to read a key that doesn't exist on the registry
+            // which might mean that it is a windows instance that is not on GCE
+            return false;
+        }
+
+        return 0 === strpos($productName, self::PRODUCT_NAME);
     }
 
     /**
@@ -396,7 +447,9 @@ class GCECredentials extends CredentialsLoader implements
      * Fetches the auth tokens from the GCE metadata host if it is available.
      * If $httpHandler is not specified a the default HttpHandler is used.
      *
-     * @param callable $httpHandler callback which delivers psr7 request
+     * @param callable|null $httpHandler callback which delivers psr7 request
+     * @param array<mixed> $headers [optional] Headers to be inserted
+     *     into the token endpoint request present.
      *
      * @return array<mixed> {
      *     A set of auth related metadata, based on the token type.
@@ -408,7 +461,7 @@ class GCECredentials extends CredentialsLoader implements
      * }
      * @throws \Exception
      */
-    public function fetchAuthToken(?callable $httpHandler = null)
+    public function fetchAuthToken(?callable $httpHandler = null, array $headers = [])
     {
         $httpHandler = $httpHandler
             ?: HttpHandlerFactory::build(HttpClientCache::getHttpClient());
@@ -421,7 +474,11 @@ class GCECredentials extends CredentialsLoader implements
             return [];  // return an empty array with no access token
         }
 
-        $response = $this->getFromMetadata($httpHandler, $this->tokenUri);
+        $response = $this->getFromMetadata(
+            $httpHandler,
+            $this->tokenUri,
+            $this->applyTokenEndpointMetrics($headers, $this->targetAudience ? 'it' : 'at')
+        );
 
         if ($this->targetAudience) {
             return $this->lastReceivedToken = ['id_token' => $response];
@@ -440,11 +497,15 @@ class GCECredentials extends CredentialsLoader implements
     }
 
     /**
+     * Returns the Cache Key for the credential token.
+     * The format for the cache key is:
+     * TokenURI
+     *
      * @return string
      */
     public function getCacheKey()
     {
-        return self::cacheKey;
+        return $this->tokenUri;
     }
 
     /**
@@ -471,7 +532,7 @@ class GCECredentials extends CredentialsLoader implements
      *
      * Subsequent calls will return a cached value.
      *
-     * @param callable $httpHandler callback which delivers psr7 request
+     * @param callable|null $httpHandler callback which delivers psr7 request
      * @return string
      */
     public function getClientName(?callable $httpHandler = null)
@@ -505,7 +566,7 @@ class GCECredentials extends CredentialsLoader implements
      *
      * Returns null if called outside GCE.
      *
-     * @param callable $httpHandler Callback which delivers psr7 request
+     * @param callable|null $httpHandler Callback which delivers psr7 request
      * @return string|null
      */
     public function getProjectId(?callable $httpHandler = null)
@@ -533,7 +594,7 @@ class GCECredentials extends CredentialsLoader implements
     /**
      * Fetch the default universe domain from the metadata server.
      *
-     * @param callable $httpHandler Callback which delivers psr7 request
+     * @param callable|null $httpHandler Callback which delivers psr7 request
      * @return string
      */
     public function getUniverseDomain(?callable $httpHandler = null): string
@@ -575,19 +636,52 @@ class GCECredentials extends CredentialsLoader implements
     }
 
     /**
+     * Updates metadata with the authorization token.
+     *
+     * @param array<mixed> $metadata metadata hashmap
+     * @param string $authUri optional auth uri
+     * @param callable|null $httpHandler callback which delivers psr7 request
+     * @return array<mixed> updated metadata hashmap
+     */
+    public function updateMetadata(
+        $metadata,
+        $authUri = null,
+        ?callable $httpHandler = null
+    ) {
+        $metadata = parent::updateMetadata($metadata, $authUri, $httpHandler);
+
+        if ($this->enableRegionalAccessBoundary) {
+            $serviceAccountEmail = $this->getClientName($httpHandler);
+            if (preg_match('/^[^@]+@[^@]+\.[^@]+$/', $serviceAccountEmail)) {
+                $metadata = $this->updateRegionalAccessBoundaryMetadata(
+                    $metadata,
+                    $this->buildRegionalAccessBoundaryLookupUrl($serviceAccountEmail),
+                    $this->getUniverseDomain($httpHandler),
+                    $httpHandler,
+                );
+            }
+        }
+
+        return $metadata;
+    }
+
+    /**
      * Fetch the value of a GCE metadata server URI.
      *
      * @param callable $httpHandler An HTTP Handler to deliver PSR7 requests.
      * @param string $uri The metadata URI.
+     * @param array<mixed> $headers [optional] If present, add these headers to the token
+     *        endpoint request.
+     *
      * @return string
      */
-    private function getFromMetadata(callable $httpHandler, $uri)
+    private function getFromMetadata(callable $httpHandler, $uri, array $headers = [])
     {
         $resp = $httpHandler(
             new Request(
                 'GET',
                 $uri,
-                [self::FLAVOR_HEADER => 'Google']
+                [self::FLAVOR_HEADER => 'Google'] + $headers
             )
         );
 
@@ -618,5 +712,10 @@ class GCECredentials extends CredentialsLoader implements
 
         // Set isOnGce
         $this->isOnGce = $isOnGce;
+    }
+
+    protected function getCredType(): string
+    {
+        return self::CRED_TYPE;
     }
 }

@@ -20,20 +20,40 @@ namespace Google\Service\NetworkManagement;
 class NetworkInfo extends \Google\Model
 {
   /**
+   * Name of a Compute Engine network.
+   *
    * @var string
    */
   public $displayName;
   /**
+   * The IP range of the subnet matching the source IP address of the test.
+   *
    * @var string
    */
   public $matchedIpRange;
   /**
+   * URI of the subnet matching the source IP address of the test.
+   *
+   * @var string
+   */
+  public $matchedSubnetUri;
+  /**
+   * The region of the subnet matching the source IP address of the test.
+   *
+   * @var string
+   */
+  public $region;
+  /**
+   * URI of a Compute Engine network.
+   *
    * @var string
    */
   public $uri;
 
   /**
-   * @param string
+   * Name of a Compute Engine network.
+   *
+   * @param string $displayName
    */
   public function setDisplayName($displayName)
   {
@@ -47,7 +67,9 @@ class NetworkInfo extends \Google\Model
     return $this->displayName;
   }
   /**
-   * @param string
+   * The IP range of the subnet matching the source IP address of the test.
+   *
+   * @param string $matchedIpRange
    */
   public function setMatchedIpRange($matchedIpRange)
   {
@@ -61,7 +83,41 @@ class NetworkInfo extends \Google\Model
     return $this->matchedIpRange;
   }
   /**
-   * @param string
+   * URI of the subnet matching the source IP address of the test.
+   *
+   * @param string $matchedSubnetUri
+   */
+  public function setMatchedSubnetUri($matchedSubnetUri)
+  {
+    $this->matchedSubnetUri = $matchedSubnetUri;
+  }
+  /**
+   * @return string
+   */
+  public function getMatchedSubnetUri()
+  {
+    return $this->matchedSubnetUri;
+  }
+  /**
+   * The region of the subnet matching the source IP address of the test.
+   *
+   * @param string $region
+   */
+  public function setRegion($region)
+  {
+    $this->region = $region;
+  }
+  /**
+   * @return string
+   */
+  public function getRegion()
+  {
+    return $this->region;
+  }
+  /**
+   * URI of a Compute Engine network.
+   *
+   * @param string $uri
    */
   public function setUri($uri)
   {

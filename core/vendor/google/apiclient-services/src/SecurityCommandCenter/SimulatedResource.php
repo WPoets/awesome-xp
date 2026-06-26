@@ -31,7 +31,7 @@ class SimulatedResource extends \Google\Model
   public $resourceType;
 
   /**
-   * @param Policy
+   * @param Policy $iamPolicyData
    */
   public function setIamPolicyData(Policy $iamPolicyData)
   {
@@ -45,7 +45,7 @@ class SimulatedResource extends \Google\Model
     return $this->iamPolicyData;
   }
   /**
-   * @param array[]
+   * @param array[] $resourceData
    */
   public function setResourceData($resourceData)
   {
@@ -59,7 +59,7 @@ class SimulatedResource extends \Google\Model
     return $this->resourceData;
   }
   /**
-   * @param string
+   * @param string $resourceType
    */
   public function setResourceType($resourceType)
   {

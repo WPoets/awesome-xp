@@ -29,7 +29,7 @@ class GoogleCloudSecuritycenterV2ServiceAccountDelegationInfo extends \Google\Mo
   public $principalSubject;
 
   /**
-   * @param string
+   * @param string $principalEmail
    */
   public function setPrincipalEmail($principalEmail)
   {
@@ -43,7 +43,7 @@ class GoogleCloudSecuritycenterV2ServiceAccountDelegationInfo extends \Google\Mo
     return $this->principalEmail;
   }
   /**
-   * @param string
+   * @param string $principalSubject
    */
   public function setPrincipalSubject($principalSubject)
   {

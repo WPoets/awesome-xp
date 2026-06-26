@@ -32,8 +32,8 @@ use Google\Service\GoogleAnalyticsAdmin\GoogleProtobufEmpty;
 class PropertiesConversionEvents extends \Google\Service\Resource
 {
   /**
-   * Creates a conversion event with the specified attributes.
-   * (conversionEvents.create)
+   * Deprecated: Use `CreateKeyEvent` instead. Creates a conversion event with the
+   * specified attributes. (conversionEvents.create)
    *
    * @param string $parent Required. The resource name of the parent property
    * where this conversion event will be created. Format: properties/123
@@ -49,7 +49,8 @@ class PropertiesConversionEvents extends \Google\Service\Resource
     return $this->call('create', [$params], GoogleAnalyticsAdminV1betaConversionEvent::class);
   }
   /**
-   * Deletes a conversion event in a property. (conversionEvents.delete)
+   * Deprecated: Use `DeleteKeyEvent` instead. Deletes a conversion event in a
+   * property. (conversionEvents.delete)
    *
    * @param string $name Required. The resource name of the conversion event to
    * delete. Format: properties/{property}/conversionEvents/{conversion_event}
@@ -65,7 +66,8 @@ class PropertiesConversionEvents extends \Google\Service\Resource
     return $this->call('delete', [$params], GoogleProtobufEmpty::class);
   }
   /**
-   * Retrieve a single conversion event. (conversionEvents.get)
+   * Deprecated: Use `GetKeyEvent` instead. Retrieve a single conversion event.
+   * (conversionEvents.get)
    *
    * @param string $name Required. The resource name of the conversion event to
    * retrieve. Format: properties/{property}/conversionEvents/{conversion_event}
@@ -81,18 +83,18 @@ class PropertiesConversionEvents extends \Google\Service\Resource
     return $this->call('get', [$params], GoogleAnalyticsAdminV1betaConversionEvent::class);
   }
   /**
-   * Returns a list of conversion events in the specified parent property. Returns
-   * an empty list if no conversion events are found.
-   * (conversionEvents.listPropertiesConversionEvents)
+   * Deprecated: Use `ListKeyEvents` instead. Returns a list of conversion events
+   * in the specified parent property. Returns an empty list if no conversion
+   * events are found. (conversionEvents.listPropertiesConversionEvents)
    *
    * @param string $parent Required. The resource name of the parent property.
    * Example: 'properties/123'
    * @param array $optParams Optional parameters.
    *
-   * @opt_param int pageSize The maximum number of resources to return. If
-   * unspecified, at most 50 resources will be returned. The maximum value is 200;
-   * (higher values will be coerced to the maximum)
-   * @opt_param string pageToken A page token, received from a previous
+   * @opt_param int pageSize Optional. The maximum number of resources to return.
+   * If unspecified, at most 50 resources will be returned. The maximum value is
+   * 200; (higher values will be coerced to the maximum)
+   * @opt_param string pageToken Optional. A page token, received from a previous
    * `ListConversionEvents` call. Provide this to retrieve the subsequent page.
    * When paginating, all other parameters provided to `ListConversionEvents` must
    * match the call that provided the page token.
@@ -106,10 +108,10 @@ class PropertiesConversionEvents extends \Google\Service\Resource
     return $this->call('list', [$params], GoogleAnalyticsAdminV1betaListConversionEventsResponse::class);
   }
   /**
-   * Updates a conversion event with the specified attributes.
-   * (conversionEvents.patch)
+   * Deprecated: Use `UpdateKeyEvent` instead. Updates a conversion event with the
+   * specified attributes. (conversionEvents.patch)
    *
-   * @param string $name Output only. Resource name of this conversion event.
+   * @param string $name Identifier. Resource name of this conversion event.
    * Format: properties/{property}/conversionEvents/{conversion_event}
    * @param GoogleAnalyticsAdminV1betaConversionEvent $postBody
    * @param array $optParams Optional parameters.

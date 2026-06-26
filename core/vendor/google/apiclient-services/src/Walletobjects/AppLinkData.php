@@ -21,13 +21,17 @@ class AppLinkData extends \Google\Model
 {
   protected $androidAppLinkInfoType = AppLinkDataAppLinkInfo::class;
   protected $androidAppLinkInfoDataType = '';
+  protected $displayTextType = LocalizedString::class;
+  protected $displayTextDataType = '';
   protected $iosAppLinkInfoType = AppLinkDataAppLinkInfo::class;
   protected $iosAppLinkInfoDataType = '';
   protected $webAppLinkInfoType = AppLinkDataAppLinkInfo::class;
   protected $webAppLinkInfoDataType = '';
 
   /**
-   * @param AppLinkDataAppLinkInfo
+   * Optional information about the partner app link.
+   *
+   * @param AppLinkDataAppLinkInfo $androidAppLinkInfo
    */
   public function setAndroidAppLinkInfo(AppLinkDataAppLinkInfo $androidAppLinkInfo)
   {
@@ -41,13 +45,33 @@ class AppLinkData extends \Google\Model
     return $this->androidAppLinkInfo;
   }
   /**
-   * @param AppLinkDataAppLinkInfo
+   * Optional display text for the app link button. Character limit is 30.
+   *
+   * @param LocalizedString $displayText
+   */
+  public function setDisplayText(LocalizedString $displayText)
+  {
+    $this->displayText = $displayText;
+  }
+  /**
+   * @return LocalizedString
+   */
+  public function getDisplayText()
+  {
+    return $this->displayText;
+  }
+  /**
+   * Deprecated. Links to open iOS apps are not supported.
+   *
+   * @deprecated
+   * @param AppLinkDataAppLinkInfo $iosAppLinkInfo
    */
   public function setIosAppLinkInfo(AppLinkDataAppLinkInfo $iosAppLinkInfo)
   {
     $this->iosAppLinkInfo = $iosAppLinkInfo;
   }
   /**
+   * @deprecated
    * @return AppLinkDataAppLinkInfo
    */
   public function getIosAppLinkInfo()
@@ -55,7 +79,9 @@ class AppLinkData extends \Google\Model
     return $this->iosAppLinkInfo;
   }
   /**
-   * @param AppLinkDataAppLinkInfo
+   * Optional information about the partner web link.
+   *
+   * @param AppLinkDataAppLinkInfo $webAppLinkInfo
    */
   public function setWebAppLinkInfo(AppLinkDataAppLinkInfo $webAppLinkInfo)
   {

@@ -53,7 +53,7 @@ class GoogleCloudSecuritycenterV1BigQueryExport extends \Google\Model
   public $updateTime;
 
   /**
-   * @param string
+   * @param string $createTime
    */
   public function setCreateTime($createTime)
   {
@@ -67,7 +67,7 @@ class GoogleCloudSecuritycenterV1BigQueryExport extends \Google\Model
     return $this->createTime;
   }
   /**
-   * @param string
+   * @param string $dataset
    */
   public function setDataset($dataset)
   {
@@ -81,7 +81,7 @@ class GoogleCloudSecuritycenterV1BigQueryExport extends \Google\Model
     return $this->dataset;
   }
   /**
-   * @param string
+   * @param string $description
    */
   public function setDescription($description)
   {
@@ -95,7 +95,7 @@ class GoogleCloudSecuritycenterV1BigQueryExport extends \Google\Model
     return $this->description;
   }
   /**
-   * @param string
+   * @param string $filter
    */
   public function setFilter($filter)
   {
@@ -109,7 +109,7 @@ class GoogleCloudSecuritycenterV1BigQueryExport extends \Google\Model
     return $this->filter;
   }
   /**
-   * @param string
+   * @param string $mostRecentEditor
    */
   public function setMostRecentEditor($mostRecentEditor)
   {
@@ -123,7 +123,7 @@ class GoogleCloudSecuritycenterV1BigQueryExport extends \Google\Model
     return $this->mostRecentEditor;
   }
   /**
-   * @param string
+   * @param string $name
    */
   public function setName($name)
   {
@@ -137,7 +137,7 @@ class GoogleCloudSecuritycenterV1BigQueryExport extends \Google\Model
     return $this->name;
   }
   /**
-   * @param string
+   * @param string $principal
    */
   public function setPrincipal($principal)
   {
@@ -151,7 +151,7 @@ class GoogleCloudSecuritycenterV1BigQueryExport extends \Google\Model
     return $this->principal;
   }
   /**
-   * @param string
+   * @param string $updateTime
    */
   public function setUpdateTime($updateTime)
   {

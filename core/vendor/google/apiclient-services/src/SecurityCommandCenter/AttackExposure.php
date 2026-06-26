@@ -19,6 +19,9 @@ namespace Google\Service\SecurityCommandCenter;
 
 class AttackExposure extends \Google\Model
 {
+  public const STATE_STATE_UNSPECIFIED = 'STATE_UNSPECIFIED';
+  public const STATE_CALCULATED = 'CALCULATED';
+  public const STATE_NOT_CALCULATED = 'NOT_CALCULATED';
   /**
    * @var string
    */
@@ -46,7 +49,7 @@ class AttackExposure extends \Google\Model
   public $state;
 
   /**
-   * @param string
+   * @param string $attackExposureResult
    */
   public function setAttackExposureResult($attackExposureResult)
   {
@@ -60,7 +63,7 @@ class AttackExposure extends \Google\Model
     return $this->attackExposureResult;
   }
   /**
-   * @param int
+   * @param int $exposedHighValueResourcesCount
    */
   public function setExposedHighValueResourcesCount($exposedHighValueResourcesCount)
   {
@@ -74,7 +77,7 @@ class AttackExposure extends \Google\Model
     return $this->exposedHighValueResourcesCount;
   }
   /**
-   * @param int
+   * @param int $exposedLowValueResourcesCount
    */
   public function setExposedLowValueResourcesCount($exposedLowValueResourcesCount)
   {
@@ -88,7 +91,7 @@ class AttackExposure extends \Google\Model
     return $this->exposedLowValueResourcesCount;
   }
   /**
-   * @param int
+   * @param int $exposedMediumValueResourcesCount
    */
   public function setExposedMediumValueResourcesCount($exposedMediumValueResourcesCount)
   {
@@ -102,7 +105,7 @@ class AttackExposure extends \Google\Model
     return $this->exposedMediumValueResourcesCount;
   }
   /**
-   * @param string
+   * @param string $latestCalculationTime
    */
   public function setLatestCalculationTime($latestCalculationTime)
   {
@@ -124,14 +127,14 @@ class AttackExposure extends \Google\Model
     return $this->score;
   }
   /**
-   * @param string
+   * @param self::STATE_* $state
    */
   public function setState($state)
   {
     $this->state = $state;
   }
   /**
-   * @return string
+   * @return self::STATE_*
    */
   public function getState()
   {

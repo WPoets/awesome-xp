@@ -29,7 +29,7 @@ class AttackPathEdge extends \Google\Model
   public $source;
 
   /**
-   * @param string
+   * @param string $destination
    */
   public function setDestination($destination)
   {
@@ -43,7 +43,7 @@ class AttackPathEdge extends \Google\Model
     return $this->destination;
   }
   /**
-   * @param string
+   * @param string $source
    */
   public function setSource($source)
   {

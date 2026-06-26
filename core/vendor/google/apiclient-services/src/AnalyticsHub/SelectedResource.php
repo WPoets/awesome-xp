@@ -20,12 +20,46 @@ namespace Google\Service\AnalyticsHub;
 class SelectedResource extends \Google\Model
 {
   /**
+   * Optional. Format: For routine:
+   * `projects/{projectId}/datasets/{datasetId}/routines/{routineId}`
+   * Example:"projects/test_project/datasets/test_dataset/routines/test_routine"
+   *
+   * @var string
+   */
+  public $routine;
+  /**
+   * Optional. Format: For table:
+   * `projects/{projectId}/datasets/{datasetId}/tables/{tableId}`
+   * Example:"projects/test_project/datasets/test_dataset/tables/test_table"
+   *
    * @var string
    */
   public $table;
 
   /**
-   * @param string
+   * Optional. Format: For routine:
+   * `projects/{projectId}/datasets/{datasetId}/routines/{routineId}`
+   * Example:"projects/test_project/datasets/test_dataset/routines/test_routine"
+   *
+   * @param string $routine
+   */
+  public function setRoutine($routine)
+  {
+    $this->routine = $routine;
+  }
+  /**
+   * @return string
+   */
+  public function getRoutine()
+  {
+    return $this->routine;
+  }
+  /**
+   * Optional. Format: For table:
+   * `projects/{projectId}/datasets/{datasetId}/tables/{tableId}`
+   * Example:"projects/test_project/datasets/test_dataset/tables/test_table"
+   *
+   * @param string $table
    */
   public function setTable($table)
   {

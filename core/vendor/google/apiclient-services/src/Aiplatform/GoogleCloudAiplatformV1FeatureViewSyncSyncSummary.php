@@ -20,16 +20,29 @@ namespace Google\Service\Aiplatform;
 class GoogleCloudAiplatformV1FeatureViewSyncSyncSummary extends \Google\Model
 {
   /**
+   * Output only. Total number of rows synced.
+   *
    * @var string
    */
   public $rowSynced;
   /**
+   * Lower bound of the system time watermark for the sync job. This is only set
+   * for continuously syncing feature views.
+   *
+   * @var string
+   */
+  public $systemWatermarkTime;
+  /**
+   * Output only. BigQuery slot milliseconds consumed for the sync job.
+   *
    * @var string
    */
   public $totalSlot;
 
   /**
-   * @param string
+   * Output only. Total number of rows synced.
+   *
+   * @param string $rowSynced
    */
   public function setRowSynced($rowSynced)
   {
@@ -43,7 +56,26 @@ class GoogleCloudAiplatformV1FeatureViewSyncSyncSummary extends \Google\Model
     return $this->rowSynced;
   }
   /**
-   * @param string
+   * Lower bound of the system time watermark for the sync job. This is only set
+   * for continuously syncing feature views.
+   *
+   * @param string $systemWatermarkTime
+   */
+  public function setSystemWatermarkTime($systemWatermarkTime)
+  {
+    $this->systemWatermarkTime = $systemWatermarkTime;
+  }
+  /**
+   * @return string
+   */
+  public function getSystemWatermarkTime()
+  {
+    return $this->systemWatermarkTime;
+  }
+  /**
+   * Output only. BigQuery slot milliseconds consumed for the sync job.
+   *
+   * @param string $totalSlot
    */
   public function setTotalSlot($totalSlot)
   {

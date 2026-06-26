@@ -19,9 +19,23 @@ namespace Google\Service\SecurityCommandCenter;
 
 class GoogleCloudSecuritycenterV1Resource extends \Google\Collection
 {
+  public const CLOUD_PROVIDER_CLOUD_PROVIDER_UNSPECIFIED = 'CLOUD_PROVIDER_UNSPECIFIED';
+  public const CLOUD_PROVIDER_GOOGLE_CLOUD_PLATFORM = 'GOOGLE_CLOUD_PLATFORM';
+  public const CLOUD_PROVIDER_AMAZON_WEB_SERVICES = 'AMAZON_WEB_SERVICES';
+  public const CLOUD_PROVIDER_MICROSOFT_AZURE = 'MICROSOFT_AZURE';
   protected $collection_key = 'folders';
+  protected $adcApplicationType = AdcApplication::class;
+  protected $adcApplicationDataType = '';
+  protected $adcApplicationTemplateType = AdcApplicationTemplateRevision::class;
+  protected $adcApplicationTemplateDataType = '';
+  protected $adcSharedTemplateType = AdcSharedTemplateRevision::class;
+  protected $adcSharedTemplateDataType = '';
+  protected $applicationType = GoogleCloudSecuritycenterV1ResourceApplication::class;
+  protected $applicationDataType = '';
   protected $awsMetadataType = AwsMetadata::class;
   protected $awsMetadataDataType = '';
+  protected $azureMetadataType = AzureMetadata::class;
+  protected $azureMetadataDataType = '';
   /**
    * @var string
    */
@@ -76,7 +90,63 @@ class GoogleCloudSecuritycenterV1Resource extends \Google\Collection
   public $type;
 
   /**
-   * @param AwsMetadata
+   * @param AdcApplication $adcApplication
+   */
+  public function setAdcApplication(AdcApplication $adcApplication)
+  {
+    $this->adcApplication = $adcApplication;
+  }
+  /**
+   * @return AdcApplication
+   */
+  public function getAdcApplication()
+  {
+    return $this->adcApplication;
+  }
+  /**
+   * @param AdcApplicationTemplateRevision $adcApplicationTemplate
+   */
+  public function setAdcApplicationTemplate(AdcApplicationTemplateRevision $adcApplicationTemplate)
+  {
+    $this->adcApplicationTemplate = $adcApplicationTemplate;
+  }
+  /**
+   * @return AdcApplicationTemplateRevision
+   */
+  public function getAdcApplicationTemplate()
+  {
+    return $this->adcApplicationTemplate;
+  }
+  /**
+   * @param AdcSharedTemplateRevision $adcSharedTemplate
+   */
+  public function setAdcSharedTemplate(AdcSharedTemplateRevision $adcSharedTemplate)
+  {
+    $this->adcSharedTemplate = $adcSharedTemplate;
+  }
+  /**
+   * @return AdcSharedTemplateRevision
+   */
+  public function getAdcSharedTemplate()
+  {
+    return $this->adcSharedTemplate;
+  }
+  /**
+   * @param GoogleCloudSecuritycenterV1ResourceApplication $application
+   */
+  public function setApplication(GoogleCloudSecuritycenterV1ResourceApplication $application)
+  {
+    $this->application = $application;
+  }
+  /**
+   * @return GoogleCloudSecuritycenterV1ResourceApplication
+   */
+  public function getApplication()
+  {
+    return $this->application;
+  }
+  /**
+   * @param AwsMetadata $awsMetadata
    */
   public function setAwsMetadata(AwsMetadata $awsMetadata)
   {
@@ -90,21 +160,35 @@ class GoogleCloudSecuritycenterV1Resource extends \Google\Collection
     return $this->awsMetadata;
   }
   /**
-   * @param string
+   * @param AzureMetadata $azureMetadata
+   */
+  public function setAzureMetadata(AzureMetadata $azureMetadata)
+  {
+    $this->azureMetadata = $azureMetadata;
+  }
+  /**
+   * @return AzureMetadata
+   */
+  public function getAzureMetadata()
+  {
+    return $this->azureMetadata;
+  }
+  /**
+   * @param self::CLOUD_PROVIDER_* $cloudProvider
    */
   public function setCloudProvider($cloudProvider)
   {
     $this->cloudProvider = $cloudProvider;
   }
   /**
-   * @return string
+   * @return self::CLOUD_PROVIDER_*
    */
   public function getCloudProvider()
   {
     return $this->cloudProvider;
   }
   /**
-   * @param string
+   * @param string $displayName
    */
   public function setDisplayName($displayName)
   {
@@ -118,7 +202,7 @@ class GoogleCloudSecuritycenterV1Resource extends \Google\Collection
     return $this->displayName;
   }
   /**
-   * @param Folder[]
+   * @param Folder[] $folders
    */
   public function setFolders($folders)
   {
@@ -132,7 +216,7 @@ class GoogleCloudSecuritycenterV1Resource extends \Google\Collection
     return $this->folders;
   }
   /**
-   * @param string
+   * @param string $location
    */
   public function setLocation($location)
   {
@@ -146,7 +230,7 @@ class GoogleCloudSecuritycenterV1Resource extends \Google\Collection
     return $this->location;
   }
   /**
-   * @param string
+   * @param string $name
    */
   public function setName($name)
   {
@@ -160,7 +244,7 @@ class GoogleCloudSecuritycenterV1Resource extends \Google\Collection
     return $this->name;
   }
   /**
-   * @param string
+   * @param string $organization
    */
   public function setOrganization($organization)
   {
@@ -174,7 +258,7 @@ class GoogleCloudSecuritycenterV1Resource extends \Google\Collection
     return $this->organization;
   }
   /**
-   * @param string
+   * @param string $parent
    */
   public function setParent($parent)
   {
@@ -188,7 +272,7 @@ class GoogleCloudSecuritycenterV1Resource extends \Google\Collection
     return $this->parent;
   }
   /**
-   * @param string
+   * @param string $parentDisplayName
    */
   public function setParentDisplayName($parentDisplayName)
   {
@@ -202,7 +286,7 @@ class GoogleCloudSecuritycenterV1Resource extends \Google\Collection
     return $this->parentDisplayName;
   }
   /**
-   * @param string
+   * @param string $project
    */
   public function setProject($project)
   {
@@ -216,7 +300,7 @@ class GoogleCloudSecuritycenterV1Resource extends \Google\Collection
     return $this->project;
   }
   /**
-   * @param string
+   * @param string $projectDisplayName
    */
   public function setProjectDisplayName($projectDisplayName)
   {
@@ -230,7 +314,7 @@ class GoogleCloudSecuritycenterV1Resource extends \Google\Collection
     return $this->projectDisplayName;
   }
   /**
-   * @param ResourcePath
+   * @param ResourcePath $resourcePath
    */
   public function setResourcePath(ResourcePath $resourcePath)
   {
@@ -244,7 +328,7 @@ class GoogleCloudSecuritycenterV1Resource extends \Google\Collection
     return $this->resourcePath;
   }
   /**
-   * @param string
+   * @param string $resourcePathString
    */
   public function setResourcePathString($resourcePathString)
   {
@@ -258,7 +342,7 @@ class GoogleCloudSecuritycenterV1Resource extends \Google\Collection
     return $this->resourcePathString;
   }
   /**
-   * @param string
+   * @param string $service
    */
   public function setService($service)
   {
@@ -272,7 +356,7 @@ class GoogleCloudSecuritycenterV1Resource extends \Google\Collection
     return $this->service;
   }
   /**
-   * @param string
+   * @param string $type
    */
   public function setType($type)
   {

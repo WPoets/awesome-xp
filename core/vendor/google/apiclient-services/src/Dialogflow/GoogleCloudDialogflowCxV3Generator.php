@@ -24,6 +24,10 @@ class GoogleCloudDialogflowCxV3Generator extends \Google\Collection
    * @var string
    */
   public $displayName;
+  protected $llmModelSettingsType = GoogleCloudDialogflowCxV3LlmModelSettings::class;
+  protected $llmModelSettingsDataType = '';
+  protected $modelParameterType = GoogleCloudDialogflowCxV3GeneratorModelParameter::class;
+  protected $modelParameterDataType = '';
   /**
    * @var string
    */
@@ -34,7 +38,7 @@ class GoogleCloudDialogflowCxV3Generator extends \Google\Collection
   protected $promptTextDataType = '';
 
   /**
-   * @param string
+   * @param string $displayName
    */
   public function setDisplayName($displayName)
   {
@@ -48,7 +52,35 @@ class GoogleCloudDialogflowCxV3Generator extends \Google\Collection
     return $this->displayName;
   }
   /**
-   * @param string
+   * @param GoogleCloudDialogflowCxV3LlmModelSettings $llmModelSettings
+   */
+  public function setLlmModelSettings(GoogleCloudDialogflowCxV3LlmModelSettings $llmModelSettings)
+  {
+    $this->llmModelSettings = $llmModelSettings;
+  }
+  /**
+   * @return GoogleCloudDialogflowCxV3LlmModelSettings
+   */
+  public function getLlmModelSettings()
+  {
+    return $this->llmModelSettings;
+  }
+  /**
+   * @param GoogleCloudDialogflowCxV3GeneratorModelParameter $modelParameter
+   */
+  public function setModelParameter(GoogleCloudDialogflowCxV3GeneratorModelParameter $modelParameter)
+  {
+    $this->modelParameter = $modelParameter;
+  }
+  /**
+   * @return GoogleCloudDialogflowCxV3GeneratorModelParameter
+   */
+  public function getModelParameter()
+  {
+    return $this->modelParameter;
+  }
+  /**
+   * @param string $name
    */
   public function setName($name)
   {
@@ -62,7 +94,7 @@ class GoogleCloudDialogflowCxV3Generator extends \Google\Collection
     return $this->name;
   }
   /**
-   * @param GoogleCloudDialogflowCxV3GeneratorPlaceholder[]
+   * @param GoogleCloudDialogflowCxV3GeneratorPlaceholder[] $placeholders
    */
   public function setPlaceholders($placeholders)
   {
@@ -76,7 +108,7 @@ class GoogleCloudDialogflowCxV3Generator extends \Google\Collection
     return $this->placeholders;
   }
   /**
-   * @param GoogleCloudDialogflowCxV3Phrase
+   * @param GoogleCloudDialogflowCxV3Phrase $promptText
    */
   public function setPromptText(GoogleCloudDialogflowCxV3Phrase $promptText)
   {

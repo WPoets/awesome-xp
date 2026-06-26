@@ -62,7 +62,7 @@ class GoogleCloudSecuritycenterV2Access extends \Google\Collection
   public $userName;
 
   /**
-   * @param string
+   * @param string $callerIp
    */
   public function setCallerIp($callerIp)
   {
@@ -76,7 +76,7 @@ class GoogleCloudSecuritycenterV2Access extends \Google\Collection
     return $this->callerIp;
   }
   /**
-   * @param GoogleCloudSecuritycenterV2Geolocation
+   * @param GoogleCloudSecuritycenterV2Geolocation $callerIpGeo
    */
   public function setCallerIpGeo(GoogleCloudSecuritycenterV2Geolocation $callerIpGeo)
   {
@@ -90,7 +90,7 @@ class GoogleCloudSecuritycenterV2Access extends \Google\Collection
     return $this->callerIpGeo;
   }
   /**
-   * @param string
+   * @param string $methodName
    */
   public function setMethodName($methodName)
   {
@@ -104,7 +104,7 @@ class GoogleCloudSecuritycenterV2Access extends \Google\Collection
     return $this->methodName;
   }
   /**
-   * @param string
+   * @param string $principalEmail
    */
   public function setPrincipalEmail($principalEmail)
   {
@@ -118,7 +118,7 @@ class GoogleCloudSecuritycenterV2Access extends \Google\Collection
     return $this->principalEmail;
   }
   /**
-   * @param string
+   * @param string $principalSubject
    */
   public function setPrincipalSubject($principalSubject)
   {
@@ -132,7 +132,7 @@ class GoogleCloudSecuritycenterV2Access extends \Google\Collection
     return $this->principalSubject;
   }
   /**
-   * @param GoogleCloudSecuritycenterV2ServiceAccountDelegationInfo[]
+   * @param GoogleCloudSecuritycenterV2ServiceAccountDelegationInfo[] $serviceAccountDelegationInfo
    */
   public function setServiceAccountDelegationInfo($serviceAccountDelegationInfo)
   {
@@ -146,7 +146,7 @@ class GoogleCloudSecuritycenterV2Access extends \Google\Collection
     return $this->serviceAccountDelegationInfo;
   }
   /**
-   * @param string
+   * @param string $serviceAccountKeyName
    */
   public function setServiceAccountKeyName($serviceAccountKeyName)
   {
@@ -160,7 +160,7 @@ class GoogleCloudSecuritycenterV2Access extends \Google\Collection
     return $this->serviceAccountKeyName;
   }
   /**
-   * @param string
+   * @param string $serviceName
    */
   public function setServiceName($serviceName)
   {
@@ -174,7 +174,7 @@ class GoogleCloudSecuritycenterV2Access extends \Google\Collection
     return $this->serviceName;
   }
   /**
-   * @param string
+   * @param string $userAgent
    */
   public function setUserAgent($userAgent)
   {
@@ -188,7 +188,7 @@ class GoogleCloudSecuritycenterV2Access extends \Google\Collection
     return $this->userAgent;
   }
   /**
-   * @param string
+   * @param string $userAgentFamily
    */
   public function setUserAgentFamily($userAgentFamily)
   {
@@ -202,7 +202,7 @@ class GoogleCloudSecuritycenterV2Access extends \Google\Collection
     return $this->userAgentFamily;
   }
   /**
-   * @param string
+   * @param string $userName
    */
   public function setUserName($userName)
   {

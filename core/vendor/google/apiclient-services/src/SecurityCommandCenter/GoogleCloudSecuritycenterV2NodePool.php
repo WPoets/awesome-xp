@@ -28,7 +28,7 @@ class GoogleCloudSecuritycenterV2NodePool extends \Google\Collection
   protected $nodesDataType = 'array';
 
   /**
-   * @param string
+   * @param string $name
    */
   public function setName($name)
   {
@@ -42,7 +42,7 @@ class GoogleCloudSecuritycenterV2NodePool extends \Google\Collection
     return $this->name;
   }
   /**
-   * @param GoogleCloudSecuritycenterV2Node[]
+   * @param GoogleCloudSecuritycenterV2Node[] $nodes
    */
   public function setNodes($nodes)
   {

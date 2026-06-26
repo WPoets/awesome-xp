@@ -24,7 +24,7 @@ class GoogleCloudSecuritycenterV2ContactDetails extends \Google\Collection
   protected $contactsDataType = 'array';
 
   /**
-   * @param GoogleCloudSecuritycenterV2Contact[]
+   * @param GoogleCloudSecuritycenterV2Contact[] $contacts
    */
   public function setContacts($contacts)
   {

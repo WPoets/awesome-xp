@@ -20,16 +20,35 @@ namespace Google\Service\DiscoveryEngine;
 class GoogleCloudDiscoveryengineV1alphaImportCompletionSuggestionsMetadata extends \Google\Model
 {
   /**
+   * Operation create time.
+   *
    * @var string
    */
   public $createTime;
   /**
+   * Count of CompletionSuggestions that failed to be imported.
+   *
+   * @var string
+   */
+  public $failureCount;
+  /**
+   * Count of CompletionSuggestions successfully imported.
+   *
+   * @var string
+   */
+  public $successCount;
+  /**
+   * Operation last update time. If the operation is done, this is also the
+   * finish time.
+   *
    * @var string
    */
   public $updateTime;
 
   /**
-   * @param string
+   * Operation create time.
+   *
+   * @param string $createTime
    */
   public function setCreateTime($createTime)
   {
@@ -43,7 +62,42 @@ class GoogleCloudDiscoveryengineV1alphaImportCompletionSuggestionsMetadata exten
     return $this->createTime;
   }
   /**
-   * @param string
+   * Count of CompletionSuggestions that failed to be imported.
+   *
+   * @param string $failureCount
+   */
+  public function setFailureCount($failureCount)
+  {
+    $this->failureCount = $failureCount;
+  }
+  /**
+   * @return string
+   */
+  public function getFailureCount()
+  {
+    return $this->failureCount;
+  }
+  /**
+   * Count of CompletionSuggestions successfully imported.
+   *
+   * @param string $successCount
+   */
+  public function setSuccessCount($successCount)
+  {
+    $this->successCount = $successCount;
+  }
+  /**
+   * @return string
+   */
+  public function getSuccessCount()
+  {
+    return $this->successCount;
+  }
+  /**
+   * Operation last update time. If the operation is done, this is also the
+   * finish time.
+   *
+   * @param string $updateTime
    */
   public function setUpdateTime($updateTime)
   {

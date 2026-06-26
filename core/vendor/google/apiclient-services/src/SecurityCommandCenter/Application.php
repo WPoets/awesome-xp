@@ -29,7 +29,7 @@ class Application extends \Google\Model
   public $fullUri;
 
   /**
-   * @param string
+   * @param string $baseUri
    */
   public function setBaseUri($baseUri)
   {
@@ -43,7 +43,7 @@ class Application extends \Google\Model
     return $this->baseUri;
   }
   /**
-   * @param string
+   * @param string $fullUri
    */
   public function setFullUri($fullUri)
   {

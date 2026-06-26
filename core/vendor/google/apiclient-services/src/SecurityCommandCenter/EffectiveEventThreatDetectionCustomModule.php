@@ -19,6 +19,17 @@ namespace Google\Service\SecurityCommandCenter;
 
 class EffectiveEventThreatDetectionCustomModule extends \Google\Model
 {
+  public const CLOUD_PROVIDER_CLOUD_PROVIDER_UNSPECIFIED = 'CLOUD_PROVIDER_UNSPECIFIED';
+  public const CLOUD_PROVIDER_GOOGLE_CLOUD_PLATFORM = 'GOOGLE_CLOUD_PLATFORM';
+  public const CLOUD_PROVIDER_AMAZON_WEB_SERVICES = 'AMAZON_WEB_SERVICES';
+  public const CLOUD_PROVIDER_MICROSOFT_AZURE = 'MICROSOFT_AZURE';
+  public const ENABLEMENT_STATE_ENABLEMENT_STATE_UNSPECIFIED = 'ENABLEMENT_STATE_UNSPECIFIED';
+  public const ENABLEMENT_STATE_ENABLED = 'ENABLED';
+  public const ENABLEMENT_STATE_DISABLED = 'DISABLED';
+  /**
+   * @var string
+   */
+  public $cloudProvider;
   /**
    * @var array[]
    */
@@ -45,7 +56,21 @@ class EffectiveEventThreatDetectionCustomModule extends \Google\Model
   public $type;
 
   /**
-   * @param array[]
+   * @param self::CLOUD_PROVIDER_* $cloudProvider
+   */
+  public function setCloudProvider($cloudProvider)
+  {
+    $this->cloudProvider = $cloudProvider;
+  }
+  /**
+   * @return self::CLOUD_PROVIDER_*
+   */
+  public function getCloudProvider()
+  {
+    return $this->cloudProvider;
+  }
+  /**
+   * @param array[] $config
    */
   public function setConfig($config)
   {
@@ -59,7 +84,7 @@ class EffectiveEventThreatDetectionCustomModule extends \Google\Model
     return $this->config;
   }
   /**
-   * @param string
+   * @param string $description
    */
   public function setDescription($description)
   {
@@ -73,7 +98,7 @@ class EffectiveEventThreatDetectionCustomModule extends \Google\Model
     return $this->description;
   }
   /**
-   * @param string
+   * @param string $displayName
    */
   public function setDisplayName($displayName)
   {
@@ -87,21 +112,21 @@ class EffectiveEventThreatDetectionCustomModule extends \Google\Model
     return $this->displayName;
   }
   /**
-   * @param string
+   * @param self::ENABLEMENT_STATE_* $enablementState
    */
   public function setEnablementState($enablementState)
   {
     $this->enablementState = $enablementState;
   }
   /**
-   * @return string
+   * @return self::ENABLEMENT_STATE_*
    */
   public function getEnablementState()
   {
     return $this->enablementState;
   }
   /**
-   * @param string
+   * @param string $name
    */
   public function setName($name)
   {
@@ -115,7 +140,7 @@ class EffectiveEventThreatDetectionCustomModule extends \Google\Model
     return $this->name;
   }
   /**
-   * @param string
+   * @param string $type
    */
   public function setType($type)
   {

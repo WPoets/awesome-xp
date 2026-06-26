@@ -33,7 +33,8 @@ use Google\Service\VMMigrationService\Operation;
 class ProjectsLocationsImageImportsImageImportJobs extends \Google\Service\Resource
 {
   /**
-   * Initiates the cancellation of a running clone job. (imageImportJobs.cancel)
+   * Initiates the cancellation of a running ImageImportJob.
+   * (imageImportJobs.cancel)
    *
    * @param string $name Required. The image import job id.
    * @param CancelImageImportJobRequest $postBody
@@ -69,11 +70,9 @@ class ProjectsLocationsImageImportsImageImportJobs extends \Google\Service\Resou
    * targets.
    * @param array $optParams Optional parameters.
    *
-   * @opt_param string filter Optional. The filter request (according to
-   * https://google.aip.dev/160).
+   * @opt_param string filter Optional. The filter request (according to AIP-160).
    * @opt_param string orderBy Optional. The order by fields for the result
-   * (according to https://google.aip.dev/132#ordering). Currently ordering is
-   * only possible by "name" field.
+   * (according to AIP-132). Currently ordering is only possible by "name" field.
    * @opt_param int pageSize Optional. The maximum number of targets to return.
    * The service may return fewer than this value. If unspecified, at most 500
    * targets will be returned. The maximum value is 1000; values above 1000 will

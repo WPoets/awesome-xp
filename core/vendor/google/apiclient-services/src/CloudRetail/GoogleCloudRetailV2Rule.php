@@ -33,6 +33,8 @@ class GoogleCloudRetailV2Rule extends \Google\Model
   protected $ignoreActionDataType = '';
   protected $onewaySynonymsActionType = GoogleCloudRetailV2RuleOnewaySynonymsAction::class;
   protected $onewaySynonymsActionDataType = '';
+  protected $pinActionType = GoogleCloudRetailV2RulePinAction::class;
+  protected $pinActionDataType = '';
   protected $redirectActionType = GoogleCloudRetailV2RuleRedirectAction::class;
   protected $redirectActionDataType = '';
   protected $removeFacetActionType = GoogleCloudRetailV2RuleRemoveFacetAction::class;
@@ -43,7 +45,9 @@ class GoogleCloudRetailV2Rule extends \Google\Model
   protected $twowaySynonymsActionDataType = '';
 
   /**
-   * @param GoogleCloudRetailV2RuleBoostAction
+   * A boost action.
+   *
+   * @param GoogleCloudRetailV2RuleBoostAction $boostAction
    */
   public function setBoostAction(GoogleCloudRetailV2RuleBoostAction $boostAction)
   {
@@ -57,7 +61,10 @@ class GoogleCloudRetailV2Rule extends \Google\Model
     return $this->boostAction;
   }
   /**
-   * @param GoogleCloudRetailV2Condition
+   * Required. The condition that triggers the rule. If the condition is empty,
+   * the rule will always apply.
+   *
+   * @param GoogleCloudRetailV2Condition $condition
    */
   public function setCondition(GoogleCloudRetailV2Condition $condition)
   {
@@ -71,7 +78,9 @@ class GoogleCloudRetailV2Rule extends \Google\Model
     return $this->condition;
   }
   /**
-   * @param GoogleCloudRetailV2RuleDoNotAssociateAction
+   * Prevents term from being associated with other terms.
+   *
+   * @param GoogleCloudRetailV2RuleDoNotAssociateAction $doNotAssociateAction
    */
   public function setDoNotAssociateAction(GoogleCloudRetailV2RuleDoNotAssociateAction $doNotAssociateAction)
   {
@@ -85,7 +94,9 @@ class GoogleCloudRetailV2Rule extends \Google\Model
     return $this->doNotAssociateAction;
   }
   /**
-   * @param GoogleCloudRetailV2RuleFilterAction
+   * Filters results.
+   *
+   * @param GoogleCloudRetailV2RuleFilterAction $filterAction
    */
   public function setFilterAction(GoogleCloudRetailV2RuleFilterAction $filterAction)
   {
@@ -99,7 +110,9 @@ class GoogleCloudRetailV2Rule extends \Google\Model
     return $this->filterAction;
   }
   /**
-   * @param GoogleCloudRetailV2RuleForceReturnFacetAction
+   * Force returns an attribute as a facet in the request.
+   *
+   * @param GoogleCloudRetailV2RuleForceReturnFacetAction $forceReturnFacetAction
    */
   public function setForceReturnFacetAction(GoogleCloudRetailV2RuleForceReturnFacetAction $forceReturnFacetAction)
   {
@@ -113,7 +126,9 @@ class GoogleCloudRetailV2Rule extends \Google\Model
     return $this->forceReturnFacetAction;
   }
   /**
-   * @param GoogleCloudRetailV2RuleIgnoreAction
+   * Ignores specific terms from query during search.
+   *
+   * @param GoogleCloudRetailV2RuleIgnoreAction $ignoreAction
    */
   public function setIgnoreAction(GoogleCloudRetailV2RuleIgnoreAction $ignoreAction)
   {
@@ -127,7 +142,10 @@ class GoogleCloudRetailV2Rule extends \Google\Model
     return $this->ignoreAction;
   }
   /**
-   * @param GoogleCloudRetailV2RuleOnewaySynonymsAction
+   * Treats specific term as a synonym with a group of terms. Group of terms
+   * will not be treated as synonyms with the specific term.
+   *
+   * @param GoogleCloudRetailV2RuleOnewaySynonymsAction $onewaySynonymsAction
    */
   public function setOnewaySynonymsAction(GoogleCloudRetailV2RuleOnewaySynonymsAction $onewaySynonymsAction)
   {
@@ -141,7 +159,25 @@ class GoogleCloudRetailV2Rule extends \Google\Model
     return $this->onewaySynonymsAction;
   }
   /**
-   * @param GoogleCloudRetailV2RuleRedirectAction
+   * Pins one or more specified products to a specific position in the results.
+   *
+   * @param GoogleCloudRetailV2RulePinAction $pinAction
+   */
+  public function setPinAction(GoogleCloudRetailV2RulePinAction $pinAction)
+  {
+    $this->pinAction = $pinAction;
+  }
+  /**
+   * @return GoogleCloudRetailV2RulePinAction
+   */
+  public function getPinAction()
+  {
+    return $this->pinAction;
+  }
+  /**
+   * Redirects a shopper to a specific page.
+   *
+   * @param GoogleCloudRetailV2RuleRedirectAction $redirectAction
    */
   public function setRedirectAction(GoogleCloudRetailV2RuleRedirectAction $redirectAction)
   {
@@ -155,7 +191,9 @@ class GoogleCloudRetailV2Rule extends \Google\Model
     return $this->redirectAction;
   }
   /**
-   * @param GoogleCloudRetailV2RuleRemoveFacetAction
+   * Remove an attribute as a facet in the request (if present).
+   *
+   * @param GoogleCloudRetailV2RuleRemoveFacetAction $removeFacetAction
    */
   public function setRemoveFacetAction(GoogleCloudRetailV2RuleRemoveFacetAction $removeFacetAction)
   {
@@ -169,7 +207,9 @@ class GoogleCloudRetailV2Rule extends \Google\Model
     return $this->removeFacetAction;
   }
   /**
-   * @param GoogleCloudRetailV2RuleReplacementAction
+   * Replaces specific terms in the query.
+   *
+   * @param GoogleCloudRetailV2RuleReplacementAction $replacementAction
    */
   public function setReplacementAction(GoogleCloudRetailV2RuleReplacementAction $replacementAction)
   {
@@ -183,7 +223,9 @@ class GoogleCloudRetailV2Rule extends \Google\Model
     return $this->replacementAction;
   }
   /**
-   * @param GoogleCloudRetailV2RuleTwowaySynonymsAction
+   * Treats a set of terms as synonyms of one another.
+   *
+   * @param GoogleCloudRetailV2RuleTwowaySynonymsAction $twowaySynonymsAction
    */
   public function setTwowaySynonymsAction(GoogleCloudRetailV2RuleTwowaySynonymsAction $twowaySynonymsAction)
   {

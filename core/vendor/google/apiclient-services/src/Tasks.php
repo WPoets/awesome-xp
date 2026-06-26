@@ -27,7 +27,7 @@ use Google\Client;
  *
  * <p>
  * For more information about this service, see the API
- * <a href="https://developers.google.com/tasks/" target="_blank">Documentation</a>
+ * <a href="https://developers.google.com/workspace/tasks/" target="_blank">Documentation</a>
  * </p>
  *
  * @author Google, Inc.
@@ -226,6 +226,10 @@ class Tasks extends \Google\Service
                   'location' => 'query',
                   'type' => 'string',
                 ],
+                'showAssigned' => [
+                  'location' => 'query',
+                  'type' => 'boolean',
+                ],
                 'showCompleted' => [
                   'location' => 'query',
                   'type' => 'boolean',
@@ -256,6 +260,10 @@ class Tasks extends \Google\Service
                   'location' => 'path',
                   'type' => 'string',
                   'required' => true,
+                ],
+                'destinationTasklist' => [
+                  'location' => 'query',
+                  'type' => 'string',
                 ],
                 'parent' => [
                   'location' => 'query',

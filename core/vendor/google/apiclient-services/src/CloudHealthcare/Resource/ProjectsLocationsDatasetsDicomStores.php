@@ -27,6 +27,7 @@ use Google\Service\CloudHealthcare\ImportDicomDataRequest;
 use Google\Service\CloudHealthcare\ListDicomStoresResponse;
 use Google\Service\CloudHealthcare\Operation;
 use Google\Service\CloudHealthcare\Policy;
+use Google\Service\CloudHealthcare\SetBlobStorageSettingsRequest;
 use Google\Service\CloudHealthcare\SetIamPolicyRequest;
 use Google\Service\CloudHealthcare\TestIamPermissionsRequest;
 use Google\Service\CloudHealthcare\TestIamPermissionsResponse;
@@ -271,10 +272,10 @@ class ProjectsLocationsDatasetsDicomStores extends \Google\Service\Resource
   }
   /**
    * SearchForInstances returns a list of matching instances. See [Search
-   * Transaction] (http://dicom.nema.org/medical/dicom/current/output/html/part18.
-   * html#sect_10.6). For details on the implementation of SearchForInstances, see
-   * [Search transaction](https://cloud.google.com/healthcare/docs/dicom#search_tr
-   * ansaction) in the Cloud Healthcare API conformance statement. For samples
+   * Transaction] (https://dicom.nema.org/medical/dicom/current/output/html/part18
+   * .html#sect_10.6). For details on the implementation of SearchForInstances,
+   * see [Search transaction](https://cloud.google.com/healthcare/docs/dicom#searc
+   * h_transaction) in the Cloud Healthcare API conformance statement. For samples
    * that show how to call SearchForInstances, see [Search for DICOM
    * data](https://cloud.google.com/healthcare/docs/how-tos/dicomweb#search-
    * dicom). (dicomStores.searchForInstances)
@@ -284,7 +285,8 @@ class ProjectsLocationsDatasetsDicomStores extends \Google\Service\Resource
    * s/{dataset_id}/dicomStores/{dicom_store_id}`.
    * @param string $dicomWebPath Required. The path of the
    * SearchForInstancesRequest DICOMweb request. For example, `instances`,
-   * `series/{series_uid}/instances`, or `studies/{study_uid}/instances`.
+   * `studies/{study_uid}/series/{series_uid}/instances`, or
+   * `studies/{study_uid}/instances`.
    * @param array $optParams Optional parameters.
    * @return HttpBody
    * @throws \Google\Service\Exception
@@ -297,9 +299,9 @@ class ProjectsLocationsDatasetsDicomStores extends \Google\Service\Resource
   }
   /**
    * SearchForSeries returns a list of matching series. See [Search Transaction] (
-   * http://dicom.nema.org/medical/dicom/current/output/html/part18.html#sect_10.6
-   * ). For details on the implementation of SearchForSeries, see [Search transact
-   * ion](https://cloud.google.com/healthcare/docs/dicom#search_transaction) in
+   * https://dicom.nema.org/medical/dicom/current/output/html/part18.html#sect_10.
+   * 6). For details on the implementation of SearchForSeries, see [Search transac
+   * tion](https://cloud.google.com/healthcare/docs/dicom#search_transaction) in
    * the Cloud Healthcare API conformance statement. For samples that show how to
    * call SearchForSeries, see [Search for DICOM
    * data](https://cloud.google.com/healthcare/docs/how-tos/dicomweb#search-
@@ -322,9 +324,9 @@ class ProjectsLocationsDatasetsDicomStores extends \Google\Service\Resource
   }
   /**
    * SearchForStudies returns a list of matching studies. See [Search Transaction]
-   * (http://dicom.nema.org/medical/dicom/current/output/html/part18.html#sect_10.
-   * 6). For details on the implementation of SearchForStudies, see [Search transa
-   * ction](https://cloud.google.com/healthcare/docs/dicom#search_transaction) in
+   * (https://dicom.nema.org/medical/dicom/current/output/html/part18.html#sect_10
+   * .6). For details on the implementation of SearchForStudies, see [Search trans
+   * action](https://cloud.google.com/healthcare/docs/dicom#search_transaction) in
    * the Cloud Healthcare API conformance statement. For samples that show how to
    * call SearchForStudies, see [Search for DICOM
    * data](https://cloud.google.com/healthcare/docs/how-tos/dicomweb#search-
@@ -344,6 +346,31 @@ class ProjectsLocationsDatasetsDicomStores extends \Google\Service\Resource
     $params = ['parent' => $parent, 'dicomWebPath' => $dicomWebPath];
     $params = array_merge($params, $optParams);
     return $this->call('searchForStudies', [$params], HttpBody::class);
+  }
+  /**
+   * SetBlobStorageSettings sets the blob storage settings of the specified
+   * resources. (dicomStores.setBlobStorageSettings)
+   *
+   * @param string $resource Required. The path of the resource to update the blob
+   * storage settings in the format of `projects/{projectID}/locations/{locationID
+   * }/datasets/{datasetID}/dicomStores/{dicomStoreID}/dicomWeb/studies/{studyUID}
+   * `, `projects/{projectID}/locations/{locationID}/datasets/{datasetID}/dicomSto
+   * res/{dicomStoreID}/dicomWeb/studies/{studyUID}/series/{seriesUID}/`, or `proj
+   * ects/{projectID}/locations/{locationID}/datasets/{datasetID}/dicomStores/{dic
+   * omStoreID}/dicomWeb/studies/{studyUID}/series/{seriesUID}/instances/{instance
+   * UID}`. If `filter_config` is specified, set the value of `resource` to the
+   * resource name of a DICOM store in the format `projects/{projectID}/locations/
+   * {locationID}/datasets/{datasetID}/dicomStores/{dicomStoreID}`.
+   * @param SetBlobStorageSettingsRequest $postBody
+   * @param array $optParams Optional parameters.
+   * @return Operation
+   * @throws \Google\Service\Exception
+   */
+  public function setBlobStorageSettings($resource, SetBlobStorageSettingsRequest $postBody, $optParams = [])
+  {
+    $params = ['resource' => $resource, 'postBody' => $postBody];
+    $params = array_merge($params, $optParams);
+    return $this->call('setBlobStorageSettings', [$params], Operation::class);
   }
   /**
    * Sets the access control policy on the specified resource. Replaces any
@@ -367,8 +394,8 @@ class ProjectsLocationsDatasetsDicomStores extends \Google\Service\Resource
   }
   /**
    * StoreInstances stores DICOM instances associated with study instance unique
-   * identifiers (SUID). See [Store Transaction] (http://dicom.nema.org/medical/di
-   * com/current/output/html/part18.html#sect_10.5). For details on the
+   * identifiers (SUID). See [Store Transaction] (https://dicom.nema.org/medical/d
+   * icom/current/output/html/part18.html#sect_10.5). For details on the
    * implementation of StoreInstances, see [Store transaction](https://cloud.googl
    * e.com/healthcare/docs/dicom#store_transaction) in the Cloud Healthcare API
    * conformance statement. For samples that show how to call StoreInstances, see

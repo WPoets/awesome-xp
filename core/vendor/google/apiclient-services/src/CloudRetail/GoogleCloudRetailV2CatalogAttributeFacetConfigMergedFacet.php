@@ -17,18 +17,29 @@
 
 namespace Google\Service\CloudRetail;
 
-class GoogleCloudRetailV2CatalogAttributeFacetConfigMergedFacet extends \Google\Collection
+class GoogleCloudRetailV2CatalogAttributeFacetConfigMergedFacet extends \Google\Model
 {
-  protected $collection_key = 'mergedFacetValues';
   /**
+   * The merged facet key should be a valid facet key that is different than the
+   * facet key of the current catalog attribute. We refer this is merged facet
+   * key as the child of the current catalog attribute. This merged facet key
+   * can't be a parent of another facet key (i.e. no directed path of length 2).
+   * This merged facet key needs to be either a textual custom attribute or a
+   * numerical custom attribute.
+   *
    * @var string
    */
   public $mergedFacetKey;
-  protected $mergedFacetValuesType = GoogleCloudRetailV2CatalogAttributeFacetConfigMergedFacetValue::class;
-  protected $mergedFacetValuesDataType = 'array';
 
   /**
-   * @param string
+   * The merged facet key should be a valid facet key that is different than the
+   * facet key of the current catalog attribute. We refer this is merged facet
+   * key as the child of the current catalog attribute. This merged facet key
+   * can't be a parent of another facet key (i.e. no directed path of length 2).
+   * This merged facet key needs to be either a textual custom attribute or a
+   * numerical custom attribute.
+   *
+   * @param string $mergedFacetKey
    */
   public function setMergedFacetKey($mergedFacetKey)
   {
@@ -40,20 +51,6 @@ class GoogleCloudRetailV2CatalogAttributeFacetConfigMergedFacet extends \Google\
   public function getMergedFacetKey()
   {
     return $this->mergedFacetKey;
-  }
-  /**
-   * @param GoogleCloudRetailV2CatalogAttributeFacetConfigMergedFacetValue[]
-   */
-  public function setMergedFacetValues($mergedFacetValues)
-  {
-    $this->mergedFacetValues = $mergedFacetValues;
-  }
-  /**
-   * @return GoogleCloudRetailV2CatalogAttributeFacetConfigMergedFacetValue[]
-   */
-  public function getMergedFacetValues()
-  {
-    return $this->mergedFacetValues;
   }
 }
 

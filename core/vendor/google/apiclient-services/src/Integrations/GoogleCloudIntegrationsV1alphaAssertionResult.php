@@ -19,23 +19,49 @@ namespace Google\Service\Integrations;
 
 class GoogleCloudIntegrationsV1alphaAssertionResult extends \Google\Model
 {
+  /**
+   * Unspecified assertion status
+   */
+  public const STATUS_ASSERTION_STATUS_UNSPECIFIED = 'ASSERTION_STATUS_UNSPECIFIED';
+  /**
+   * Assertion succeeded
+   */
+  public const STATUS_SUCCEEDED = 'SUCCEEDED';
+  /**
+   * Assertion failed
+   */
+  public const STATUS_FAILED = 'FAILED';
   protected $assertionType = GoogleCloudIntegrationsV1alphaAssertion::class;
   protected $assertionDataType = '';
   /**
+   * Details of the assertion failure
+   *
+   * @var string
+   */
+  public $failureMessage;
+  /**
+   * Status of assertion to signify if the assertion succeeded or failed
+   *
    * @var string
    */
   public $status;
   /**
+   * Task name of task where the assertion was run.
+   *
    * @var string
    */
   public $taskName;
   /**
+   * Task number of task where the assertion was run.
+   *
    * @var string
    */
   public $taskNumber;
 
   /**
-   * @param GoogleCloudIntegrationsV1alphaAssertion
+   * Assertion that was run.
+   *
+   * @param GoogleCloudIntegrationsV1alphaAssertion $assertion
    */
   public function setAssertion(GoogleCloudIntegrationsV1alphaAssertion $assertion)
   {
@@ -49,21 +75,43 @@ class GoogleCloudIntegrationsV1alphaAssertionResult extends \Google\Model
     return $this->assertion;
   }
   /**
-   * @param string
+   * Details of the assertion failure
+   *
+   * @param string $failureMessage
+   */
+  public function setFailureMessage($failureMessage)
+  {
+    $this->failureMessage = $failureMessage;
+  }
+  /**
+   * @return string
+   */
+  public function getFailureMessage()
+  {
+    return $this->failureMessage;
+  }
+  /**
+   * Status of assertion to signify if the assertion succeeded or failed
+   *
+   * Accepted values: ASSERTION_STATUS_UNSPECIFIED, SUCCEEDED, FAILED
+   *
+   * @param self::STATUS_* $status
    */
   public function setStatus($status)
   {
     $this->status = $status;
   }
   /**
-   * @return string
+   * @return self::STATUS_*
    */
   public function getStatus()
   {
     return $this->status;
   }
   /**
-   * @param string
+   * Task name of task where the assertion was run.
+   *
+   * @param string $taskName
    */
   public function setTaskName($taskName)
   {
@@ -77,7 +125,9 @@ class GoogleCloudIntegrationsV1alphaAssertionResult extends \Google\Model
     return $this->taskName;
   }
   /**
-   * @param string
+   * Task number of task where the assertion was run.
+   *
+   * @param string $taskNumber
    */
   public function setTaskNumber($taskNumber)
   {

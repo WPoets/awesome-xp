@@ -19,13 +19,35 @@ namespace Google\Service\GKEHub;
 
 class IdentityServiceIdentityServiceOptions extends \Google\Model
 {
+  protected $diagnosticInterfaceType = IdentityServiceDiagnosticInterface::class;
+  protected $diagnosticInterfaceDataType = '';
   /**
+   * Determines the lifespan of STS tokens issued by Anthos Identity Service.
+   *
    * @var string
    */
   public $sessionDuration;
 
   /**
-   * @param string
+   * Configuration options for the AIS diagnostic interface.
+   *
+   * @param IdentityServiceDiagnosticInterface $diagnosticInterface
+   */
+  public function setDiagnosticInterface(IdentityServiceDiagnosticInterface $diagnosticInterface)
+  {
+    $this->diagnosticInterface = $diagnosticInterface;
+  }
+  /**
+   * @return IdentityServiceDiagnosticInterface
+   */
+  public function getDiagnosticInterface()
+  {
+    return $this->diagnosticInterface;
+  }
+  /**
+   * Determines the lifespan of STS tokens issued by Anthos Identity Service.
+   *
+   * @param string $sessionDuration
    */
   public function setSessionDuration($sessionDuration)
   {

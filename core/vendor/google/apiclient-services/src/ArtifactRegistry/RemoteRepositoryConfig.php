@@ -21,11 +21,18 @@ class RemoteRepositoryConfig extends \Google\Model
 {
   protected $aptRepositoryType = AptRepository::class;
   protected $aptRepositoryDataType = '';
+  protected $commonRepositoryType = CommonRemoteRepository::class;
+  protected $commonRepositoryDataType = '';
   /**
+   * The description of the remote source.
+   *
    * @var string
    */
   public $description;
   /**
+   * Input only. A create/update remote repo option to avoid making a HEAD/GET
+   * request to validate a remote repo and any supplied upstream credentials.
+   *
    * @var bool
    */
   public $disableUpstreamValidation;
@@ -43,7 +50,9 @@ class RemoteRepositoryConfig extends \Google\Model
   protected $yumRepositoryDataType = '';
 
   /**
-   * @param AptRepository
+   * Specific settings for an Apt remote repository.
+   *
+   * @param AptRepository $aptRepository
    */
   public function setAptRepository(AptRepository $aptRepository)
   {
@@ -57,7 +66,26 @@ class RemoteRepositoryConfig extends \Google\Model
     return $this->aptRepository;
   }
   /**
-   * @param string
+   * Common remote repository settings. Used as the remote repository upstream
+   * URL.
+   *
+   * @param CommonRemoteRepository $commonRepository
+   */
+  public function setCommonRepository(CommonRemoteRepository $commonRepository)
+  {
+    $this->commonRepository = $commonRepository;
+  }
+  /**
+   * @return CommonRemoteRepository
+   */
+  public function getCommonRepository()
+  {
+    return $this->commonRepository;
+  }
+  /**
+   * The description of the remote source.
+   *
+   * @param string $description
    */
   public function setDescription($description)
   {
@@ -71,7 +99,10 @@ class RemoteRepositoryConfig extends \Google\Model
     return $this->description;
   }
   /**
-   * @param bool
+   * Input only. A create/update remote repo option to avoid making a HEAD/GET
+   * request to validate a remote repo and any supplied upstream credentials.
+   *
+   * @param bool $disableUpstreamValidation
    */
   public function setDisableUpstreamValidation($disableUpstreamValidation)
   {
@@ -85,7 +116,9 @@ class RemoteRepositoryConfig extends \Google\Model
     return $this->disableUpstreamValidation;
   }
   /**
-   * @param DockerRepository
+   * Specific settings for a Docker remote repository.
+   *
+   * @param DockerRepository $dockerRepository
    */
   public function setDockerRepository(DockerRepository $dockerRepository)
   {
@@ -99,7 +132,9 @@ class RemoteRepositoryConfig extends \Google\Model
     return $this->dockerRepository;
   }
   /**
-   * @param MavenRepository
+   * Specific settings for a Maven remote repository.
+   *
+   * @param MavenRepository $mavenRepository
    */
   public function setMavenRepository(MavenRepository $mavenRepository)
   {
@@ -113,7 +148,9 @@ class RemoteRepositoryConfig extends \Google\Model
     return $this->mavenRepository;
   }
   /**
-   * @param NpmRepository
+   * Specific settings for an Npm remote repository.
+   *
+   * @param NpmRepository $npmRepository
    */
   public function setNpmRepository(NpmRepository $npmRepository)
   {
@@ -127,7 +164,9 @@ class RemoteRepositoryConfig extends \Google\Model
     return $this->npmRepository;
   }
   /**
-   * @param PythonRepository
+   * Specific settings for a Python remote repository.
+   *
+   * @param PythonRepository $pythonRepository
    */
   public function setPythonRepository(PythonRepository $pythonRepository)
   {
@@ -141,7 +180,9 @@ class RemoteRepositoryConfig extends \Google\Model
     return $this->pythonRepository;
   }
   /**
-   * @param UpstreamCredentials
+   * Optional. The credentials used to access the remote repository.
+   *
+   * @param UpstreamCredentials $upstreamCredentials
    */
   public function setUpstreamCredentials(UpstreamCredentials $upstreamCredentials)
   {
@@ -155,7 +196,9 @@ class RemoteRepositoryConfig extends \Google\Model
     return $this->upstreamCredentials;
   }
   /**
-   * @param YumRepository
+   * Specific settings for a Yum remote repository.
+   *
+   * @param YumRepository $yumRepository
    */
   public function setYumRepository(YumRepository $yumRepository)
   {

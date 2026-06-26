@@ -19,24 +19,46 @@ namespace Google\Service\Integrations;
 
 class GoogleCloudConnectorsV1EventingConfig extends \Google\Collection
 {
-  protected $collection_key = 'additionalVariables';
+  protected $collection_key = 'privateConnectivityAllowlistedProjects';
   protected $additionalVariablesType = GoogleCloudConnectorsV1ConfigVariable::class;
   protected $additionalVariablesDataType = 'array';
+  /**
+   * Optional. List of allowed event types for the connection.
+   *
+   * @var string[]
+   */
+  public $allowedEventTypes;
   protected $authConfigType = GoogleCloudConnectorsV1AuthConfig::class;
   protected $authConfigDataType = '';
   protected $deadLetterConfigType = GoogleCloudConnectorsV1EventingConfigDeadLetterConfig::class;
   protected $deadLetterConfigDataType = '';
+  protected $enrichmentConfigType = GoogleCloudConnectorsV1EnrichmentConfig::class;
+  protected $enrichmentConfigDataType = '';
   /**
+   * Optional. Enrichment Enabled.
+   *
    * @var bool
    */
   public $enrichmentEnabled;
   /**
+   * Output only. Ingress endpoint of the event listener. This is used only when
+   * private connectivity is enabled.
+   *
    * @var string
    */
   public $eventsListenerIngressEndpoint;
   protected $listenerAuthConfigType = GoogleCloudConnectorsV1AuthConfig::class;
   protected $listenerAuthConfigDataType = '';
   /**
+   * Optional. List of projects to be allowlisted for the service attachment
+   * created in the tenant project for eventing ingress.
+   *
+   * @var string[]
+   */
+  public $privateConnectivityAllowlistedProjects;
+  /**
+   * Optional. Private Connectivity Enabled.
+   *
    * @var bool
    */
   public $privateConnectivityEnabled;
@@ -44,9 +66,13 @@ class GoogleCloudConnectorsV1EventingConfig extends \Google\Collection
   protected $proxyDestinationConfigDataType = '';
   protected $registrationDestinationConfigType = GoogleCloudConnectorsV1DestinationConfig::class;
   protected $registrationDestinationConfigDataType = '';
+  protected $sslConfigType = GoogleCloudConnectorsV1SslConfig::class;
+  protected $sslConfigDataType = '';
 
   /**
-   * @param GoogleCloudConnectorsV1ConfigVariable[]
+   * Optional. Additional eventing related field values
+   *
+   * @param GoogleCloudConnectorsV1ConfigVariable[] $additionalVariables
    */
   public function setAdditionalVariables($additionalVariables)
   {
@@ -60,7 +86,25 @@ class GoogleCloudConnectorsV1EventingConfig extends \Google\Collection
     return $this->additionalVariables;
   }
   /**
-   * @param GoogleCloudConnectorsV1AuthConfig
+   * Optional. List of allowed event types for the connection.
+   *
+   * @param string[] $allowedEventTypes
+   */
+  public function setAllowedEventTypes($allowedEventTypes)
+  {
+    $this->allowedEventTypes = $allowedEventTypes;
+  }
+  /**
+   * @return string[]
+   */
+  public function getAllowedEventTypes()
+  {
+    return $this->allowedEventTypes;
+  }
+  /**
+   * Optional. Auth details for the webhook adapter.
+   *
+   * @param GoogleCloudConnectorsV1AuthConfig $authConfig
    */
   public function setAuthConfig(GoogleCloudConnectorsV1AuthConfig $authConfig)
   {
@@ -74,7 +118,9 @@ class GoogleCloudConnectorsV1EventingConfig extends \Google\Collection
     return $this->authConfig;
   }
   /**
-   * @param GoogleCloudConnectorsV1EventingConfigDeadLetterConfig
+   * Optional. Dead letter configuration for eventing of a connection.
+   *
+   * @param GoogleCloudConnectorsV1EventingConfigDeadLetterConfig $deadLetterConfig
    */
   public function setDeadLetterConfig(GoogleCloudConnectorsV1EventingConfigDeadLetterConfig $deadLetterConfig)
   {
@@ -88,7 +134,25 @@ class GoogleCloudConnectorsV1EventingConfig extends \Google\Collection
     return $this->deadLetterConfig;
   }
   /**
-   * @param bool
+   * Optional. Data enrichment configuration.
+   *
+   * @param GoogleCloudConnectorsV1EnrichmentConfig $enrichmentConfig
+   */
+  public function setEnrichmentConfig(GoogleCloudConnectorsV1EnrichmentConfig $enrichmentConfig)
+  {
+    $this->enrichmentConfig = $enrichmentConfig;
+  }
+  /**
+   * @return GoogleCloudConnectorsV1EnrichmentConfig
+   */
+  public function getEnrichmentConfig()
+  {
+    return $this->enrichmentConfig;
+  }
+  /**
+   * Optional. Enrichment Enabled.
+   *
+   * @param bool $enrichmentEnabled
    */
   public function setEnrichmentEnabled($enrichmentEnabled)
   {
@@ -102,7 +166,10 @@ class GoogleCloudConnectorsV1EventingConfig extends \Google\Collection
     return $this->enrichmentEnabled;
   }
   /**
-   * @param string
+   * Output only. Ingress endpoint of the event listener. This is used only when
+   * private connectivity is enabled.
+   *
+   * @param string $eventsListenerIngressEndpoint
    */
   public function setEventsListenerIngressEndpoint($eventsListenerIngressEndpoint)
   {
@@ -116,7 +183,9 @@ class GoogleCloudConnectorsV1EventingConfig extends \Google\Collection
     return $this->eventsListenerIngressEndpoint;
   }
   /**
-   * @param GoogleCloudConnectorsV1AuthConfig
+   * Optional. Auth details for the event listener.
+   *
+   * @param GoogleCloudConnectorsV1AuthConfig $listenerAuthConfig
    */
   public function setListenerAuthConfig(GoogleCloudConnectorsV1AuthConfig $listenerAuthConfig)
   {
@@ -130,7 +199,26 @@ class GoogleCloudConnectorsV1EventingConfig extends \Google\Collection
     return $this->listenerAuthConfig;
   }
   /**
-   * @param bool
+   * Optional. List of projects to be allowlisted for the service attachment
+   * created in the tenant project for eventing ingress.
+   *
+   * @param string[] $privateConnectivityAllowlistedProjects
+   */
+  public function setPrivateConnectivityAllowlistedProjects($privateConnectivityAllowlistedProjects)
+  {
+    $this->privateConnectivityAllowlistedProjects = $privateConnectivityAllowlistedProjects;
+  }
+  /**
+   * @return string[]
+   */
+  public function getPrivateConnectivityAllowlistedProjects()
+  {
+    return $this->privateConnectivityAllowlistedProjects;
+  }
+  /**
+   * Optional. Private Connectivity Enabled.
+   *
+   * @param bool $privateConnectivityEnabled
    */
   public function setPrivateConnectivityEnabled($privateConnectivityEnabled)
   {
@@ -144,7 +232,9 @@ class GoogleCloudConnectorsV1EventingConfig extends \Google\Collection
     return $this->privateConnectivityEnabled;
   }
   /**
-   * @param GoogleCloudConnectorsV1DestinationConfig
+   * Optional. Proxy for Eventing auto-registration.
+   *
+   * @param GoogleCloudConnectorsV1DestinationConfig $proxyDestinationConfig
    */
   public function setProxyDestinationConfig(GoogleCloudConnectorsV1DestinationConfig $proxyDestinationConfig)
   {
@@ -158,7 +248,9 @@ class GoogleCloudConnectorsV1EventingConfig extends \Google\Collection
     return $this->proxyDestinationConfig;
   }
   /**
-   * @param GoogleCloudConnectorsV1DestinationConfig
+   * Optional. Registration endpoint for auto registration.
+   *
+   * @param GoogleCloudConnectorsV1DestinationConfig $registrationDestinationConfig
    */
   public function setRegistrationDestinationConfig(GoogleCloudConnectorsV1DestinationConfig $registrationDestinationConfig)
   {
@@ -170,6 +262,22 @@ class GoogleCloudConnectorsV1EventingConfig extends \Google\Collection
   public function getRegistrationDestinationConfig()
   {
     return $this->registrationDestinationConfig;
+  }
+  /**
+   * Optional. Ssl config of a connection
+   *
+   * @param GoogleCloudConnectorsV1SslConfig $sslConfig
+   */
+  public function setSslConfig(GoogleCloudConnectorsV1SslConfig $sslConfig)
+  {
+    $this->sslConfig = $sslConfig;
+  }
+  /**
+   * @return GoogleCloudConnectorsV1SslConfig
+   */
+  public function getSslConfig()
+  {
+    return $this->sslConfig;
   }
 }
 

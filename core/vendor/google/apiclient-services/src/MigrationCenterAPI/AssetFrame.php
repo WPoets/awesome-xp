@@ -19,16 +19,51 @@ namespace Google\Service\MigrationCenterAPI;
 
 class AssetFrame extends \Google\Collection
 {
+  /**
+   * Unspecified
+   */
+  public const COLLECTION_TYPE_SOURCE_TYPE_UNKNOWN = 'SOURCE_TYPE_UNKNOWN';
+  /**
+   * Manually uploaded file (e.g. CSV)
+   */
+  public const COLLECTION_TYPE_SOURCE_TYPE_UPLOAD = 'SOURCE_TYPE_UPLOAD';
+  /**
+   * Guest-level info
+   */
+  public const COLLECTION_TYPE_SOURCE_TYPE_GUEST_OS_SCAN = 'SOURCE_TYPE_GUEST_OS_SCAN';
+  /**
+   * Inventory-level scan
+   */
+  public const COLLECTION_TYPE_SOURCE_TYPE_INVENTORY_SCAN = 'SOURCE_TYPE_INVENTORY_SCAN';
+  /**
+   * Third-party owned sources.
+   */
+  public const COLLECTION_TYPE_SOURCE_TYPE_CUSTOM = 'SOURCE_TYPE_CUSTOM';
+  /**
+   * Discovery clients
+   */
+  public const COLLECTION_TYPE_SOURCE_TYPE_DISCOVERY_CLIENT = 'SOURCE_TYPE_DISCOVERY_CLIENT';
   protected $collection_key = 'performanceSamples';
   /**
+   * Generic asset attributes.
+   *
    * @var string[]
    */
   public $attributes;
   /**
+   * Optional. Frame collection type, if not specified the collection type will
+   * be based on the source type of the source the frame was reported on.
+   *
    * @var string
    */
   public $collectionType;
+  protected $databaseDeploymentDetailsType = DatabaseDeploymentDetails::class;
+  protected $databaseDeploymentDetailsDataType = '';
+  protected $databaseDetailsType = DatabaseDetails::class;
+  protected $databaseDetailsDataType = '';
   /**
+   * Labels as key value pairs.
+   *
    * @var string[]
    */
   public $labels;
@@ -37,16 +72,23 @@ class AssetFrame extends \Google\Collection
   protected $performanceSamplesType = PerformanceSample::class;
   protected $performanceSamplesDataType = 'array';
   /**
+   * The time the data was reported.
+   *
    * @var string
    */
   public $reportTime;
   /**
+   * Optional. Trace token is optionally provided to assist with debugging and
+   * traceability.
+   *
    * @var string
    */
   public $traceToken;
 
   /**
-   * @param string[]
+   * Generic asset attributes.
+   *
+   * @param string[] $attributes
    */
   public function setAttributes($attributes)
   {
@@ -60,21 +102,62 @@ class AssetFrame extends \Google\Collection
     return $this->attributes;
   }
   /**
-   * @param string
+   * Optional. Frame collection type, if not specified the collection type will
+   * be based on the source type of the source the frame was reported on.
+   *
+   * Accepted values: SOURCE_TYPE_UNKNOWN, SOURCE_TYPE_UPLOAD,
+   * SOURCE_TYPE_GUEST_OS_SCAN, SOURCE_TYPE_INVENTORY_SCAN, SOURCE_TYPE_CUSTOM,
+   * SOURCE_TYPE_DISCOVERY_CLIENT
+   *
+   * @param self::COLLECTION_TYPE_* $collectionType
    */
   public function setCollectionType($collectionType)
   {
     $this->collectionType = $collectionType;
   }
   /**
-   * @return string
+   * @return self::COLLECTION_TYPE_*
    */
   public function getCollectionType()
   {
     return $this->collectionType;
   }
   /**
-   * @param string[]
+   * Asset information specific for database deployments.
+   *
+   * @param DatabaseDeploymentDetails $databaseDeploymentDetails
+   */
+  public function setDatabaseDeploymentDetails(DatabaseDeploymentDetails $databaseDeploymentDetails)
+  {
+    $this->databaseDeploymentDetails = $databaseDeploymentDetails;
+  }
+  /**
+   * @return DatabaseDeploymentDetails
+   */
+  public function getDatabaseDeploymentDetails()
+  {
+    return $this->databaseDeploymentDetails;
+  }
+  /**
+   * Asset information specific for logical databases.
+   *
+   * @param DatabaseDetails $databaseDetails
+   */
+  public function setDatabaseDetails(DatabaseDetails $databaseDetails)
+  {
+    $this->databaseDetails = $databaseDetails;
+  }
+  /**
+   * @return DatabaseDetails
+   */
+  public function getDatabaseDetails()
+  {
+    return $this->databaseDetails;
+  }
+  /**
+   * Labels as key value pairs.
+   *
+   * @param string[] $labels
    */
   public function setLabels($labels)
   {
@@ -88,7 +171,9 @@ class AssetFrame extends \Google\Collection
     return $this->labels;
   }
   /**
-   * @param MachineDetails
+   * Asset information specific for virtual machines.
+   *
+   * @param MachineDetails $machineDetails
    */
   public function setMachineDetails(MachineDetails $machineDetails)
   {
@@ -102,7 +187,10 @@ class AssetFrame extends \Google\Collection
     return $this->machineDetails;
   }
   /**
-   * @param PerformanceSample[]
+   * Asset performance data samples. Samples that are from more than 40 days ago
+   * or after tomorrow are ignored.
+   *
+   * @param PerformanceSample[] $performanceSamples
    */
   public function setPerformanceSamples($performanceSamples)
   {
@@ -116,7 +204,9 @@ class AssetFrame extends \Google\Collection
     return $this->performanceSamples;
   }
   /**
-   * @param string
+   * The time the data was reported.
+   *
+   * @param string $reportTime
    */
   public function setReportTime($reportTime)
   {
@@ -130,7 +220,10 @@ class AssetFrame extends \Google\Collection
     return $this->reportTime;
   }
   /**
-   * @param string
+   * Optional. Trace token is optionally provided to assist with debugging and
+   * traceability.
+   *
+   * @param string $traceToken
    */
   public function setTraceToken($traceToken)
   {

@@ -31,7 +31,9 @@ use Google\Service\Tasks\TaskLists as TaskListsModel;
 class Tasklists extends \Google\Service\Resource
 {
   /**
-   * Deletes the authenticated user's specified task list. (tasklists.delete)
+   * Deletes the authenticated user's specified task list. If the list contains
+   * assigned tasks, both the assigned tasks and the original tasks in the
+   * assignment surface (Docs, Chat Spaces) are deleted. (tasklists.delete)
    *
    * @param string $tasklist Task list identifier.
    * @param array $optParams Optional parameters.
@@ -79,7 +81,7 @@ class Tasklists extends \Google\Service\Resource
    * @param array $optParams Optional parameters.
    *
    * @opt_param int maxResults Maximum number of task lists returned on one page.
-   * Optional. The default is 20 (max allowed: 100).
+   * Optional. The default is 1000 (max allowed: 1000).
    * @opt_param string pageToken Token specifying the result page to return.
    * Optional.
    * @return TaskListsModel

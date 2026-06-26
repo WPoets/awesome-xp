@@ -42,7 +42,7 @@ class AttackPathNode extends \Google\Collection
   public $uuid;
 
   /**
-   * @param PathNodeAssociatedFinding[]
+   * @param PathNodeAssociatedFinding[] $associatedFindings
    */
   public function setAssociatedFindings($associatedFindings)
   {
@@ -56,7 +56,7 @@ class AttackPathNode extends \Google\Collection
     return $this->associatedFindings;
   }
   /**
-   * @param AttackStepNode[]
+   * @param AttackStepNode[] $attackSteps
    */
   public function setAttackSteps($attackSteps)
   {
@@ -70,7 +70,7 @@ class AttackPathNode extends \Google\Collection
     return $this->attackSteps;
   }
   /**
-   * @param string
+   * @param string $displayName
    */
   public function setDisplayName($displayName)
   {
@@ -84,7 +84,7 @@ class AttackPathNode extends \Google\Collection
     return $this->displayName;
   }
   /**
-   * @param string
+   * @param string $resource
    */
   public function setResource($resource)
   {
@@ -98,7 +98,7 @@ class AttackPathNode extends \Google\Collection
     return $this->resource;
   }
   /**
-   * @param string
+   * @param string $resourceType
    */
   public function setResourceType($resourceType)
   {
@@ -112,7 +112,7 @@ class AttackPathNode extends \Google\Collection
     return $this->resourceType;
   }
   /**
-   * @param string
+   * @param string $uuid
    */
   public function setUuid($uuid)
   {

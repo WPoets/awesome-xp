@@ -123,7 +123,7 @@ class AccessPoliciesAccessLevels extends \Google\Service\Resource
    * lasting storage. If access levels contain errors, an error response is
    * returned for the first error encountered. (accessLevels.patch)
    *
-   * @param string $name Resource name for the `AccessLevel`. Format:
+   * @param string $name Identifier. Resource name for the `AccessLevel`. Format:
    * `accessPolicies/{access_policy}/accessLevels/{access_level}`. The
    * `access_level` component must begin with a letter, followed by alphanumeric
    * characters or `_`. Its maximum length is 50 characters. After you create an
@@ -169,7 +169,9 @@ class AccessPoliciesAccessLevels extends \Google\Service\Resource
   /**
    * Returns the IAM permissions that the caller has on the specified Access
    * Context Manager resource. The resource can be an AccessPolicy, AccessLevel,
-   * or ServicePerimeter. This method does not support other resources.
+   * or ServicePerimeter. This method does not support other resources. **IAM
+   * Permissions**: No specific IAM permission is required to call this method. It
+   * returns the subset of the requested permissions that the caller possesses.
    * (accessLevels.testIamPermissions)
    *
    * @param string $resource REQUIRED: The resource for which the policy detail is

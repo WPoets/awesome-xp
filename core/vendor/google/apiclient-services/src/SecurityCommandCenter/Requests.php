@@ -34,7 +34,7 @@ class Requests extends \Google\Model
   public $shortTermAllowed;
 
   /**
-   * @param int
+   * @param int $longTermAllowed
    */
   public function setLongTermAllowed($longTermAllowed)
   {
@@ -48,7 +48,7 @@ class Requests extends \Google\Model
     return $this->longTermAllowed;
   }
   /**
-   * @param int
+   * @param int $longTermDenied
    */
   public function setLongTermDenied($longTermDenied)
   {
@@ -70,7 +70,7 @@ class Requests extends \Google\Model
     return $this->ratio;
   }
   /**
-   * @param int
+   * @param int $shortTermAllowed
    */
   public function setShortTermAllowed($shortTermAllowed)
   {

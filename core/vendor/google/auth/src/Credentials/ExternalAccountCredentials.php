@@ -18,8 +18,10 @@
 namespace Google\Auth\Credentials;
 
 use Google\Auth\CredentialSource\AwsNativeSource;
+use Google\Auth\CredentialSource\ExecutableSource;
 use Google\Auth\CredentialSource\FileSource;
 use Google\Auth\CredentialSource\UrlSource;
+use Google\Auth\ExecutableHandler\ExecutableHandler;
 use Google\Auth\ExternalAccountCredentialSourceInterface;
 use Google\Auth\FetchAuthTokenInterface;
 use Google\Auth\GetQuotaProjectInterface;
@@ -32,7 +34,17 @@ use Google\Auth\UpdateMetadataInterface;
 use Google\Auth\UpdateMetadataTrait;
 use GuzzleHttp\Psr7\Request;
 use InvalidArgumentException;
+use LogicException;
 
+/**
+ * **IMPORTANT**:
+ * This class does not validate the credential configuration. A security
+ * risk occurs when a credential configuration configured with malicious urls
+ * is used.
+ * When the credential configuration is accepted from an
+ * untrusted source, you should validate it before creating this class.
+ * @see https://cloud.google.com/docs/authentication/external/externally-sourced-credentials
+ */
 class ExternalAccountCredentials implements
     FetchAuthTokenInterface,
     UpdateMetadataInterface,
@@ -40,7 +52,12 @@ class ExternalAccountCredentials implements
     GetUniverseDomainInterface,
     ProjectIdProviderInterface
 {
-    use UpdateMetadataTrait;
+    use UpdateMetadataTrait {
+        updateMetadata as traitUpdateMetadata;
+    }
+    use RegionalAccessBoundaryTrait {
+        buildRegionalAccessBoundaryLookupUrl as traitBuildRegionalAccessBoundaryLookupUrl;
+    }
 
     private const EXTERNAL_ACCOUNT_TYPE = 'external_account';
     private const CLOUD_RESOURCE_MANAGER_URL = 'https://cloudresourcemanager.UNIVERSE_DOMAIN/v1/projects/%s';
@@ -50,16 +67,20 @@ class ExternalAccountCredentials implements
     private ?string $serviceAccountImpersonationUrl;
     private ?string $workforcePoolUserProject;
     private ?string $projectId;
+    /** @var array<mixed> */
+    private ?array $lastImpersonatedAccessToken;
     private string $universeDomain;
 
     /**
      * @param string|string[] $scope   The scope of the access request, expressed either as an array
      *                                 or as a space-delimited string.
      * @param array<mixed>    $jsonKey JSON credentials as an associative array.
+     * @param bool $enableRegionalAccessBoundary Lookup and include the regional access boundary header.
      */
     public function __construct(
         $scope,
-        array $jsonKey
+        array $jsonKey,
+        bool $enableRegionalAccessBoundary = false
     ) {
         if (!array_key_exists('type', $jsonKey)) {
             throw new InvalidArgumentException('json key is missing the type field');
@@ -96,13 +117,12 @@ class ExternalAccountCredentials implements
             );
         }
 
-        if (array_key_exists('service_account_impersonation_url', $jsonKey)) {
-            $this->serviceAccountImpersonationUrl = $jsonKey['service_account_impersonation_url'];
-        }
+        $this->serviceAccountImpersonationUrl = $jsonKey['service_account_impersonation_url'] ?? null;
 
         $this->quotaProject = $jsonKey['quota_project_id'] ?? null;
         $this->workforcePoolUserProject = $jsonKey['workforce_pool_user_project'] ?? null;
         $this->universeDomain = $jsonKey['universe_domain'] ?? GetUniverseDomainInterface::DEFAULT_UNIVERSE_DOMAIN;
+        $this->enableRegionalAccessBoundary = $enableRegionalAccessBoundary;
 
         $this->auth = new OAuth2([
             'tokenCredentialUri' => $jsonKey['token_url'],
@@ -150,11 +170,6 @@ class ExternalAccountCredentials implements
                     'The regional_cred_verification_url field is required for aws1 credential source.'
                 );
             }
-            if (!array_key_exists('audience', $jsonKey)) {
-                throw new InvalidArgumentException(
-                    'aws1 credential source requires an audience to be set in the JSON file.'
-                );
-            }
 
             return new AwsNativeSource(
                 $jsonKey['audience'],
@@ -174,12 +189,58 @@ class ExternalAccountCredentials implements
             );
         }
 
+        if (isset($credentialSource['executable'])) {
+            if (!array_key_exists('command', $credentialSource['executable'])) {
+                throw new InvalidArgumentException(
+                    'executable source requires a command to be set in the JSON file.'
+                );
+            }
+
+            // Build command environment variables
+            $env = [
+                'GOOGLE_EXTERNAL_ACCOUNT_AUDIENCE' => $jsonKey['audience'],
+                'GOOGLE_EXTERNAL_ACCOUNT_TOKEN_TYPE' => $jsonKey['subject_token_type'],
+                // Always set to 0 because interactive mode is not supported.
+                'GOOGLE_EXTERNAL_ACCOUNT_INTERACTIVE' => '0',
+            ];
+
+            if ($outputFile = $credentialSource['executable']['output_file'] ?? null) {
+                $env['GOOGLE_EXTERNAL_ACCOUNT_OUTPUT_FILE'] = $outputFile;
+            }
+
+            if ($serviceAccountImpersonationUrl = $jsonKey['service_account_impersonation_url'] ?? null) {
+                if ($email = self::getServiceAccountImpersonationEmail($serviceAccountImpersonationUrl)) {
+                    $env['GOOGLE_EXTERNAL_ACCOUNT_IMPERSONATED_EMAIL'] = $email;
+                }
+            }
+
+            $timeoutMs = $credentialSource['executable']['timeout_millis'] ?? null;
+
+            return new ExecutableSource(
+                $credentialSource['executable']['command'],
+                $outputFile,
+                $timeoutMs ? new ExecutableHandler($env, $timeoutMs) : new ExecutableHandler($env)
+            );
+        }
+
         throw new InvalidArgumentException('Unable to determine credential source from json key.');
+    }
+
+    private static function getServiceAccountImpersonationEmail(string $serviceAccountImpersonationUrl): string|null
+    {
+        // Parse email from URL. The formal looks as follows:
+        // https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/name@project-id.iam.gserviceaccount.com:generateAccessToken
+        $regex = '/serviceAccounts\/(?<email>[^:]+):generateAccessToken$/';
+        if (preg_match($regex, $serviceAccountImpersonationUrl, $matches)) {
+            return $matches['email'];
+        }
+
+        return null;
     }
 
     /**
      * @param string $stsToken
-     * @param callable $httpHandler
+     * @param callable|null $httpHandler
      *
      * @return array<mixed> {
      *     A set of auth related metadata, containing the following
@@ -219,7 +280,9 @@ class ExternalAccountCredentials implements
     }
 
     /**
-     * @param callable $httpHandler
+     * @param callable|null $httpHandler
+     * @param array<mixed> $headers [optional] Metrics headers to be inserted
+     *     into the token endpoint request present.
      *
      * @return array<mixed> {
      *     A set of auth related metadata, containing the following
@@ -231,25 +294,77 @@ class ExternalAccountCredentials implements
      *     @type string $token_type (identity pool only)
      * }
      */
-    public function fetchAuthToken(?callable $httpHandler = null)
+    public function fetchAuthToken(?callable $httpHandler = null, array $headers = [])
     {
-        $stsToken = $this->auth->fetchAuthToken($httpHandler);
+        $stsToken = $this->auth->fetchAuthToken($httpHandler, $headers);
 
         if (isset($this->serviceAccountImpersonationUrl)) {
-            return $this->getImpersonatedAccessToken($stsToken['access_token'], $httpHandler);
+            return $this->lastImpersonatedAccessToken = $this->getImpersonatedAccessToken(
+                $stsToken['access_token'],
+                $httpHandler
+            );
         }
 
         return $stsToken;
     }
 
-    public function getCacheKey()
+    /**
+     * Updates metadata with the authorization token.
+     *
+     * @param array<mixed> $metadata metadata hashmap
+     * @param string $authUri optional auth uri
+     * @param callable|null $httpHandler callback which delivers psr7 request
+     * @return array<mixed> updated metadata hashmap
+     */
+    public function updateMetadata(
+        $metadata,
+        $authUri = null,
+        ?callable $httpHandler = null
+    ) {
+        $metadata = $this->traitUpdateMetadata($metadata, $authUri, $httpHandler);
+
+        if ($this->enableRegionalAccessBoundary) {
+            $clientName = $this->serviceAccountImpersonationUrl
+                ? self::getServiceAccountImpersonationEmail($this->serviceAccountImpersonationUrl)
+                : null;
+
+            $metadata = $this->updateRegionalAccessBoundaryMetadata(
+                $metadata,
+                $this->buildRegionalAccessBoundaryLookupUrl($clientName),
+                $this->getUniverseDomain(),
+                $httpHandler,
+            );
+        }
+
+        return $metadata;
+    }
+
+    /**
+     * Get the cache token key for the credentials.
+     * The cache token key format depends on the type of source
+     * The format for the cache key one of the following:
+     * FetcherCacheKey.Scope.[ServiceAccount].[TokenType].[WorkforcePoolUserProject]
+     * FetcherCacheKey.Audience.[ServiceAccount].[TokenType].[WorkforcePoolUserProject]
+     *
+     * @return ?string;
+     */
+    public function getCacheKey(): ?string
     {
-        return $this->auth->getCacheKey();
+        $scopeOrAudience = $this->auth->getAudience();
+        if (!$scopeOrAudience) {
+            $scopeOrAudience = $this->auth->getScope();
+        }
+
+        return $this->auth->getSubjectTokenFetcher()->getCacheKey() .
+            '.' . $scopeOrAudience .
+            '.' . ($this->serviceAccountImpersonationUrl ?? '') .
+            '.' . ($this->auth->getSubjectTokenType() ?? '') .
+            '.' . ($this->workforcePoolUserProject ?? '');
     }
 
     public function getLastReceivedToken()
     {
-        return $this->auth->getLastReceivedToken();
+        return $this->lastImpersonatedAccessToken ?? $this->auth->getLastReceivedToken();
     }
 
     /**
@@ -275,8 +390,8 @@ class ExternalAccountCredentials implements
     /**
      * Get the project ID.
      *
-     * @param callable $httpHandler Callback which delivers psr7 request
-     * @param string $accessToken The access token to use to sign the blob. If
+     * @param callable|null $httpHandler Callback which delivers psr7 request
+     * @param string|null $accessToken The access token to use to sign the blob. If
      *        provided, saves a call to the metadata server for a new access
      *        token. **Defaults to** `null`.
      * @return string|null
@@ -324,5 +439,37 @@ class ExternalAccountCredentials implements
     {
         $regex = '#//iam\.googleapis\.com/locations/[^/]+/workforcePools/#';
         return preg_match($regex, $this->auth->getAudience()) === 1;
+    }
+
+    /**
+     * Builds and returns the URL for the regional access boundary lookup API.
+     */
+    private function buildRegionalAccessBoundaryLookupUrl(string|null $clientName): string
+    {
+        if (null !== $clientName) {
+            return $this->traitBuildRegionalAccessBoundaryLookupUrl(serviceAccountEmail: $clientName);
+        }
+
+        // Try to parse as a workload identity pool.
+        // Audience format: //iam.googleapis.com/projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/POOL_ID/providers/PROVIDER_ID
+        $regex = '/projects\/([^\/]+)\/locations\/global\/workloadIdentityPools\/([^\/]+)/';
+        if (preg_match($regex, $this->auth->getAudience(), $matches)) {
+            [$_, $projectNumber, $poolId] = $matches;
+
+            return $this->traitBuildRegionalAccessBoundaryLookupUrl(
+                poolId: $poolId,
+                projectNumber: $projectNumber,
+            );
+        }
+
+        // If that fails, try to parse as a workforce pool.
+        // Audience format: //iam.googleapis.com/locations/global/workforcePools/POOL_ID/providers/PROVIDER_ID
+        if (preg_match('/locations\/[^\/]+\/workforcePools\/([^\/]+)/', $this->auth->getAudience(), $matches)) {
+            return $this->traitBuildRegionalAccessBoundaryLookupUrl(
+                poolId: $matches[1],
+            );
+        }
+
+        throw new LogicException('Invalid audience format');
     }
 }

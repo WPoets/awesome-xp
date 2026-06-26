@@ -64,7 +64,7 @@ class GoogleCloudSecuritycenterV2ExternalSystem extends \Google\Collection
   protected $ticketInfoDataType = '';
 
   /**
-   * @param string[]
+   * @param string[] $assignees
    */
   public function setAssignees($assignees)
   {
@@ -78,7 +78,7 @@ class GoogleCloudSecuritycenterV2ExternalSystem extends \Google\Collection
     return $this->assignees;
   }
   /**
-   * @param string
+   * @param string $caseCloseTime
    */
   public function setCaseCloseTime($caseCloseTime)
   {
@@ -92,7 +92,7 @@ class GoogleCloudSecuritycenterV2ExternalSystem extends \Google\Collection
     return $this->caseCloseTime;
   }
   /**
-   * @param string
+   * @param string $caseCreateTime
    */
   public function setCaseCreateTime($caseCreateTime)
   {
@@ -106,7 +106,7 @@ class GoogleCloudSecuritycenterV2ExternalSystem extends \Google\Collection
     return $this->caseCreateTime;
   }
   /**
-   * @param string
+   * @param string $casePriority
    */
   public function setCasePriority($casePriority)
   {
@@ -120,7 +120,7 @@ class GoogleCloudSecuritycenterV2ExternalSystem extends \Google\Collection
     return $this->casePriority;
   }
   /**
-   * @param string
+   * @param string $caseSla
    */
   public function setCaseSla($caseSla)
   {
@@ -134,7 +134,7 @@ class GoogleCloudSecuritycenterV2ExternalSystem extends \Google\Collection
     return $this->caseSla;
   }
   /**
-   * @param string
+   * @param string $caseUri
    */
   public function setCaseUri($caseUri)
   {
@@ -148,7 +148,7 @@ class GoogleCloudSecuritycenterV2ExternalSystem extends \Google\Collection
     return $this->caseUri;
   }
   /**
-   * @param string
+   * @param string $externalSystemUpdateTime
    */
   public function setExternalSystemUpdateTime($externalSystemUpdateTime)
   {
@@ -162,7 +162,7 @@ class GoogleCloudSecuritycenterV2ExternalSystem extends \Google\Collection
     return $this->externalSystemUpdateTime;
   }
   /**
-   * @param string
+   * @param string $externalUid
    */
   public function setExternalUid($externalUid)
   {
@@ -176,7 +176,7 @@ class GoogleCloudSecuritycenterV2ExternalSystem extends \Google\Collection
     return $this->externalUid;
   }
   /**
-   * @param string
+   * @param string $name
    */
   public function setName($name)
   {
@@ -190,7 +190,7 @@ class GoogleCloudSecuritycenterV2ExternalSystem extends \Google\Collection
     return $this->name;
   }
   /**
-   * @param string
+   * @param string $status
    */
   public function setStatus($status)
   {
@@ -204,7 +204,7 @@ class GoogleCloudSecuritycenterV2ExternalSystem extends \Google\Collection
     return $this->status;
   }
   /**
-   * @param GoogleCloudSecuritycenterV2TicketInfo
+   * @param GoogleCloudSecuritycenterV2TicketInfo $ticketInfo
    */
   public function setTicketInfo(GoogleCloudSecuritycenterV2TicketInfo $ticketInfo)
   {

@@ -17,27 +17,42 @@
 
 namespace Google\Service\DiscoveryEngine;
 
-class GoogleCloudDiscoveryengineV1PanelInfo extends \Google\Model
+class GoogleCloudDiscoveryengineV1PanelInfo extends \Google\Collection
 {
+  protected $collection_key = 'documents';
   /**
+   * The display name of the panel.
+   *
    * @var string
    */
   public $displayName;
+  protected $documentsType = GoogleCloudDiscoveryengineV1DocumentInfo::class;
+  protected $documentsDataType = 'array';
   /**
+   * Required. The panel ID.
+   *
    * @var string
    */
   public $panelId;
   /**
+   * The ordered position of the panel, if shown to the user with other panels.
+   * If set, then total_panels must also be set.
+   *
    * @var int
    */
   public $panelPosition;
   /**
+   * The total number of panels, including this one, shown to the user. Must be
+   * set if panel_position is set.
+   *
    * @var int
    */
   public $totalPanels;
 
   /**
-   * @param string
+   * The display name of the panel.
+   *
+   * @param string $displayName
    */
   public function setDisplayName($displayName)
   {
@@ -51,7 +66,25 @@ class GoogleCloudDiscoveryengineV1PanelInfo extends \Google\Model
     return $this->displayName;
   }
   /**
-   * @param string
+   * Optional. The document IDs associated with this panel.
+   *
+   * @param GoogleCloudDiscoveryengineV1DocumentInfo[] $documents
+   */
+  public function setDocuments($documents)
+  {
+    $this->documents = $documents;
+  }
+  /**
+   * @return GoogleCloudDiscoveryengineV1DocumentInfo[]
+   */
+  public function getDocuments()
+  {
+    return $this->documents;
+  }
+  /**
+   * Required. The panel ID.
+   *
+   * @param string $panelId
    */
   public function setPanelId($panelId)
   {
@@ -65,7 +98,10 @@ class GoogleCloudDiscoveryengineV1PanelInfo extends \Google\Model
     return $this->panelId;
   }
   /**
-   * @param int
+   * The ordered position of the panel, if shown to the user with other panels.
+   * If set, then total_panels must also be set.
+   *
+   * @param int $panelPosition
    */
   public function setPanelPosition($panelPosition)
   {
@@ -79,7 +115,10 @@ class GoogleCloudDiscoveryengineV1PanelInfo extends \Google\Model
     return $this->panelPosition;
   }
   /**
-   * @param int
+   * The total number of panels, including this one, shown to the user. Must be
+   * set if panel_position is set.
+   *
+   * @param int $totalPanels
    */
   public function setTotalPanels($totalPanels)
   {

@@ -40,9 +40,6 @@ class Dataflow extends \Google\Service
   /** View and manage your Google Compute Engine resources. */
   const COMPUTE =
       "https://www.googleapis.com/auth/compute";
-  /** View your Google Compute Engine resources. */
-  const COMPUTE_READONLY =
-      "https://www.googleapis.com/auth/compute.readonly";
 
   public $projects;
   public $projects_jobs;
@@ -677,6 +674,26 @@ class Dataflow extends \Google\Service
           'methods' => [
             'getConfig' => [
               'path' => 'v1b3/projects/{projectId}/locations/{location}/jobs/{jobId}/debug/getConfig',
+              'httpMethod' => 'POST',
+              'parameters' => [
+                'projectId' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'location' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'jobId' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+              ],
+            ],'getWorkerStacktraces' => [
+              'path' => 'v1b3/projects/{projectId}/locations/{location}/jobs/{jobId}/debug/getWorkerStacktraces',
               'httpMethod' => 'POST',
               'parameters' => [
                 'projectId' => [

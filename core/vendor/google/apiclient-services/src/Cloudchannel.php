@@ -39,7 +39,7 @@ class Cloudchannel extends \Google\Service
   /** Manage users on your domain. */
   const APPS_ORDER =
       "https://www.googleapis.com/auth/apps.order";
-  /** View usage reports for your G Suite domain. */
+  /** View usage reports for your Google Workspace domain. */
   const APPS_REPORTS_USAGE_READONLY =
       "https://www.googleapis.com/auth/apps.reports.usage.readonly";
 
@@ -55,6 +55,7 @@ class Cloudchannel extends \Google\Service
   public $accounts_reports;
   public $accounts_skuGroups;
   public $accounts_skuGroups_billableSkus;
+  public $integrators;
   public $operations;
   public $products;
   public $products_skus;
@@ -101,6 +102,10 @@ class Cloudchannel extends \Google\Service
                   'location' => 'path',
                   'type' => 'string',
                   'required' => true,
+                ],
+                'integrator' => [
+                  'location' => 'query',
+                  'type' => 'string',
                 ],
                 'pageSize' => [
                   'location' => 'query',
@@ -966,6 +971,58 @@ class Cloudchannel extends \Google\Service
           ]
         ]
     );
+    $this->integrators = new Cloudchannel\Resource\Integrators(
+        $this,
+        $this->serviceName,
+        'integrators',
+        [
+          'methods' => [
+            'listSubscribers' => [
+              'path' => 'v1/{+integrator}:listSubscribers',
+              'httpMethod' => 'GET',
+              'parameters' => [
+                'integrator' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'account' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+                'pageSize' => [
+                  'location' => 'query',
+                  'type' => 'integer',
+                ],
+                'pageToken' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+              ],
+            ],'registerSubscriber' => [
+              'path' => 'v1/{+integrator}:registerSubscriber',
+              'httpMethod' => 'POST',
+              'parameters' => [
+                'integrator' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+              ],
+            ],'unregisterSubscriber' => [
+              'path' => 'v1/{+integrator}:unregisterSubscriber',
+              'httpMethod' => 'POST',
+              'parameters' => [
+                'integrator' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+              ],
+            ],
+          ]
+        ]
+    );
     $this->operations = new Cloudchannel\Resource\Operations(
         $this,
         $this->serviceName,
@@ -1022,6 +1079,10 @@ class Cloudchannel extends \Google\Service
                 'pageToken' => [
                   'location' => 'query',
                   'type' => 'string',
+                ],
+                'returnPartialSuccess' => [
+                  'location' => 'query',
+                  'type' => 'boolean',
                 ],
               ],
             ],

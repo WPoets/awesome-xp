@@ -19,38 +19,89 @@ namespace Google\Service\DiscoveryEngine;
 
 class GoogleCloudDiscoveryengineV1alphaRecrawlUrisMetadata extends \Google\Collection
 {
-  protected $collection_key = 'invalidUris';
+  protected $collection_key = 'urisNotMatchingTargetSites';
   /**
+   * Operation create time.
+   *
    * @var string
    */
   public $createTime;
   /**
+   * Unique URIs in the request that have invalid format. Sample limited to
+   * 1000.
+   *
    * @var string[]
    */
   public $invalidUris;
   /**
+   * Total number of unique URIs in the request that have invalid format.
+   *
+   * @var int
+   */
+  public $invalidUrisCount;
+  /**
+   * URIs that have no index meta tag. Sample limited to 1000.
+   *
+   * @var string[]
+   */
+  public $noindexUris;
+  /**
+   * Total number of URIs that have no index meta tag.
+   *
+   * @var int
+   */
+  public $noindexUrisCount;
+  /**
+   * Total number of URIs that have yet to be crawled.
+   *
    * @var int
    */
   public $pendingCount;
   /**
+   * Total number of URIs that were rejected due to insufficient indexing
+   * resources.
+   *
    * @var int
    */
   public $quotaExceededCount;
   /**
+   * Total number of URIs that have been crawled so far.
+   *
    * @var int
    */
   public $successCount;
   /**
+   * Operation last update time. If the operation is done, this is also the
+   * finish time.
+   *
    * @var string
    */
   public $updateTime;
   /**
+   * Unique URIs in the request that don't match any TargetSite in the
+   * DataStore, only match TargetSites that haven't been fully indexed, or match
+   * a TargetSite with type EXCLUDE. Sample limited to 1000.
+   *
+   * @var string[]
+   */
+  public $urisNotMatchingTargetSites;
+  /**
+   * Total number of URIs that don't match any TargetSites.
+   *
+   * @var int
+   */
+  public $urisNotMatchingTargetSitesCount;
+  /**
+   * Total number of unique URIs in the request that are not in invalid_uris.
+   *
    * @var int
    */
   public $validUrisCount;
 
   /**
-   * @param string
+   * Operation create time.
+   *
+   * @param string $createTime
    */
   public function setCreateTime($createTime)
   {
@@ -64,7 +115,10 @@ class GoogleCloudDiscoveryengineV1alphaRecrawlUrisMetadata extends \Google\Colle
     return $this->createTime;
   }
   /**
-   * @param string[]
+   * Unique URIs in the request that have invalid format. Sample limited to
+   * 1000.
+   *
+   * @param string[] $invalidUris
    */
   public function setInvalidUris($invalidUris)
   {
@@ -78,7 +132,57 @@ class GoogleCloudDiscoveryengineV1alphaRecrawlUrisMetadata extends \Google\Colle
     return $this->invalidUris;
   }
   /**
-   * @param int
+   * Total number of unique URIs in the request that have invalid format.
+   *
+   * @param int $invalidUrisCount
+   */
+  public function setInvalidUrisCount($invalidUrisCount)
+  {
+    $this->invalidUrisCount = $invalidUrisCount;
+  }
+  /**
+   * @return int
+   */
+  public function getInvalidUrisCount()
+  {
+    return $this->invalidUrisCount;
+  }
+  /**
+   * URIs that have no index meta tag. Sample limited to 1000.
+   *
+   * @param string[] $noindexUris
+   */
+  public function setNoindexUris($noindexUris)
+  {
+    $this->noindexUris = $noindexUris;
+  }
+  /**
+   * @return string[]
+   */
+  public function getNoindexUris()
+  {
+    return $this->noindexUris;
+  }
+  /**
+   * Total number of URIs that have no index meta tag.
+   *
+   * @param int $noindexUrisCount
+   */
+  public function setNoindexUrisCount($noindexUrisCount)
+  {
+    $this->noindexUrisCount = $noindexUrisCount;
+  }
+  /**
+   * @return int
+   */
+  public function getNoindexUrisCount()
+  {
+    return $this->noindexUrisCount;
+  }
+  /**
+   * Total number of URIs that have yet to be crawled.
+   *
+   * @param int $pendingCount
    */
   public function setPendingCount($pendingCount)
   {
@@ -92,7 +196,10 @@ class GoogleCloudDiscoveryengineV1alphaRecrawlUrisMetadata extends \Google\Colle
     return $this->pendingCount;
   }
   /**
-   * @param int
+   * Total number of URIs that were rejected due to insufficient indexing
+   * resources.
+   *
+   * @param int $quotaExceededCount
    */
   public function setQuotaExceededCount($quotaExceededCount)
   {
@@ -106,7 +213,9 @@ class GoogleCloudDiscoveryengineV1alphaRecrawlUrisMetadata extends \Google\Colle
     return $this->quotaExceededCount;
   }
   /**
-   * @param int
+   * Total number of URIs that have been crawled so far.
+   *
+   * @param int $successCount
    */
   public function setSuccessCount($successCount)
   {
@@ -120,7 +229,10 @@ class GoogleCloudDiscoveryengineV1alphaRecrawlUrisMetadata extends \Google\Colle
     return $this->successCount;
   }
   /**
-   * @param string
+   * Operation last update time. If the operation is done, this is also the
+   * finish time.
+   *
+   * @param string $updateTime
    */
   public function setUpdateTime($updateTime)
   {
@@ -134,7 +246,43 @@ class GoogleCloudDiscoveryengineV1alphaRecrawlUrisMetadata extends \Google\Colle
     return $this->updateTime;
   }
   /**
-   * @param int
+   * Unique URIs in the request that don't match any TargetSite in the
+   * DataStore, only match TargetSites that haven't been fully indexed, or match
+   * a TargetSite with type EXCLUDE. Sample limited to 1000.
+   *
+   * @param string[] $urisNotMatchingTargetSites
+   */
+  public function setUrisNotMatchingTargetSites($urisNotMatchingTargetSites)
+  {
+    $this->urisNotMatchingTargetSites = $urisNotMatchingTargetSites;
+  }
+  /**
+   * @return string[]
+   */
+  public function getUrisNotMatchingTargetSites()
+  {
+    return $this->urisNotMatchingTargetSites;
+  }
+  /**
+   * Total number of URIs that don't match any TargetSites.
+   *
+   * @param int $urisNotMatchingTargetSitesCount
+   */
+  public function setUrisNotMatchingTargetSitesCount($urisNotMatchingTargetSitesCount)
+  {
+    $this->urisNotMatchingTargetSitesCount = $urisNotMatchingTargetSitesCount;
+  }
+  /**
+   * @return int
+   */
+  public function getUrisNotMatchingTargetSitesCount()
+  {
+    return $this->urisNotMatchingTargetSitesCount;
+  }
+  /**
+   * Total number of unique URIs in the request that are not in invalid_uris.
+   *
+   * @param int $validUrisCount
    */
   public function setValidUrisCount($validUrisCount)
   {

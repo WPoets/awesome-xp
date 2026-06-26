@@ -32,7 +32,7 @@ class ListValuedResourcesResponse extends \Google\Collection
   protected $valuedResourcesDataType = 'array';
 
   /**
-   * @param string
+   * @param string $nextPageToken
    */
   public function setNextPageToken($nextPageToken)
   {
@@ -46,7 +46,7 @@ class ListValuedResourcesResponse extends \Google\Collection
     return $this->nextPageToken;
   }
   /**
-   * @param int
+   * @param int $totalSize
    */
   public function setTotalSize($totalSize)
   {
@@ -60,7 +60,7 @@ class ListValuedResourcesResponse extends \Google\Collection
     return $this->totalSize;
   }
   /**
-   * @param ValuedResource[]
+   * @param ValuedResource[] $valuedResources
    */
   public function setValuedResources($valuedResources)
   {

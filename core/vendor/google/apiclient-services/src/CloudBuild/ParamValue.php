@@ -19,22 +19,52 @@ namespace Google\Service\CloudBuild;
 
 class ParamValue extends \Google\Collection
 {
+  /**
+   * Default enum type; should not be used.
+   */
+  public const TYPE_TYPE_UNSPECIFIED = 'TYPE_UNSPECIFIED';
+  /**
+   * Default
+   */
+  public const TYPE_STRING = 'STRING';
+  /**
+   * Array type
+   */
+  public const TYPE_ARRAY = 'ARRAY';
+  /**
+   * Object type
+   */
+  public const TYPE_OBJECT = 'OBJECT';
   protected $collection_key = 'arrayVal';
   /**
+   * Value of the parameter if type is array.
+   *
    * @var string[]
    */
   public $arrayVal;
   /**
+   * Optional. Value of the parameter if type is object.
+   *
+   * @var string[]
+   */
+  public $objectVal;
+  /**
+   * Value of the parameter if type is string.
+   *
    * @var string
    */
   public $stringVal;
   /**
+   * Type of parameter.
+   *
    * @var string
    */
   public $type;
 
   /**
-   * @param string[]
+   * Value of the parameter if type is array.
+   *
+   * @param string[] $arrayVal
    */
   public function setArrayVal($arrayVal)
   {
@@ -48,7 +78,25 @@ class ParamValue extends \Google\Collection
     return $this->arrayVal;
   }
   /**
-   * @param string
+   * Optional. Value of the parameter if type is object.
+   *
+   * @param string[] $objectVal
+   */
+  public function setObjectVal($objectVal)
+  {
+    $this->objectVal = $objectVal;
+  }
+  /**
+   * @return string[]
+   */
+  public function getObjectVal()
+  {
+    return $this->objectVal;
+  }
+  /**
+   * Value of the parameter if type is string.
+   *
+   * @param string $stringVal
    */
   public function setStringVal($stringVal)
   {
@@ -62,14 +110,18 @@ class ParamValue extends \Google\Collection
     return $this->stringVal;
   }
   /**
-   * @param string
+   * Type of parameter.
+   *
+   * Accepted values: TYPE_UNSPECIFIED, STRING, ARRAY, OBJECT
+   *
+   * @param self::TYPE_* $type
    */
   public function setType($type)
   {
     $this->type = $type;
   }
   /**
-   * @return string
+   * @return self::TYPE_*
    */
   public function getType()
   {

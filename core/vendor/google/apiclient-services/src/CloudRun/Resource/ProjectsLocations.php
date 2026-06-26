@@ -78,6 +78,7 @@ class ProjectsLocations extends \Google\Service\Resource
    * Service `projects/{project_id_or_number}/locations/{location}/services/{servi
    * ce}/revisions/{revision}` for Revision `projects/{project_id_or_number}/locat
    * ions/{location}/jobs/{job}/executions/{execution}` for Execution
+   * {project_id_or_number} may contains domain-scoped project IDs
    * @param array $optParams Optional parameters.
    * @return GoogleCloudRunV2Metadata
    * @throws \Google\Service\Exception
@@ -87,6 +88,24 @@ class ProjectsLocations extends \Google\Service\Resource
     $params = ['name' => $name];
     $params = array_merge($params, $optParams);
     return $this->call('exportMetadata', [$params], GoogleCloudRunV2Metadata::class);
+  }
+  /**
+   * Export generated customer metadata for a given project.
+   * (locations.exportProjectMetadata)
+   *
+   * @param string $name Required. The name of the project of which metadata
+   * should be exported. Format:
+   * `projects/{project_id_or_number}/locations/{location}` for Project in a given
+   * location.
+   * @param array $optParams Optional parameters.
+   * @return GoogleCloudRunV2Metadata
+   * @throws \Google\Service\Exception
+   */
+  public function exportProjectMetadata($name, $optParams = [])
+  {
+    $params = ['name' => $name];
+    $params = array_merge($params, $optParams);
+    return $this->call('exportProjectMetadata', [$params], GoogleCloudRunV2Metadata::class);
   }
 }
 

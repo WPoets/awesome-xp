@@ -23,6 +23,8 @@ use Google\Service\Integrations\GoogleCloudIntegrationsV1alphaIntegrationVersion
 use Google\Service\Integrations\GoogleCloudIntegrationsV1alphaListIntegrationVersionsResponse;
 use Google\Service\Integrations\GoogleCloudIntegrationsV1alphaPublishIntegrationVersionRequest;
 use Google\Service\Integrations\GoogleCloudIntegrationsV1alphaPublishIntegrationVersionResponse;
+use Google\Service\Integrations\GoogleCloudIntegrationsV1alphaTestIntegrationsRequest;
+use Google\Service\Integrations\GoogleCloudIntegrationsV1alphaTestIntegrationsResponse;
 use Google\Service\Integrations\GoogleCloudIntegrationsV1alphaUnpublishIntegrationVersionRequest;
 use Google\Service\Integrations\GoogleCloudIntegrationsV1alphaUploadIntegrationVersionRequest;
 use Google\Service\Integrations\GoogleCloudIntegrationsV1alphaUploadIntegrationVersionResponse;
@@ -153,8 +155,7 @@ class ProjectsLocationsIntegrationsVersions extends \Google\Service\Resource
    * Specifically, when parent equals: 1. projects//locations//integrations/,
    * Meaning: "List versions (with filter) for a particular integration". 2.
    * projects//locations//integrations/- Meaning: "List versions (with filter) for
-   * a client within a particular region". 3. projects//locations/-/integrations/-
-   * Meaning: "List versions (with filter) for a client".
+   * a client within a particular region".
    * @param array $optParams Optional parameters.
    *
    * @opt_param string fieldMask The field mask which specifies the particular
@@ -168,8 +169,8 @@ class ProjectsLocationsIntegrationsVersions extends \Google\Service\Resource
    * cannot be performed on repeated fields like `task_config`.
    * @opt_param string orderBy The results would be returned in order you
    * specified here. Currently supported sort keys are: Descending sort order for
-   * "last_modified_time", "created_time", "snapshot_number" Ascending sort order
-   * for "name".
+   * "last\_modified\_time", "created\_time", and "snapshot\_number". Ascending
+   * sort order for `name`.
    * @opt_param int pageSize The maximum number of versions to return. The service
    * may return fewer than this value. If unspecified, at most 50 versions will be
    * returned. The maximum value is 1000; values above 1000 will be coerced to
@@ -226,6 +227,21 @@ class ProjectsLocationsIntegrationsVersions extends \Google\Service\Resource
     $params = ['name' => $name, 'postBody' => $postBody];
     $params = array_merge($params, $optParams);
     return $this->call('publish', [$params], GoogleCloudIntegrationsV1alphaPublishIntegrationVersionResponse::class);
+  }
+  /**
+   * Execute the integration in draft state (versions.test)
+   *
+   * @param string $name Output only. Auto-generated primary key.
+   * @param GoogleCloudIntegrationsV1alphaTestIntegrationsRequest $postBody
+   * @param array $optParams Optional parameters.
+   * @return GoogleCloudIntegrationsV1alphaTestIntegrationsResponse
+   * @throws \Google\Service\Exception
+   */
+  public function test($name, GoogleCloudIntegrationsV1alphaTestIntegrationsRequest $postBody, $optParams = [])
+  {
+    $params = ['name' => $name, 'postBody' => $postBody];
+    $params = array_merge($params, $optParams);
+    return $this->call('test', [$params], GoogleCloudIntegrationsV1alphaTestIntegrationsResponse::class);
   }
   /**
    * Sets the status of the ACTIVE integration to SNAPSHOT with a new tag

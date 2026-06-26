@@ -112,15 +112,15 @@ class ProjectsLocationsStreams extends \Google\Service\Resource
    * streams.
    * @param array $optParams Optional parameters.
    *
-   * @opt_param string filter Filter request.
-   * @opt_param string orderBy Order by fields for the result.
-   * @opt_param int pageSize Maximum number of streams to return. If unspecified,
-   * at most 50 streams will be returned. The maximum value is 1000; values above
-   * 1000 will be coerced to 1000.
-   * @opt_param string pageToken Page token received from a previous `ListStreams`
-   * call. Provide this to retrieve the subsequent page. When paginating, all
-   * other parameters provided to `ListStreams` must match the call that provided
-   * the page token.
+   * @opt_param string filter Optional. Filter request.
+   * @opt_param string orderBy Optional. Order by fields for the result.
+   * @opt_param int pageSize Optional. Maximum number of streams to return. If
+   * unspecified, at most 50 streams will be returned. The maximum value is 1000;
+   * values above 1000 will be coerced to 1000.
+   * @opt_param string pageToken Optional. Page token received from a previous
+   * `ListStreams` call. Provide this to retrieve the subsequent page. When
+   * paginating, all other parameters provided to `ListStreams` must match the
+   * call that provided the page token.
    * @return ListStreamsResponse
    * @throws \Google\Service\Exception
    */
@@ -133,7 +133,7 @@ class ProjectsLocationsStreams extends \Google\Service\Resource
   /**
    * Use this method to update the configuration of a stream. (streams.patch)
    *
-   * @param string $name Output only. The stream's name.
+   * @param string $name Output only. Identifier. The stream's name.
    * @param Stream $postBody
    * @param array $optParams Optional parameters.
    *
@@ -167,7 +167,7 @@ class ProjectsLocationsStreams extends \Google\Service\Resource
   }
   /**
    * Use this method to start, resume or recover a stream with a non default CDC
-   * strategy. NOTE: This feature is currently experimental. (streams.run)
+   * strategy. (streams.run)
    *
    * @param string $name Required. Name of the stream resource to start, in the
    * format: projects/{project_id}/locations/{location}/streams/{stream_name}

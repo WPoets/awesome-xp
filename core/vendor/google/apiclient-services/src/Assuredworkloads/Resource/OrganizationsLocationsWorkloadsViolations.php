@@ -19,6 +19,8 @@ namespace Google\Service\Assuredworkloads\Resource;
 
 use Google\Service\Assuredworkloads\GoogleCloudAssuredworkloadsV1AcknowledgeViolationRequest;
 use Google\Service\Assuredworkloads\GoogleCloudAssuredworkloadsV1AcknowledgeViolationResponse;
+use Google\Service\Assuredworkloads\GoogleCloudAssuredworkloadsV1BatchAcknowledgeViolationsRequest;
+use Google\Service\Assuredworkloads\GoogleCloudAssuredworkloadsV1BatchAcknowledgeViolationsResponse;
 use Google\Service\Assuredworkloads\GoogleCloudAssuredworkloadsV1ListViolationsResponse;
 use Google\Service\Assuredworkloads\GoogleCloudAssuredworkloadsV1Violation;
 
@@ -53,6 +55,27 @@ class OrganizationsLocationsWorkloadsViolations extends \Google\Service\Resource
     return $this->call('acknowledge', [$params], GoogleCloudAssuredworkloadsV1AcknowledgeViolationResponse::class);
   }
   /**
+   * Acknowledges multiple existing violations. By acknowledging violations, users
+   * acknowledge the existence of compliance violations in their workload and
+   * decide to ignore them due to a valid business justification. Acknowledgement
+   * is a permanent operation and it cannot be reverted. This is a batch version
+   * of AcknowledgeViolation. (violations.batchAcknowledgeViolations)
+   *
+   * @param string $parent Optional. The parent resource shared by all violations
+   * being acknowledged. Format:
+   * organizations/{organization}/locations/{location}/workloads/{workload}
+   * @param GoogleCloudAssuredworkloadsV1BatchAcknowledgeViolationsRequest $postBody
+   * @param array $optParams Optional parameters.
+   * @return GoogleCloudAssuredworkloadsV1BatchAcknowledgeViolationsResponse
+   * @throws \Google\Service\Exception
+   */
+  public function batchAcknowledgeViolations($parent, GoogleCloudAssuredworkloadsV1BatchAcknowledgeViolationsRequest $postBody, $optParams = [])
+  {
+    $params = ['parent' => $parent, 'postBody' => $postBody];
+    $params = array_merge($params, $optParams);
+    return $this->call('batchAcknowledgeViolations', [$params], GoogleCloudAssuredworkloadsV1BatchAcknowledgeViolationsResponse::class);
+  }
+  /**
    * Retrieves Assured Workload Violation based on ID. (violations.get)
    *
    * @param string $name Required. The resource name of the Violation to fetch
@@ -84,6 +107,7 @@ class OrganizationsLocationsWorkloadsViolations extends \Google\Service\Resource
    * Violations properties.
    * @opt_param string interval.endTime The end of the time window.
    * @opt_param string interval.startTime The start of the time window.
+   * @opt_param string orderBy Optional. Actionable sorting delegation.
    * @opt_param int pageSize Optional. Page size.
    * @opt_param string pageToken Optional. Page token returned from previous
    * request.

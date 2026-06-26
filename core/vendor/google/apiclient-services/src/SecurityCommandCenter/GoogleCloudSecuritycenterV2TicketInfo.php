@@ -45,7 +45,7 @@ class GoogleCloudSecuritycenterV2TicketInfo extends \Google\Model
   public $uri;
 
   /**
-   * @param string
+   * @param string $assignee
    */
   public function setAssignee($assignee)
   {
@@ -59,7 +59,7 @@ class GoogleCloudSecuritycenterV2TicketInfo extends \Google\Model
     return $this->assignee;
   }
   /**
-   * @param string
+   * @param string $description
    */
   public function setDescription($description)
   {
@@ -73,7 +73,7 @@ class GoogleCloudSecuritycenterV2TicketInfo extends \Google\Model
     return $this->description;
   }
   /**
-   * @param string
+   * @param string $id
    */
   public function setId($id)
   {
@@ -87,7 +87,7 @@ class GoogleCloudSecuritycenterV2TicketInfo extends \Google\Model
     return $this->id;
   }
   /**
-   * @param string
+   * @param string $status
    */
   public function setStatus($status)
   {
@@ -101,7 +101,7 @@ class GoogleCloudSecuritycenterV2TicketInfo extends \Google\Model
     return $this->status;
   }
   /**
-   * @param string
+   * @param string $updateTime
    */
   public function setUpdateTime($updateTime)
   {
@@ -115,7 +115,7 @@ class GoogleCloudSecuritycenterV2TicketInfo extends \Google\Model
     return $this->updateTime;
   }
   /**
-   * @param string
+   * @param string $uri
    */
   public function setUri($uri)
   {

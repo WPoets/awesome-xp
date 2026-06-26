@@ -27,7 +27,7 @@ class SimulatedResult extends \Google\Model
   protected $noViolationDataType = '';
 
   /**
-   * @param Status
+   * @param Status $error
    */
   public function setError(Status $error)
   {
@@ -41,7 +41,7 @@ class SimulatedResult extends \Google\Model
     return $this->error;
   }
   /**
-   * @param Finding
+   * @param Finding $finding
    */
   public function setFinding(Finding $finding)
   {
@@ -55,7 +55,7 @@ class SimulatedResult extends \Google\Model
     return $this->finding;
   }
   /**
-   * @param SecuritycenterEmpty
+   * @param SecuritycenterEmpty $noViolation
    */
   public function setNoViolation(SecuritycenterEmpty $noViolation)
   {

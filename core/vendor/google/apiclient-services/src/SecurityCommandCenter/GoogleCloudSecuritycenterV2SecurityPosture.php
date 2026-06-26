@@ -52,7 +52,7 @@ class GoogleCloudSecuritycenterV2SecurityPosture extends \Google\Collection
   public $revisionId;
 
   /**
-   * @param string
+   * @param string $changedPolicy
    */
   public function setChangedPolicy($changedPolicy)
   {
@@ -66,7 +66,7 @@ class GoogleCloudSecuritycenterV2SecurityPosture extends \Google\Collection
     return $this->changedPolicy;
   }
   /**
-   * @param string
+   * @param string $name
    */
   public function setName($name)
   {
@@ -80,7 +80,7 @@ class GoogleCloudSecuritycenterV2SecurityPosture extends \Google\Collection
     return $this->name;
   }
   /**
-   * @param string
+   * @param string $policy
    */
   public function setPolicy($policy)
   {
@@ -94,7 +94,7 @@ class GoogleCloudSecuritycenterV2SecurityPosture extends \Google\Collection
     return $this->policy;
   }
   /**
-   * @param GoogleCloudSecuritycenterV2PolicyDriftDetails[]
+   * @param GoogleCloudSecuritycenterV2PolicyDriftDetails[] $policyDriftDetails
    */
   public function setPolicyDriftDetails($policyDriftDetails)
   {
@@ -108,7 +108,7 @@ class GoogleCloudSecuritycenterV2SecurityPosture extends \Google\Collection
     return $this->policyDriftDetails;
   }
   /**
-   * @param string
+   * @param string $policySet
    */
   public function setPolicySet($policySet)
   {
@@ -122,7 +122,7 @@ class GoogleCloudSecuritycenterV2SecurityPosture extends \Google\Collection
     return $this->policySet;
   }
   /**
-   * @param string
+   * @param string $postureDeployment
    */
   public function setPostureDeployment($postureDeployment)
   {
@@ -136,7 +136,7 @@ class GoogleCloudSecuritycenterV2SecurityPosture extends \Google\Collection
     return $this->postureDeployment;
   }
   /**
-   * @param string
+   * @param string $postureDeploymentResource
    */
   public function setPostureDeploymentResource($postureDeploymentResource)
   {
@@ -150,7 +150,7 @@ class GoogleCloudSecuritycenterV2SecurityPosture extends \Google\Collection
     return $this->postureDeploymentResource;
   }
   /**
-   * @param string
+   * @param string $revisionId
    */
   public function setRevisionId($revisionId)
   {

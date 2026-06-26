@@ -40,7 +40,7 @@ class GoogleCloudSecuritycenterV2Container extends \Google\Collection
   public $uri;
 
   /**
-   * @param string
+   * @param string $createTime
    */
   public function setCreateTime($createTime)
   {
@@ -54,7 +54,7 @@ class GoogleCloudSecuritycenterV2Container extends \Google\Collection
     return $this->createTime;
   }
   /**
-   * @param string
+   * @param string $imageId
    */
   public function setImageId($imageId)
   {
@@ -68,7 +68,7 @@ class GoogleCloudSecuritycenterV2Container extends \Google\Collection
     return $this->imageId;
   }
   /**
-   * @param GoogleCloudSecuritycenterV2Label[]
+   * @param GoogleCloudSecuritycenterV2Label[] $labels
    */
   public function setLabels($labels)
   {
@@ -82,7 +82,7 @@ class GoogleCloudSecuritycenterV2Container extends \Google\Collection
     return $this->labels;
   }
   /**
-   * @param string
+   * @param string $name
    */
   public function setName($name)
   {
@@ -96,7 +96,7 @@ class GoogleCloudSecuritycenterV2Container extends \Google\Collection
     return $this->name;
   }
   /**
-   * @param string
+   * @param string $uri
    */
   public function setUri($uri)
   {

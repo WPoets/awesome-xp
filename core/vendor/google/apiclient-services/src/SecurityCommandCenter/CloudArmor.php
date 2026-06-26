@@ -37,7 +37,7 @@ class CloudArmor extends \Google\Model
   public $threatVector;
 
   /**
-   * @param AdaptiveProtection
+   * @param AdaptiveProtection $adaptiveProtection
    */
   public function setAdaptiveProtection(AdaptiveProtection $adaptiveProtection)
   {
@@ -51,7 +51,7 @@ class CloudArmor extends \Google\Model
     return $this->adaptiveProtection;
   }
   /**
-   * @param Attack
+   * @param Attack $attack
    */
   public function setAttack(Attack $attack)
   {
@@ -65,7 +65,7 @@ class CloudArmor extends \Google\Model
     return $this->attack;
   }
   /**
-   * @param string
+   * @param string $duration
    */
   public function setDuration($duration)
   {
@@ -79,7 +79,7 @@ class CloudArmor extends \Google\Model
     return $this->duration;
   }
   /**
-   * @param Requests
+   * @param Requests $requests
    */
   public function setRequests(Requests $requests)
   {
@@ -93,7 +93,7 @@ class CloudArmor extends \Google\Model
     return $this->requests;
   }
   /**
-   * @param SecurityPolicy
+   * @param SecurityPolicy $securityPolicy
    */
   public function setSecurityPolicy(SecurityPolicy $securityPolicy)
   {
@@ -107,7 +107,7 @@ class CloudArmor extends \Google\Model
     return $this->securityPolicy;
   }
   /**
-   * @param string
+   * @param string $threatVector
    */
   public function setThreatVector($threatVector)
   {

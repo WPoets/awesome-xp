@@ -62,8 +62,8 @@ class ProjectsJobTriggers extends \Google\Service\Resource
    * value varies depending on whether you have [specified a processing
    * location](https://cloud.google.com/sensitive-data-protection/docs/specifying-
    * location): + Projects scope, location specified:
-   * `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no location
-   * specified (defaults to global): `projects/`PROJECT_ID The following example
+   * `projects/{project_id}/locations/{location_id}` + Projects scope, no location
+   * specified (defaults to global): `projects/{project_id}` The following example
    * `parent` string specifies a parent project with the identifier `example-
    * project`, and specifies the `europe-west3` location for processing data:
    * parent=projects/example-project/locations/europe-west3
@@ -119,8 +119,8 @@ class ProjectsJobTriggers extends \Google\Service\Resource
    * value varies depending on whether you have [specified a processing
    * location](https://cloud.google.com/sensitive-data-protection/docs/specifying-
    * location): + Projects scope, location specified:
-   * `projects/`PROJECT_ID`/locations/`LOCATION_ID + Projects scope, no location
-   * specified (defaults to global): `projects/`PROJECT_ID The following example
+   * `projects/{project_id}/locations/{location_id}` + Projects scope, no location
+   * specified (defaults to global): `projects/{project_id}` The following example
    * `parent` string specifies a parent project with the identifier `example-
    * project`, and specifies the `europe-west3` location for processing data:
    * parent=projects/example-project/locations/europe-west3
@@ -135,14 +135,14 @@ class ProjectsJobTriggers extends \Google\Service\Resource
    * DATASTORE|CLOUD_STORAGE|BIGQUERY - 'last_run_time` - RFC 3339 formatted
    * timestamp, surrounded by quotation marks. Nanoseconds are ignored. -
    * 'error_count' - Number of errors that have occurred while running. * The
-   * operator must be `=` or `!=` for status and inspected_storage. Examples: *
-   * inspected_storage = cloud_storage AND status = HEALTHY * inspected_storage =
-   * cloud_storage OR inspected_storage = bigquery * inspected_storage =
-   * cloud_storage AND (state = PAUSED OR state = HEALTHY) * last_run_time >
-   * \"2017-12-12T00:00:00+00:00\" The length of this field should be no more than
-   * 500 characters.
+   * operator must be `=` or `!=` for status and inspected_storage. The syntax is
+   * based on https://google.aip.dev/160. Examples: * inspected_storage =
+   * cloud_storage AND status = HEALTHY * inspected_storage = cloud_storage OR
+   * inspected_storage = bigquery * inspected_storage = cloud_storage AND (state =
+   * PAUSED OR state = HEALTHY) * last_run_time > \"2017-12-12T00:00:00+00:00\"
+   * The length of this field should be no more than 500 characters.
    * @opt_param string locationId Deprecated. This field has no effect.
-   * @opt_param string orderBy Comma separated list of triggeredJob fields to
+   * @opt_param string orderBy Comma-separated list of triggeredJob fields to
    * order by, followed by `asc` or `desc` postfix. This list is case insensitive.
    * The default sorting order is ascending. Redundant space characters are
    * insignificant. Example: `name asc,update_time, create_time desc` Supported

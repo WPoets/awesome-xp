@@ -37,7 +37,7 @@ class GoogleCloudSecuritycenterV2CloudLoggingEntry extends \Google\Model
   public $timestamp;
 
   /**
-   * @param string
+   * @param string $insertId
    */
   public function setInsertId($insertId)
   {
@@ -51,7 +51,7 @@ class GoogleCloudSecuritycenterV2CloudLoggingEntry extends \Google\Model
     return $this->insertId;
   }
   /**
-   * @param string
+   * @param string $logId
    */
   public function setLogId($logId)
   {
@@ -65,7 +65,7 @@ class GoogleCloudSecuritycenterV2CloudLoggingEntry extends \Google\Model
     return $this->logId;
   }
   /**
-   * @param string
+   * @param string $resourceContainer
    */
   public function setResourceContainer($resourceContainer)
   {
@@ -79,7 +79,7 @@ class GoogleCloudSecuritycenterV2CloudLoggingEntry extends \Google\Model
     return $this->resourceContainer;
   }
   /**
-   * @param string
+   * @param string $timestamp
    */
   public function setTimestamp($timestamp)
   {

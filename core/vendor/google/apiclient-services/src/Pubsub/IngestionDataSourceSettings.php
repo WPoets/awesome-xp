@@ -21,9 +21,21 @@ class IngestionDataSourceSettings extends \Google\Model
 {
   protected $awsKinesisType = AwsKinesis::class;
   protected $awsKinesisDataType = '';
+  protected $awsMskType = AwsMsk::class;
+  protected $awsMskDataType = '';
+  protected $azureEventHubsType = AzureEventHubs::class;
+  protected $azureEventHubsDataType = '';
+  protected $cloudStorageType = CloudStorage::class;
+  protected $cloudStorageDataType = '';
+  protected $confluentCloudType = ConfluentCloud::class;
+  protected $confluentCloudDataType = '';
+  protected $platformLogsSettingsType = PlatformLogsSettings::class;
+  protected $platformLogsSettingsDataType = '';
 
   /**
-   * @param AwsKinesis
+   * Optional. Amazon Kinesis Data Streams.
+   *
+   * @param AwsKinesis $awsKinesis
    */
   public function setAwsKinesis(AwsKinesis $awsKinesis)
   {
@@ -35,6 +47,87 @@ class IngestionDataSourceSettings extends \Google\Model
   public function getAwsKinesis()
   {
     return $this->awsKinesis;
+  }
+  /**
+   * Optional. Amazon MSK.
+   *
+   * @param AwsMsk $awsMsk
+   */
+  public function setAwsMsk(AwsMsk $awsMsk)
+  {
+    $this->awsMsk = $awsMsk;
+  }
+  /**
+   * @return AwsMsk
+   */
+  public function getAwsMsk()
+  {
+    return $this->awsMsk;
+  }
+  /**
+   * Optional. Azure Event Hubs.
+   *
+   * @param AzureEventHubs $azureEventHubs
+   */
+  public function setAzureEventHubs(AzureEventHubs $azureEventHubs)
+  {
+    $this->azureEventHubs = $azureEventHubs;
+  }
+  /**
+   * @return AzureEventHubs
+   */
+  public function getAzureEventHubs()
+  {
+    return $this->azureEventHubs;
+  }
+  /**
+   * Optional. Cloud Storage.
+   *
+   * @param CloudStorage $cloudStorage
+   */
+  public function setCloudStorage(CloudStorage $cloudStorage)
+  {
+    $this->cloudStorage = $cloudStorage;
+  }
+  /**
+   * @return CloudStorage
+   */
+  public function getCloudStorage()
+  {
+    return $this->cloudStorage;
+  }
+  /**
+   * Optional. Confluent Cloud.
+   *
+   * @param ConfluentCloud $confluentCloud
+   */
+  public function setConfluentCloud(ConfluentCloud $confluentCloud)
+  {
+    $this->confluentCloud = $confluentCloud;
+  }
+  /**
+   * @return ConfluentCloud
+   */
+  public function getConfluentCloud()
+  {
+    return $this->confluentCloud;
+  }
+  /**
+   * Optional. Platform Logs settings. If unset, no Platform Logs will be
+   * generated.
+   *
+   * @param PlatformLogsSettings $platformLogsSettings
+   */
+  public function setPlatformLogsSettings(PlatformLogsSettings $platformLogsSettings)
+  {
+    $this->platformLogsSettings = $platformLogsSettings;
+  }
+  /**
+   * @return PlatformLogsSettings
+   */
+  public function getPlatformLogsSettings()
+  {
+    return $this->platformLogsSettings;
   }
 }
 

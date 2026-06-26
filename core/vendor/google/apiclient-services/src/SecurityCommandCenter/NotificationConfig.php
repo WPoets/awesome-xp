@@ -39,7 +39,7 @@ class NotificationConfig extends \Google\Model
   protected $streamingConfigDataType = '';
 
   /**
-   * @param string
+   * @param string $description
    */
   public function setDescription($description)
   {
@@ -53,7 +53,7 @@ class NotificationConfig extends \Google\Model
     return $this->description;
   }
   /**
-   * @param string
+   * @param string $name
    */
   public function setName($name)
   {
@@ -67,7 +67,7 @@ class NotificationConfig extends \Google\Model
     return $this->name;
   }
   /**
-   * @param string
+   * @param string $pubsubTopic
    */
   public function setPubsubTopic($pubsubTopic)
   {
@@ -81,7 +81,7 @@ class NotificationConfig extends \Google\Model
     return $this->pubsubTopic;
   }
   /**
-   * @param string
+   * @param string $serviceAccount
    */
   public function setServiceAccount($serviceAccount)
   {
@@ -95,7 +95,7 @@ class NotificationConfig extends \Google\Model
     return $this->serviceAccount;
   }
   /**
-   * @param StreamingConfig
+   * @param StreamingConfig $streamingConfig
    */
   public function setStreamingConfig(StreamingConfig $streamingConfig)
   {

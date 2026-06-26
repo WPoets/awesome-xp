@@ -33,7 +33,7 @@ class GoogleCloudSecuritycenterV2SecurityBulletin extends \Google\Model
   public $suggestedUpgradeVersion;
 
   /**
-   * @param string
+   * @param string $bulletinId
    */
   public function setBulletinId($bulletinId)
   {
@@ -47,7 +47,7 @@ class GoogleCloudSecuritycenterV2SecurityBulletin extends \Google\Model
     return $this->bulletinId;
   }
   /**
-   * @param string
+   * @param string $submissionTime
    */
   public function setSubmissionTime($submissionTime)
   {
@@ -61,7 +61,7 @@ class GoogleCloudSecuritycenterV2SecurityBulletin extends \Google\Model
     return $this->submissionTime;
   }
   /**
-   * @param string
+   * @param string $suggestedUpgradeVersion
    */
   public function setSuggestedUpgradeVersion($suggestedUpgradeVersion)
   {

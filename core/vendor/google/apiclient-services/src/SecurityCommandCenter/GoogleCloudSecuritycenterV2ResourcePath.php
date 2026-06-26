@@ -24,7 +24,7 @@ class GoogleCloudSecuritycenterV2ResourcePath extends \Google\Collection
   protected $nodesDataType = 'array';
 
   /**
-   * @param GoogleCloudSecuritycenterV2ResourcePathNode[]
+   * @param GoogleCloudSecuritycenterV2ResourcePathNode[] $nodes
    */
   public function setNodes($nodes)
   {

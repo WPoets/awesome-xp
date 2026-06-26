@@ -19,6 +19,16 @@ namespace Google\Service\SecurityCommandCenter;
 
 class ResourcePathNode extends \Google\Model
 {
+  public const NODE_TYPE_RESOURCE_PATH_NODE_TYPE_UNSPECIFIED = 'RESOURCE_PATH_NODE_TYPE_UNSPECIFIED';
+  public const NODE_TYPE_GCP_ORGANIZATION = 'GCP_ORGANIZATION';
+  public const NODE_TYPE_GCP_FOLDER = 'GCP_FOLDER';
+  public const NODE_TYPE_GCP_PROJECT = 'GCP_PROJECT';
+  public const NODE_TYPE_AWS_ORGANIZATION = 'AWS_ORGANIZATION';
+  public const NODE_TYPE_AWS_ORGANIZATIONAL_UNIT = 'AWS_ORGANIZATIONAL_UNIT';
+  public const NODE_TYPE_AWS_ACCOUNT = 'AWS_ACCOUNT';
+  public const NODE_TYPE_AZURE_MANAGEMENT_GROUP = 'AZURE_MANAGEMENT_GROUP';
+  public const NODE_TYPE_AZURE_SUBSCRIPTION = 'AZURE_SUBSCRIPTION';
+  public const NODE_TYPE_AZURE_RESOURCE_GROUP = 'AZURE_RESOURCE_GROUP';
   /**
    * @var string
    */
@@ -33,7 +43,7 @@ class ResourcePathNode extends \Google\Model
   public $nodeType;
 
   /**
-   * @param string
+   * @param string $displayName
    */
   public function setDisplayName($displayName)
   {
@@ -47,7 +57,7 @@ class ResourcePathNode extends \Google\Model
     return $this->displayName;
   }
   /**
-   * @param string
+   * @param string $id
    */
   public function setId($id)
   {
@@ -61,14 +71,14 @@ class ResourcePathNode extends \Google\Model
     return $this->id;
   }
   /**
-   * @param string
+   * @param self::NODE_TYPE_* $nodeType
    */
   public function setNodeType($nodeType)
   {
     $this->nodeType = $nodeType;
   }
   /**
-   * @return string
+   * @return self::NODE_TYPE_*
    */
   public function getNodeType()
   {

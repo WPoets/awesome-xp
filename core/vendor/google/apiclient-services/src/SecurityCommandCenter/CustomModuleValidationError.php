@@ -33,7 +33,7 @@ class CustomModuleValidationError extends \Google\Model
   protected $startDataType = '';
 
   /**
-   * @param string
+   * @param string $description
    */
   public function setDescription($description)
   {
@@ -47,7 +47,7 @@ class CustomModuleValidationError extends \Google\Model
     return $this->description;
   }
   /**
-   * @param Position
+   * @param Position $end
    */
   public function setEnd(Position $end)
   {
@@ -61,7 +61,7 @@ class CustomModuleValidationError extends \Google\Model
     return $this->end;
   }
   /**
-   * @param string
+   * @param string $fieldPath
    */
   public function setFieldPath($fieldPath)
   {
@@ -75,7 +75,7 @@ class CustomModuleValidationError extends \Google\Model
     return $this->fieldPath;
   }
   /**
-   * @param Position
+   * @param Position $start
    */
   public function setStart(Position $start)
   {

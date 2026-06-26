@@ -20,19 +20,31 @@ namespace Google\Service\DiscoveryEngine;
 class GoogleCloudDiscoveryengineV1alphaImportCompletionSuggestionsResponse extends \Google\Collection
 {
   protected $collection_key = 'errorSamples';
+  protected $errorConfigType = GoogleCloudDiscoveryengineV1alphaImportErrorConfig::class;
+  protected $errorConfigDataType = '';
   protected $errorSamplesType = GoogleRpcStatus::class;
   protected $errorSamplesDataType = 'array';
-  /**
-   * @var string
-   */
-  public $failureCount;
-  /**
-   * @var string
-   */
-  public $successCount;
 
   /**
-   * @param GoogleRpcStatus[]
+   * The desired location of errors incurred during the Import.
+   *
+   * @param GoogleCloudDiscoveryengineV1alphaImportErrorConfig $errorConfig
+   */
+  public function setErrorConfig(GoogleCloudDiscoveryengineV1alphaImportErrorConfig $errorConfig)
+  {
+    $this->errorConfig = $errorConfig;
+  }
+  /**
+   * @return GoogleCloudDiscoveryengineV1alphaImportErrorConfig
+   */
+  public function getErrorConfig()
+  {
+    return $this->errorConfig;
+  }
+  /**
+   * A sample of errors encountered while processing the request.
+   *
+   * @param GoogleRpcStatus[] $errorSamples
    */
   public function setErrorSamples($errorSamples)
   {
@@ -44,34 +56,6 @@ class GoogleCloudDiscoveryengineV1alphaImportCompletionSuggestionsResponse exten
   public function getErrorSamples()
   {
     return $this->errorSamples;
-  }
-  /**
-   * @param string
-   */
-  public function setFailureCount($failureCount)
-  {
-    $this->failureCount = $failureCount;
-  }
-  /**
-   * @return string
-   */
-  public function getFailureCount()
-  {
-    return $this->failureCount;
-  }
-  /**
-   * @param string
-   */
-  public function setSuccessCount($successCount)
-  {
-    $this->successCount = $successCount;
-  }
-  /**
-   * @return string
-   */
-  public function getSuccessCount()
-  {
-    return $this->successCount;
   }
 }
 

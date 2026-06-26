@@ -18,7 +18,10 @@
 namespace Google\Service\DisplayVideo\Resource;
 
 use Google\Service\DisplayVideo\AdGroup;
+use Google\Service\DisplayVideo\BulkEditAdGroupAssignedTargetingOptionsRequest;
+use Google\Service\DisplayVideo\BulkEditAdGroupAssignedTargetingOptionsResponse;
 use Google\Service\DisplayVideo\BulkListAdGroupAssignedTargetingOptionsResponse;
+use Google\Service\DisplayVideo\DisplayvideoEmpty;
 use Google\Service\DisplayVideo\ListAdGroupsResponse;
 
 /**
@@ -32,9 +35,34 @@ use Google\Service\DisplayVideo\ListAdGroupsResponse;
 class AdvertisersAdGroups extends \Google\Service\Resource
 {
   /**
+   * Bulk edits targeting options for multiple ad groups. The same set of delete
+   * and create requests will be applied to all specified ad groups. Specifically,
+   * the operation will delete the assigned targeting options provided in
+   * BulkEditAdGroupAssignedTargetingOptionsRequest.delete_requests from each ad
+   * group, and then create the assigned targeting options provided in
+   * BulkEditAdGroupAssignedTargetingOptionsRequest.create_requests. This method
+   * is only supported for Demand Gen ad groups. Retrieval and management of
+   * Demand Gen resources is currently rolling out. This method will be available
+   * to all partners by *June 24, 2026*.
+   * (adGroups.bulkEditAssignedTargetingOptions)
+   *
+   * @param string $advertiserId Required. The ID of the advertiser the ad groups
+   * belong to.
+   * @param BulkEditAdGroupAssignedTargetingOptionsRequest $postBody
+   * @param array $optParams Optional parameters.
+   * @return BulkEditAdGroupAssignedTargetingOptionsResponse
+   * @throws \Google\Service\Exception
+   */
+  public function bulkEditAssignedTargetingOptions($advertiserId, BulkEditAdGroupAssignedTargetingOptionsRequest $postBody, $optParams = [])
+  {
+    $params = ['advertiserId' => $advertiserId, 'postBody' => $postBody];
+    $params = array_merge($params, $optParams);
+    return $this->call('bulkEditAssignedTargetingOptions', [$params], BulkEditAdGroupAssignedTargetingOptionsResponse::class);
+  }
+  /**
    * Lists assigned targeting options for multiple ad groups across targeting
    * types. Inherited assigned targeting options are not included.
-   * (adGroups.bulkListAdGroupAssignedTargetingOptions)
+   * (adGroups.bulkListAssignedTargetingOptions)
    *
    * @param string $advertiserId Required. The ID of the advertiser the line items
    * belongs to.
@@ -70,11 +98,49 @@ class AdvertisersAdGroups extends \Google\Service\Resource
    * @return BulkListAdGroupAssignedTargetingOptionsResponse
    * @throws \Google\Service\Exception
    */
-  public function bulkListAdGroupAssignedTargetingOptions($advertiserId, $optParams = [])
+  public function bulkListAssignedTargetingOptions($advertiserId, $optParams = [])
   {
     $params = ['advertiserId' => $advertiserId];
     $params = array_merge($params, $optParams);
-    return $this->call('bulkListAdGroupAssignedTargetingOptions', [$params], BulkListAdGroupAssignedTargetingOptionsResponse::class);
+    return $this->call('bulkListAssignedTargetingOptions', [$params], BulkListAdGroupAssignedTargetingOptionsResponse::class);
+  }
+  /**
+   * Creates a new ad group. Returns the newly created ad group if successful.
+   * This method is only supported for Demand Gen ad groups. Retrieval and
+   * management of Demand Gen resources is currently rolling out. This method will
+   * be available to all partners by *June 24, 2026*. (adGroups.create)
+   *
+   * @param string $advertiserId Output only. The unique ID of the advertiser the
+   * ad group belongs to.
+   * @param AdGroup $postBody
+   * @param array $optParams Optional parameters.
+   * @return AdGroup
+   * @throws \Google\Service\Exception
+   */
+  public function create($advertiserId, AdGroup $postBody, $optParams = [])
+  {
+    $params = ['advertiserId' => $advertiserId, 'postBody' => $postBody];
+    $params = array_merge($params, $optParams);
+    return $this->call('create', [$params], AdGroup::class);
+  }
+  /**
+   * Deletes a AdGroup. Returns error code `NOT_FOUND` if the ad group does not
+   * exist. This method is only supported for Demand Gen ad groups. Retrieval and
+   * management of Demand Gen resources is currently rolling out. This method will
+   * be available to all partners by *June 24, 2026*. (adGroups.delete)
+   *
+   * @param string $advertiserId Required. The ID of the advertiser this ad group
+   * belongs to.
+   * @param string $adGroupId Required. The ID of the ad group to delete.
+   * @param array $optParams Optional parameters.
+   * @return DisplayvideoEmpty
+   * @throws \Google\Service\Exception
+   */
+  public function delete($advertiserId, $adGroupId, $optParams = [])
+  {
+    $params = ['advertiserId' => $advertiserId, 'adGroupId' => $adGroupId];
+    $params = array_merge($params, $optParams);
+    return $this->call('delete', [$params], DisplayvideoEmpty::class);
   }
   /**
    * Gets an ad group. (adGroups.get)
@@ -132,6 +198,30 @@ class AdvertisersAdGroups extends \Google\Service\Resource
     $params = ['advertiserId' => $advertiserId];
     $params = array_merge($params, $optParams);
     return $this->call('list', [$params], ListAdGroupsResponse::class);
+  }
+  /**
+   * Updates an existing ad group. Returns the updated ad group if successful.
+   * This method is only supported for Demand Gen ad groups. Retrieval and
+   * management of Demand Gen resources is currently rolling out. This method will
+   * be available to all partners by *June 24, 2026*. (adGroups.patch)
+   *
+   * @param string $advertiserId Output only. The unique ID of the advertiser the
+   * ad group belongs to.
+   * @param string $adGroupId Output only. The unique ID of the ad group. Assigned
+   * by the system.
+   * @param AdGroup $postBody
+   * @param array $optParams Optional parameters.
+   *
+   * @opt_param string updateMask Required. The mask to control which fields to
+   * update.
+   * @return AdGroup
+   * @throws \Google\Service\Exception
+   */
+  public function patch($advertiserId, $adGroupId, AdGroup $postBody, $optParams = [])
+  {
+    $params = ['advertiserId' => $advertiserId, 'adGroupId' => $adGroupId, 'postBody' => $postBody];
+    $params = array_merge($params, $optParams);
+    return $this->call('patch', [$params], AdGroup::class);
   }
 }
 

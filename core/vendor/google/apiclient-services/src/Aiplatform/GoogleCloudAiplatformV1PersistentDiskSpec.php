@@ -20,16 +20,28 @@ namespace Google\Service\Aiplatform;
 class GoogleCloudAiplatformV1PersistentDiskSpec extends \Google\Model
 {
   /**
+   * Size in GB of the disk (default is 100GB).
+   *
    * @var string
    */
   public $diskSizeGb;
   /**
+   * Type of the disk (default is "pd-standard"). Valid values: "pd-ssd"
+   * (Persistent Disk Solid State Drive) "pd-standard" (Persistent Disk Hard
+   * Disk Drive) "pd-balanced" (Balanced Persistent Disk) "pd-extreme" (Extreme
+   * Persistent Disk) "hyperdisk-balanced" (Hyperdisk Balanced) "hyperdisk-
+   * extreme" (Hyperdisk Extreme) "hyperdisk-balanced-high-availability"
+   * (Hyperdisk Balanced High Availability) "hyperdisk-ml" (Hyperdisk ML)
+   * "hyperdisk-throughput" (Hyperdisk Throughput)
+   *
    * @var string
    */
   public $diskType;
 
   /**
-   * @param string
+   * Size in GB of the disk (default is 100GB).
+   *
+   * @param string $diskSizeGb
    */
   public function setDiskSizeGb($diskSizeGb)
   {
@@ -43,7 +55,15 @@ class GoogleCloudAiplatformV1PersistentDiskSpec extends \Google\Model
     return $this->diskSizeGb;
   }
   /**
-   * @param string
+   * Type of the disk (default is "pd-standard"). Valid values: "pd-ssd"
+   * (Persistent Disk Solid State Drive) "pd-standard" (Persistent Disk Hard
+   * Disk Drive) "pd-balanced" (Balanced Persistent Disk) "pd-extreme" (Extreme
+   * Persistent Disk) "hyperdisk-balanced" (Hyperdisk Balanced) "hyperdisk-
+   * extreme" (Hyperdisk Extreme) "hyperdisk-balanced-high-availability"
+   * (Hyperdisk Balanced High Availability) "hyperdisk-ml" (Hyperdisk ML)
+   * "hyperdisk-throughput" (Hyperdisk Throughput)
+   *
+   * @param string $diskType
    */
   public function setDiskType($diskType)
   {

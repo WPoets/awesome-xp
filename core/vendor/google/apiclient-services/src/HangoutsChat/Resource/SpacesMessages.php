@@ -32,21 +32,45 @@ use Google\Service\HangoutsChat\Message;
 class SpacesMessages extends \Google\Service\Resource
 {
   /**
-   * Creates a message in a Google Chat space. The maximum message size, including
-   * text and cards, is 32,000 bytes. For an example, see [Send a
+   * Creates a message in a Google Chat space. For an example, see [Send a
    * message](https://developers.google.com/workspace/chat/create-messages).
-   * Calling this method requires
+   * Supports the following types of
    * [authentication](https://developers.google.com/workspace/chat/authenticate-
-   * authorize) and supports the following authentication types: - For text
-   * messages, user authentication or app authentication are supported. - For card
-   * messages, only app authentication is supported. (Only Chat apps can create
-   * card messages.) (messages.create)
+   * authorize): - [App
+   * authentication](https://developers.google.com/workspace/chat/authenticate-
+   * authorize-chat-app) with the authorization scope: -
+   * `https://www.googleapis.com/auth/chat.bot` - [User
+   * authentication](https://developers.google.com/workspace/chat/authenticate-
+   * authorize-chat-user) with one of the following authorization scopes: -
+   * `https://www.googleapis.com/auth/chat.messages.create` -
+   * `https://www.googleapis.com/auth/chat.messages` -
+   * `https://www.googleapis.com/auth/chat.import` (import mode spaces only) Chat
+   * attributes the message sender differently depending on the type of
+   * authentication that you use in your request. The following image shows how
+   * Chat attributes a message when you use app authentication. Chat displays the
+   * Chat app as the message sender. The content of the message can contain text
+   * (`text`), cards (`cardsV2`), and accessory widgets (`accessoryWidgets`).
+   * ![Message sent with app
+   * authentication](https://developers.google.com/workspace/chat/images/message-
+   * app-auth.svg) The following image shows how Chat attributes a message when
+   * you use user authentication. Chat displays the user as the message sender and
+   * attributes the Chat app to the message by displaying its name. The content of
+   * message can only contain text (`text`). ![Message sent with user
+   * authentication](https://developers.google.com/workspace/chat/images/message-
+   * user-auth.svg) The maximum message size, including the message contents, is
+   * 32,000 bytes. For
+   * [webhook](https://developers.google.com/workspace/chat/quickstart/webhooks)
+   * requests, the response doesn't contain the full message. The response only
+   * populates the `name` and `thread.name` fields in addition to the information
+   * that was in the request. (messages.create)
    *
    * @param string $parent Required. The resource name of the space in which to
    * create a message. Format: `spaces/{space}`
    * @param Message $postBody
    * @param array $optParams Optional parameters.
    *
+   * @opt_param string createMessageNotificationOptions.notificationType The
+   * notification type for the message.
    * @opt_param string messageId Optional. A custom ID for a message. Lets Chat
    * apps get, update, or delete a message without needing to store the system-
    * assigned ID in the message's resource name (represented in the message `name`
@@ -58,7 +82,12 @@ class SpacesMessages extends \Google\Service\Resource
    * [Name a message](https://developers.google.com/workspace/chat/create-
    * messages#name_a_created_message).
    * @opt_param string messageReplyOption Optional. Specifies whether a message
-   * starts a thread or replies to one. Only supported in named spaces.
+   * starts a thread or replies to one. Only supported in named spaces. When
+   * [responding to user
+   * interactions](https://developers.google.com/workspace/chat/receive-respond-
+   * interactions), this field is ignored. For interactions within a thread, the
+   * reply is created in the same thread. Otherwise, the reply is created as a new
+   * thread.
    * @opt_param string requestId Optional. A unique request ID for this message.
    * Specifying an existing request ID returns the message created with that ID
    * instead of creating a new message.
@@ -80,14 +109,18 @@ class SpacesMessages extends \Google\Service\Resource
   /**
    * Deletes a message. For an example, see [Delete a
    * message](https://developers.google.com/workspace/chat/delete-messages).
-   * Requires
+   * Supports the following types of
    * [authentication](https://developers.google.com/workspace/chat/authenticate-
-   * authorize). Supports [app
+   * authorize): - [App
    * authentication](https://developers.google.com/workspace/chat/authenticate-
-   * authorize-chat-app) and [user
+   * authorize-chat-app) with the authorization scope: -
+   * `https://www.googleapis.com/auth/chat.bot` - [User
    * authentication](https://developers.google.com/workspace/chat/authenticate-
-   * authorize-chat-user). When using app authentication, requests can only delete
-   * messages created by the calling Chat app. (messages.delete)
+   * authorize-chat-user) with one of the following authorization scopes: -
+   * `https://www.googleapis.com/auth/chat.messages` -
+   * `https://www.googleapis.com/auth/chat.import` (import mode spaces only) When
+   * using app authentication, requests can only delete messages created by the
+   * calling Chat app. (messages.delete)
    *
    * @param string $name Required. Resource name of the message. Format:
    * `spaces/{space}/messages/{message}` If you've set a custom ID for your
@@ -97,9 +130,9 @@ class SpacesMessages extends \Google\Service\Resource
    * messages#name_a_created_message).
    * @param array $optParams Optional parameters.
    *
-   * @opt_param bool force When `true`, deleting a message also deletes its
-   * threaded replies. When `false`, if a message has threaded replies, deletion
-   * fails. Only applies when [authenticating as a
+   * @opt_param bool force Optional. When `true`, deleting a message also deletes
+   * its threaded replies. When `false`, if a message has threaded replies,
+   * deletion fails. Only applies when [authenticating as a
    * user](https://developers.google.com/workspace/chat/authenticate-authorize-
    * chat-user). Has no effect when [authenticating as a Chat app]
    * (https://developers.google.com/workspace/chat/authenticate-authorize-chat-
@@ -115,14 +148,26 @@ class SpacesMessages extends \Google\Service\Resource
   }
   /**
    * Returns details about a message. For an example, see [Get details about a
-   * message](https://developers.google.com/workspace/chat/get-messages). Requires
+   * message](https://developers.google.com/workspace/chat/get-messages). Supports
+   * the following types of
    * [authentication](https://developers.google.com/workspace/chat/authenticate-
-   * authorize). Supports [app
+   * authorize): - [App
    * authentication](https://developers.google.com/workspace/chat/authenticate-
-   * authorize-chat-app) and [user
+   * authorize-chat-app) with one of the following authorization scopes: -
+   * `https://www.googleapis.com/auth/chat.bot`: When using this authorization
+   * scope, this method returns details about a message the Chat app has access
+   * to, like direct messages and [slash
+   * commands](https://developers.google.com/workspace/chat/slash-commands) that
+   * invoke the Chat app. -
+   * `https://www.googleapis.com/auth/chat.app.messages.readonly` with
+   * [administrator approval](https://support.google.com/a?p=chat-app-auth). When
+   * using this authentication scope, this method returns details about a public
+   * message in a space. - [User
    * authentication](https://developers.google.com/workspace/chat/authenticate-
-   * authorize-chat-user). Note: Might return a message from a blocked member or
-   * space. (messages.get)
+   * authorize-chat-user) with one of the following authorization scopes: -
+   * `https://www.googleapis.com/auth/chat.messages.readonly` -
+   * `https://www.googleapis.com/auth/chat.messages` Note: Might return a message
+   * from a blocked member or space. (messages.get)
    *
    * @param string $name Required. Resource name of the message. Format:
    * `spaces/{space}/messages/{message}` If you've set a custom ID for your
@@ -142,18 +187,35 @@ class SpacesMessages extends \Google\Service\Resource
   }
   /**
    * Lists messages in a space that the caller is a member of, including messages
-   * from blocked members and spaces. For an example, see [List
-   * messages](/chat/api/guides/v1/messages/list). Requires [user
+   * from blocked members and spaces. System messages, like those announcing new
+   * space members, aren't included. If you list messages from a space with no
+   * messages, the response is an empty object. When using a REST/HTTP interface,
+   * the response contains an empty JSON object, `{}`. For an example, see [List m
+   * essages](https://developers.google.com/workspace/chat/api/guides/v1/messages/
+   * list). Supports the following types of
+   * [authentication](https://developers.google.com/workspace/chat/authenticate-
+   * authorize): - [App
    * authentication](https://developers.google.com/workspace/chat/authenticate-
-   * authorize-chat-user). (messages.listSpacesMessages)
+   * authorize-chat-app) with [administrator
+   * approval](https://support.google.com/a?p=chat-app-auth) with the
+   * authorization scope: -
+   * `https://www.googleapis.com/auth/chat.app.messages.readonly`. When using this
+   * authentication scope, this method only returns public messages in a space. It
+   * doesn't include private messages. - [User
+   * authentication](https://developers.google.com/workspace/chat/authenticate-
+   * authorize-chat-user) with one of the following authorization scopes: -
+   * `https://www.googleapis.com/auth/chat.messages.readonly` -
+   * `https://www.googleapis.com/auth/chat.messages` -
+   * `https://www.googleapis.com/auth/chat.import` (import mode spaces only)
+   * (messages.listSpacesMessages)
    *
    * @param string $parent Required. The resource name of the space to list
    * messages from. Format: `spaces/{space}`
    * @param array $optParams Optional parameters.
    *
-   * @opt_param string filter A query filter. You can filter messages by date
-   * (`create_time`) and thread (`thread.name`). To filter messages by the date
-   * they were created, specify the `create_time` with a timestamp in
+   * @opt_param string filter Optional. A query filter. You can filter messages by
+   * date (`create_time`) and thread (`thread.name`). To filter messages by the
+   * date they were created, specify the `create_time` with a timestamp in
    * [RFC-3339](https://www.rfc-editor.org/rfc/rfc3339) format and double
    * quotation marks. For example, `"2023-04-21T11:30:00-04:00"`. You can use the
    * greater than operator `>` to list messages that were created after a
@@ -169,25 +231,23 @@ class SpacesMessages extends \Google\Service\Resource
    * "2013-01-01T00:00:00+00:00" AND thread.name = spaces/AAAAAAAAAAA/threads/123
    * thread.name = spaces/AAAAAAAAAAA/threads/123 ``` Invalid queries are rejected
    * by the server with an `INVALID_ARGUMENT` error.
-   * @opt_param string orderBy Optional, if resuming from a previous query. How
-   * the list of messages is ordered. Specify a value to order by an ordering
-   * operation. Valid ordering operation values are as follows: - `ASC` for
-   * ascending. - `DESC` for descending. The default ordering is `create_time
-   * ASC`.
-   * @opt_param int pageSize The maximum number of messages returned. The service
-   * might return fewer messages than this value. If unspecified, at most 25 are
-   * returned. The maximum value is 1000. If you use a value more than 1000, it's
-   * automatically changed to 1000. Negative values return an `INVALID_ARGUMENT`
-   * error.
-   * @opt_param string pageToken Optional, if resuming from a previous query. A
-   * page token received from a previous list messages call. Provide this
-   * parameter to retrieve the subsequent page. When paginating, all other
-   * parameters provided should match the call that provided the page token.
-   * Passing different values to the other parameters might lead to unexpected
-   * results.
-   * @opt_param bool showDeleted Whether to include deleted messages. Deleted
-   * messages include deleted time and metadata about their deletion, but message
-   * content is unavailable.
+   * @opt_param string orderBy Optional. How the list of messages is ordered.
+   * Specify a value to order by an ordering operation. Valid ordering operation
+   * values are as follows: - `ASC` for ascending. - `DESC` for descending. The
+   * default ordering is `create_time ASC`.
+   * @opt_param int pageSize Optional. The maximum number of messages returned.
+   * The service might return fewer messages than this value. If unspecified, at
+   * most 25 are returned. The maximum value is 1000. If you use a value more than
+   * 1000, it's automatically changed to 1000. Negative values return an
+   * `INVALID_ARGUMENT` error.
+   * @opt_param string pageToken Optional. A page token received from a previous
+   * list messages call. Provide this parameter to retrieve the subsequent page.
+   * When paginating, all other parameters provided should match the call that
+   * provided the page token. Passing different values to the other parameters
+   * might lead to unexpected results.
+   * @opt_param bool showDeleted Optional. Whether to include deleted messages.
+   * Deleted messages include deleted time and metadata about their deletion, but
+   * message content is unavailable.
    * @return ListMessagesResponse
    * @throws \Google\Service\Exception
    */
@@ -202,16 +262,20 @@ class SpacesMessages extends \Google\Service\Resource
    * methods. The `patch` method uses a `patch` request while the `update` method
    * uses a `put` request. We recommend using the `patch` method. For an example,
    * see [Update a message](https://developers.google.com/workspace/chat/update-
-   * messages). Requires
+   * messages). Supports the following types of
    * [authentication](https://developers.google.com/workspace/chat/authenticate-
-   * authorize). Supports [app
+   * authorize): - [App
    * authentication](https://developers.google.com/workspace/chat/authenticate-
-   * authorize-chat-app) and [user
+   * authorize-chat-app) with the authorization scope: -
+   * `https://www.googleapis.com/auth/chat.bot` - [User
    * authentication](https://developers.google.com/workspace/chat/authenticate-
-   * authorize-chat-user). When using app authentication, requests can only update
-   * messages created by the calling Chat app. (messages.patch)
+   * authorize-chat-user) with one of the following authorization scopes: -
+   * `https://www.googleapis.com/auth/chat.messages` -
+   * `https://www.googleapis.com/auth/chat.import` (import mode spaces only) When
+   * using app authentication, requests can only update messages created by the
+   * calling Chat app. (messages.patch)
    *
-   * @param string $name Resource name of the message. Format:
+   * @param string $name Identifier. Resource name of the message. Format:
    * `spaces/{space}/messages/{message}` Where `{space}` is the ID of the space
    * where the message is posted and `{message}` is a system-assigned ID for the
    * message. For example, `spaces/AAAAAAAAAAA/messages/BBBBBBBBBBB.BBBBBBBBBBB`.
@@ -235,7 +299,8 @@ class SpacesMessages extends \Google\Service\Resource
    * authentication](/chat/api/guides/auth/service-accounts).) - `cards_v2`
    * (Requires [app authentication](/chat/api/guides/auth/service-accounts).) -
    * `accessory_widgets` (Requires [app
-   * authentication](/chat/api/guides/auth/service-accounts).)
+   * authentication](/chat/api/guides/auth/service-accounts).) -
+   * `quoted_message_metadata` (Only allows removal of the quoted message.)
    * @return Message
    * @throws \Google\Service\Exception
    */
@@ -250,16 +315,20 @@ class SpacesMessages extends \Google\Service\Resource
    * methods. The `patch` method uses a `patch` request while the `update` method
    * uses a `put` request. We recommend using the `patch` method. For an example,
    * see [Update a message](https://developers.google.com/workspace/chat/update-
-   * messages). Requires
+   * messages). Supports the following types of
    * [authentication](https://developers.google.com/workspace/chat/authenticate-
-   * authorize). Supports [app
+   * authorize): - [App
    * authentication](https://developers.google.com/workspace/chat/authenticate-
-   * authorize-chat-app) and [user
+   * authorize-chat-app) with the authorization scope: -
+   * `https://www.googleapis.com/auth/chat.bot` - [User
    * authentication](https://developers.google.com/workspace/chat/authenticate-
-   * authorize-chat-user). When using app authentication, requests can only update
-   * messages created by the calling Chat app. (messages.update)
+   * authorize-chat-user) with one of the following authorization scopes: -
+   * `https://www.googleapis.com/auth/chat.messages` -
+   * `https://www.googleapis.com/auth/chat.import` (import mode spaces only) When
+   * using app authentication, requests can only update messages created by the
+   * calling Chat app. (messages.update)
    *
-   * @param string $name Resource name of the message. Format:
+   * @param string $name Identifier. Resource name of the message. Format:
    * `spaces/{space}/messages/{message}` Where `{space}` is the ID of the space
    * where the message is posted and `{message}` is a system-assigned ID for the
    * message. For example, `spaces/AAAAAAAAAAA/messages/BBBBBBBBBBB.BBBBBBBBBBB`.
@@ -283,7 +352,8 @@ class SpacesMessages extends \Google\Service\Resource
    * authentication](/chat/api/guides/auth/service-accounts).) - `cards_v2`
    * (Requires [app authentication](/chat/api/guides/auth/service-accounts).) -
    * `accessory_widgets` (Requires [app
-   * authentication](/chat/api/guides/auth/service-accounts).)
+   * authentication](/chat/api/guides/auth/service-accounts).) -
+   * `quoted_message_metadata` (Only allows removal of the quoted message.)
    * @return Message
    * @throws \Google\Service\Exception
    */

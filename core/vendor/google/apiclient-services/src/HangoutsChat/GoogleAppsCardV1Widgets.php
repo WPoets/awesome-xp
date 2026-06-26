@@ -21,6 +21,8 @@ class GoogleAppsCardV1Widgets extends \Google\Model
 {
   protected $buttonListType = GoogleAppsCardV1ButtonList::class;
   protected $buttonListDataType = '';
+  protected $chipListType = GoogleAppsCardV1ChipList::class;
+  protected $chipListDataType = '';
   protected $dateTimePickerType = GoogleAppsCardV1DateTimePicker::class;
   protected $dateTimePickerDataType = '';
   protected $decoratedTextType = GoogleAppsCardV1DecoratedText::class;
@@ -35,7 +37,9 @@ class GoogleAppsCardV1Widgets extends \Google\Model
   protected $textParagraphDataType = '';
 
   /**
-   * @param GoogleAppsCardV1ButtonList
+   * ButtonList widget.
+   *
+   * @param GoogleAppsCardV1ButtonList $buttonList
    */
   public function setButtonList(GoogleAppsCardV1ButtonList $buttonList)
   {
@@ -49,7 +53,25 @@ class GoogleAppsCardV1Widgets extends \Google\Model
     return $this->buttonList;
   }
   /**
-   * @param GoogleAppsCardV1DateTimePicker
+   * ChipList widget.
+   *
+   * @param GoogleAppsCardV1ChipList $chipList
+   */
+  public function setChipList(GoogleAppsCardV1ChipList $chipList)
+  {
+    $this->chipList = $chipList;
+  }
+  /**
+   * @return GoogleAppsCardV1ChipList
+   */
+  public function getChipList()
+  {
+    return $this->chipList;
+  }
+  /**
+   * DateTimePicker widget.
+   *
+   * @param GoogleAppsCardV1DateTimePicker $dateTimePicker
    */
   public function setDateTimePicker(GoogleAppsCardV1DateTimePicker $dateTimePicker)
   {
@@ -63,7 +85,9 @@ class GoogleAppsCardV1Widgets extends \Google\Model
     return $this->dateTimePicker;
   }
   /**
-   * @param GoogleAppsCardV1DecoratedText
+   * DecoratedText widget.
+   *
+   * @param GoogleAppsCardV1DecoratedText $decoratedText
    */
   public function setDecoratedText(GoogleAppsCardV1DecoratedText $decoratedText)
   {
@@ -77,7 +101,9 @@ class GoogleAppsCardV1Widgets extends \Google\Model
     return $this->decoratedText;
   }
   /**
-   * @param GoogleAppsCardV1Image
+   * Image widget.
+   *
+   * @param GoogleAppsCardV1Image $image
    */
   public function setImage(GoogleAppsCardV1Image $image)
   {
@@ -91,7 +117,9 @@ class GoogleAppsCardV1Widgets extends \Google\Model
     return $this->image;
   }
   /**
-   * @param GoogleAppsCardV1SelectionInput
+   * SelectionInput widget.
+   *
+   * @param GoogleAppsCardV1SelectionInput $selectionInput
    */
   public function setSelectionInput(GoogleAppsCardV1SelectionInput $selectionInput)
   {
@@ -105,7 +133,9 @@ class GoogleAppsCardV1Widgets extends \Google\Model
     return $this->selectionInput;
   }
   /**
-   * @param GoogleAppsCardV1TextInput
+   * TextInput widget.
+   *
+   * @param GoogleAppsCardV1TextInput $textInput
    */
   public function setTextInput(GoogleAppsCardV1TextInput $textInput)
   {
@@ -119,7 +149,9 @@ class GoogleAppsCardV1Widgets extends \Google\Model
     return $this->textInput;
   }
   /**
-   * @param GoogleAppsCardV1TextParagraph
+   * TextParagraph widget.
+   *
+   * @param GoogleAppsCardV1TextParagraph $textParagraph
    */
   public function setTextParagraph(GoogleAppsCardV1TextParagraph $textParagraph)
   {

@@ -18,13 +18,20 @@
 namespace Google\Service\Aiplatform\Resource;
 
 use Google\Service\Aiplatform\GoogleCloudAiplatformV1FeatureView;
+use Google\Service\Aiplatform\GoogleCloudAiplatformV1FeatureViewDirectWriteRequest;
+use Google\Service\Aiplatform\GoogleCloudAiplatformV1FeatureViewDirectWriteResponse;
 use Google\Service\Aiplatform\GoogleCloudAiplatformV1FetchFeatureValuesRequest;
 use Google\Service\Aiplatform\GoogleCloudAiplatformV1FetchFeatureValuesResponse;
+use Google\Service\Aiplatform\GoogleCloudAiplatformV1GenerateFetchAccessTokenRequest;
+use Google\Service\Aiplatform\GoogleCloudAiplatformV1GenerateFetchAccessTokenResponse;
 use Google\Service\Aiplatform\GoogleCloudAiplatformV1ListFeatureViewsResponse;
 use Google\Service\Aiplatform\GoogleCloudAiplatformV1SearchNearestEntitiesRequest;
 use Google\Service\Aiplatform\GoogleCloudAiplatformV1SearchNearestEntitiesResponse;
 use Google\Service\Aiplatform\GoogleCloudAiplatformV1SyncFeatureViewRequest;
 use Google\Service\Aiplatform\GoogleCloudAiplatformV1SyncFeatureViewResponse;
+use Google\Service\Aiplatform\GoogleIamV1Policy;
+use Google\Service\Aiplatform\GoogleIamV1SetIamPolicyRequest;
+use Google\Service\Aiplatform\GoogleIamV1TestIamPermissionsResponse;
 use Google\Service\Aiplatform\GoogleLongrunningOperation;
 
 /**
@@ -81,6 +88,25 @@ class ProjectsLocationsFeatureOnlineStoresFeatureViews extends \Google\Service\R
     return $this->call('delete', [$params], GoogleLongrunningOperation::class);
   }
   /**
+   * Bidirectional streaming RPC to directly write to feature values in a feature
+   * view. Requests may not have a one-to-one mapping to responses and responses
+   * may be returned out-of-order to reduce latency. (featureViews.directWrite)
+   *
+   * @param string $featureView FeatureView resource format `projects/{project}/lo
+   * cations/{location}/featureOnlineStores/{featureOnlineStore}/featureViews/{fea
+   * tureView}`
+   * @param GoogleCloudAiplatformV1FeatureViewDirectWriteRequest $postBody
+   * @param array $optParams Optional parameters.
+   * @return GoogleCloudAiplatformV1FeatureViewDirectWriteResponse
+   * @throws \Google\Service\Exception
+   */
+  public function directWrite($featureView, GoogleCloudAiplatformV1FeatureViewDirectWriteRequest $postBody, $optParams = [])
+  {
+    $params = ['featureView' => $featureView, 'postBody' => $postBody];
+    $params = array_merge($params, $optParams);
+    return $this->call('directWrite', [$params], GoogleCloudAiplatformV1FeatureViewDirectWriteResponse::class);
+  }
+  /**
    * Fetch feature values under a FeatureView. (featureViews.fetchFeatureValues)
    *
    * @param string $featureView Required. FeatureView resource format `projects/{p
@@ -98,6 +124,25 @@ class ProjectsLocationsFeatureOnlineStoresFeatureViews extends \Google\Service\R
     return $this->call('fetchFeatureValues', [$params], GoogleCloudAiplatformV1FetchFeatureValuesResponse::class);
   }
   /**
+   * RPC to generate an access token for the given feature view. FeatureViews
+   * under the same FeatureOnlineStore share the same access token.
+   * (featureViews.generateFetchAccessToken)
+   *
+   * @param string $featureView FeatureView resource format `projects/{project}/lo
+   * cations/{location}/featureOnlineStores/{featureOnlineStore}/featureViews/{fea
+   * tureView}`
+   * @param GoogleCloudAiplatformV1GenerateFetchAccessTokenRequest $postBody
+   * @param array $optParams Optional parameters.
+   * @return GoogleCloudAiplatformV1GenerateFetchAccessTokenResponse
+   * @throws \Google\Service\Exception
+   */
+  public function generateFetchAccessToken($featureView, GoogleCloudAiplatformV1GenerateFetchAccessTokenRequest $postBody, $optParams = [])
+  {
+    $params = ['featureView' => $featureView, 'postBody' => $postBody];
+    $params = array_merge($params, $optParams);
+    return $this->call('generateFetchAccessToken', [$params], GoogleCloudAiplatformV1GenerateFetchAccessTokenResponse::class);
+  }
+  /**
    * Gets details of a single FeatureView. (featureViews.get)
    *
    * @param string $name Required. The name of the FeatureView resource. Format: `
@@ -112,6 +157,37 @@ class ProjectsLocationsFeatureOnlineStoresFeatureViews extends \Google\Service\R
     $params = ['name' => $name];
     $params = array_merge($params, $optParams);
     return $this->call('get', [$params], GoogleCloudAiplatformV1FeatureView::class);
+  }
+  /**
+   * Gets the access control policy for a resource. Returns an empty policy if the
+   * resource exists and does not have a policy set. (featureViews.getIamPolicy)
+   *
+   * @param string $resource REQUIRED: The resource for which the policy is being
+   * requested. See [Resource
+   * names](https://cloud.google.com/apis/design/resource_names) for the
+   * appropriate value for this field.
+   * @param array $optParams Optional parameters.
+   *
+   * @opt_param int options.requestedPolicyVersion Optional. The maximum policy
+   * version that will be used to format the policy. Valid values are 0, 1, and 3.
+   * Requests specifying an invalid value will be rejected. Requests for policies
+   * with any conditional role bindings must specify version 3. Policies with no
+   * conditional role bindings may specify any valid value or leave the field
+   * unset. The policy in the response might use the policy version that you
+   * specified, or it might use a lower policy version. For example, if you
+   * specify version 3, but the policy has no conditional role bindings, the
+   * response uses version 1. To learn which resources support conditions in their
+   * IAM policies, see the [IAM
+   * documentation](https://cloud.google.com/iam/help/conditions/resource-
+   * policies).
+   * @return GoogleIamV1Policy
+   * @throws \Google\Service\Exception
+   */
+  public function getIamPolicy($resource, $optParams = [])
+  {
+    $params = ['resource' => $resource];
+    $params = array_merge($params, $optParams);
+    return $this->call('getIamPolicy', [$params], GoogleIamV1Policy::class);
   }
   /**
    * Lists FeatureViews in a given FeatureOnlineStore.
@@ -169,7 +245,10 @@ class ProjectsLocationsFeatureOnlineStoresFeatureViews extends \Google\Service\R
    * field will be overwritten if it is in the mask. If the user does not provide
    * a mask then only the non-empty fields present in the request will be
    * overwritten. Set the update_mask to `*` to override all fields. Updatable
-   * fields: * `labels` * `serviceAgentType`
+   * fields: * `labels` * `service_agent_type` * `big_query_source` *
+   * `big_query_source.uri` * `big_query_source.entity_id_columns` *
+   * `feature_registry_source` * `feature_registry_source.feature_groups` *
+   * `sync_config` * `sync_config.cron` * `optimized_config.automatic_resources`
    * @return GoogleLongrunningOperation
    * @throws \Google\Service\Exception
    */
@@ -199,6 +278,26 @@ class ProjectsLocationsFeatureOnlineStoresFeatureViews extends \Google\Service\R
     return $this->call('searchNearestEntities', [$params], GoogleCloudAiplatformV1SearchNearestEntitiesResponse::class);
   }
   /**
+   * Sets the access control policy on the specified resource. Replaces any
+   * existing policy. Can return `NOT_FOUND`, `INVALID_ARGUMENT`, and
+   * `PERMISSION_DENIED` errors. (featureViews.setIamPolicy)
+   *
+   * @param string $resource REQUIRED: The resource for which the policy is being
+   * specified. See [Resource
+   * names](https://cloud.google.com/apis/design/resource_names) for the
+   * appropriate value for this field.
+   * @param GoogleIamV1SetIamPolicyRequest $postBody
+   * @param array $optParams Optional parameters.
+   * @return GoogleIamV1Policy
+   * @throws \Google\Service\Exception
+   */
+  public function setIamPolicy($resource, GoogleIamV1SetIamPolicyRequest $postBody, $optParams = [])
+  {
+    $params = ['resource' => $resource, 'postBody' => $postBody];
+    $params = array_merge($params, $optParams);
+    return $this->call('setIamPolicy', [$params], GoogleIamV1Policy::class);
+  }
+  /**
    * Triggers on-demand sync for the FeatureView. (featureViews.sync)
    *
    * @param string $featureView Required. Format: `projects/{project}/locations/{l
@@ -214,6 +313,33 @@ class ProjectsLocationsFeatureOnlineStoresFeatureViews extends \Google\Service\R
     $params = ['featureView' => $featureView, 'postBody' => $postBody];
     $params = array_merge($params, $optParams);
     return $this->call('sync', [$params], GoogleCloudAiplatformV1SyncFeatureViewResponse::class);
+  }
+  /**
+   * Returns permissions that a caller has on the specified resource. If the
+   * resource does not exist, this will return an empty set of permissions, not a
+   * `NOT_FOUND` error. Note: This operation is designed to be used for building
+   * permission-aware UIs and command-line tools, not for authorization checking.
+   * This operation may "fail open" without warning.
+   * (featureViews.testIamPermissions)
+   *
+   * @param string $resource REQUIRED: The resource for which the policy detail is
+   * being requested. See [Resource
+   * names](https://cloud.google.com/apis/design/resource_names) for the
+   * appropriate value for this field.
+   * @param array $optParams Optional parameters.
+   *
+   * @opt_param string permissions The set of permissions to check for the
+   * `resource`. Permissions with wildcards (such as `*` or `storage.*`) are not
+   * allowed. For more information see [IAM
+   * Overview](https://cloud.google.com/iam/docs/overview#permissions).
+   * @return GoogleIamV1TestIamPermissionsResponse
+   * @throws \Google\Service\Exception
+   */
+  public function testIamPermissions($resource, $optParams = [])
+  {
+    $params = ['resource' => $resource];
+    $params = array_merge($params, $optParams);
+    return $this->call('testIamPermissions', [$params], GoogleIamV1TestIamPermissionsResponse::class);
   }
 }
 

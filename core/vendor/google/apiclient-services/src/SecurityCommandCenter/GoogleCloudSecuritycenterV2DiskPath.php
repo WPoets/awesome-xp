@@ -29,7 +29,7 @@ class GoogleCloudSecuritycenterV2DiskPath extends \Google\Model
   public $relativePath;
 
   /**
-   * @param string
+   * @param string $partitionUuid
    */
   public function setPartitionUuid($partitionUuid)
   {
@@ -43,7 +43,7 @@ class GoogleCloudSecuritycenterV2DiskPath extends \Google\Model
     return $this->partitionUuid;
   }
   /**
-   * @param string
+   * @param string $relativePath
    */
   public function setRelativePath($relativePath)
   {

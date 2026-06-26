@@ -19,23 +19,26 @@ namespace Google\Service\CloudRedis;
 
 class CustomMetadataData extends \Google\Collection
 {
-  protected $collection_key = 'databaseMetadata';
-  protected $databaseMetadataType = DatabaseMetadata::class;
-  protected $databaseMetadataDataType = 'array';
+  protected $collection_key = 'internalResourceMetadata';
+  protected $internalResourceMetadataType = InternalResourceMetadata::class;
+  protected $internalResourceMetadataDataType = 'array';
 
   /**
-   * @param DatabaseMetadata[]
+   * Metadata for individual internal resources in an instance. e.g. spanner
+   * instance can have multiple databases with unique configuration.
+   *
+   * @param InternalResourceMetadata[] $internalResourceMetadata
    */
-  public function setDatabaseMetadata($databaseMetadata)
+  public function setInternalResourceMetadata($internalResourceMetadata)
   {
-    $this->databaseMetadata = $databaseMetadata;
+    $this->internalResourceMetadata = $internalResourceMetadata;
   }
   /**
-   * @return DatabaseMetadata[]
+   * @return InternalResourceMetadata[]
    */
-  public function getDatabaseMetadata()
+  public function getInternalResourceMetadata()
   {
-    return $this->databaseMetadata;
+    return $this->internalResourceMetadata;
   }
 }
 
