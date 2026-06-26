@@ -20,12 +20,12 @@
   "support": {
     "docs": "https://www.getawesomestudio.com/enterprise-tutorial/"
   },
-  "require": {
-    "php": ">=7.0",
-    "composer/installers": "~1.0",
-    "oomphinc/composer-installers-extender": "^2.0",
-    "phpoffice/phpspreadsheet": "1.29.1"
-  },
+    "require": {
+        "php": ">=7.0",
+        "composer/installers": "~1.0",
+        "oomphinc/composer-installers-extender": "^2.0",
+        "phpoffice/phpspreadsheet": "^1.30.5"
+    },
   "extra": {
     "installer-name": "excel"
   },
