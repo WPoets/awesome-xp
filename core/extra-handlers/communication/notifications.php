@@ -3,7 +3,7 @@ namespace aw2\notify;
 
 \aw2_library::add_service('notify.wpmail','Send wp mail',['namespace'=>__NAMESPACE__]);
 
-function wpmail($atts,$content=null,$shortcode){
+function wpmail($atts,$content=null,$shortcode=null){
     if(\aw2_library::pre_actions('all',$atts,$content,$shortcode)==false)return;
 
     extract(\aw2_library::shortcode_atts( array(
@@ -45,7 +45,7 @@ function wpmail($atts,$content=null,$shortcode){
 
 \aw2_library::add_service('notify.sendgrid','Send Sendgrid mail',['namespace'=>__NAMESPACE__]);
 
-function sendgrid($atts,$content=null,$shortcode){
+function sendgrid($atts,$content=null,$shortcode=null){
     if(\aw2_library::pre_actions('all',$atts,$content,$shortcode)==false)return;
 
     //including SENDGRID library
@@ -184,7 +184,7 @@ function sendgrid($atts,$content=null,$shortcode){
 
 \aw2_library::add_service('notify.kookoo','Send Kookoo SMS',['namespace'=>__NAMESPACE__]);
 
-function kookoo($atts,$content=null,$shortcode){
+function kookoo($atts,$content=null,$shortcode=null){
 	if(\aw2_library::pre_actions('all',$atts,$content,$shortcode)==false)return;
 
     extract(\aw2_library::shortcode_atts( array(
@@ -245,7 +245,7 @@ function kookoo($atts,$content=null,$shortcode){
 
 \aw2_library::add_service('notify.msg91','Send msg91 SMS',['namespace'=>__NAMESPACE__]);
 
-function msg91($atts,$content=null,$shortcode){
+function msg91($atts,$content=null,$shortcode=null){
 	if(\aw2_library::pre_actions('all',$atts,$content,$shortcode)==false)return;
 
     extract(\aw2_library::shortcode_atts( array(
@@ -302,4 +302,157 @@ function msg91($atts,$content=null,$shortcode){
     $return_value=\aw2_library::post_actions('all',$return_value,$atts);
 	return $return_value;
 	
+}
+
+\aw2_library::add_service('notify.amazonses', 'Send Amazon SES mail', ['namespace' => __NAMESPACE__]);
+
+function amazonses($atts, $content = null, $shortcode = null) {
+    if (\aw2_library::pre_actions('all', $atts, $content, $shortcode) == false) return;
+
+    extract(\aw2_library::shortcode_atts(array(
+        'email' => null,
+        'log' => null,
+        'notification_object_type' => null,
+        'notification_object_id' => null,
+        'tracking_set' => null
+    ), $atts, 'aw2_amazonses'));
+
+    // If email is null, return
+    if (is_null($email)) return;
+
+    // Checking for values and setting them if not present.
+    if (!isset($email['from']['email_id'])) $email['from']['email_id'] = '';
+    if (!isset($email['to']['email_id'])) $email['to']['email_id'] = '';
+    if (!isset($email['message'])) $email['message'] = '';
+    if (!isset($email['subject'])) $email['subject'] = '';
+
+    // Get AWS credentials
+    $awsKey = $email['provider']['key'] ?? '';
+    $awsSecret = $email['provider']['secret'] ?? '';
+    $awsRegion = $email['provider']['region'] ?? 'us-east-1';
+
+    if (empty($awsKey) || empty($awsSecret)) {
+        $return_value = \aw2_library::post_actions('all', 'AWS credentials are not provided, check your settings!', $atts);
+        return $return_value;
+    }
+
+    try {
+        $ses = new \Aws\Ses\SesClient([
+            'version' => 'latest',
+            'region'  => $awsRegion,
+            'credentials' => [
+                'key'    => $awsKey,
+                'secret' => $awsSecret,
+            ],
+        ]);
+
+        $emailParams = [
+            'Destination' => [
+                'ToAddresses' => explode(',', $email['to']['email_id']),
+            ],
+            'Message' => [
+                'Body' => [
+                    'Html' => [
+                        'Charset' => 'UTF-8',
+                        'Data' => $email['message'],
+                    ],
+                ],
+                'Subject' => [
+                    'Charset' => 'UTF-8',
+                    'Data' => $email['subject'],
+                ],
+            ],
+            'Source' => $email['from']['email_id'],
+        ];
+
+        // Add CC if present
+        if (isset($email['cc']['email_id'])) {
+            $emailParams['Destination']['CcAddresses'] = explode(',', $email['cc']['email_id']);
+        }
+
+        // Add BCC if present
+        if (isset($email['bcc']['email_id'])) {
+            $emailParams['Destination']['BccAddresses'] = explode(',', $email['bcc']['email_id']);
+        }
+
+        // Add Reply-To if present
+        if (isset($email['reply_to']['email_id']) && !empty($email['reply_to']['email_id'])) {
+            $emailParams['ReplyToAddresses'] = explode(',', $email['reply_to']['email_id']);
+        }
+        
+       
+
+        // Handle attachments
+        if (isset($email['attachments']['file'])) {
+            // Convert to raw email for attachments
+            $rawMessage = createRawEmailWithAttachments($email, $emailParams);
+          
+            $response = $ses->sendRawEmail([
+                'RawMessage' => [
+                    'Data' => $rawMessage,
+                ],
+            ]);
+        } else {
+            $response = $ses->sendEmail($emailParams);
+        }
+
+        // Setting up tracking array
+        $tracking['tracking_id'] = $response['MessageId'];
+        $tracking['tracking_status'] = 'sent_to_provider';
+        $tracking['tracking_stage'] = 'sent_to_provider';
+        if (!empty($tracking_set)) $tracking['tracking_set'] = $tracking_set;
+
+        // Log data in db
+        require_once __DIR__ . '/includes/notification_helper.php';
+        \notification_log('email', 'amazonses', $email, $log, $notification_object_type, $notification_object_id, $tracking);
+
+        $return_value = "success";
+
+    } catch (\Aws\Exception\AwsException $e) {
+        $return_value = "error: " . $e->getMessage();
+    }
+
+    $return_value = \aw2_library::post_actions('all', $return_value, $atts);
+    return $return_value;
+}
+
+function createRawEmailWithAttachments($email, $emailParams) {
+    $boundary = uniqid('boundary');
+    $raw_message = '';
+
+    // Headers
+    $raw_message .= "From: {$emailParams['Source']}\r\n";
+    $raw_message .= "To: " . implode(', ', $emailParams['Destination']['ToAddresses']) . "\r\n";
+    if (isset($emailParams['Destination']['CcAddresses'])) {
+        $raw_message .= "Cc: " . implode(', ', $emailParams['Destination']['CcAddresses']) . "\r\n";
+    }
+    if (isset($emailParams['Destination']['BccAddresses'])) {
+        $raw_message .= "Bcc: " . implode(', ', $emailParams['Destination']['BccAddresses']) . "\r\n";
+    }
+    if (isset($emailParams['ReplyToAddresses'])) {
+        $raw_message .= "Reply-To: " . implode(', ', $emailParams['ReplyToAddresses']) . "\r\n";
+    }
+    $raw_message .= "Subject: =?UTF-8?B?" . base64_encode($emailParams['Message']['Subject']['Data']) . "?=\r\n";
+    $raw_message .= "MIME-Version: 1.0\r\n";
+    $raw_message .= "Content-Type: multipart/mixed; boundary=\"{$boundary}\"\r\n\r\n";
+
+    // Message body
+    $raw_message .= "--{$boundary}\r\n";
+    $raw_message .= "Content-Type: text/html; charset=UTF-8\r\n\r\n";
+    $raw_message .= $emailParams['Message']['Body']['Html']['Data'] . "\r\n\r\n";
+
+    // Attachments
+    foreach ($email['attachments']['file'] as $attachment) {
+        if (!empty($attachment['path'])) {
+            $raw_message .= "--{$boundary}\r\n";
+            $raw_message .= "Content-Type: application/octet-stream\r\n";
+            $raw_message .= "Content-Transfer-Encoding: base64\r\n";
+            $raw_message .= "Content-Disposition: attachment; filename=\"{$attachment['name']}\"\r\n\r\n";
+            $raw_message .= chunk_split(base64_encode(file_get_contents($attachment['path']))) . "\r\n";
+        }
+    }
+
+    $raw_message .= "--{$boundary}--\r\n";
+
+    return $raw_message;
 }

@@ -3,11 +3,20 @@
 </p>
 
 # Communication Handler
-Adds support to Awesome Enterprise for sending emails, SMS and push notifications using various third party API
+Adds support to Awesome Enterprise for sending emails, SMS, and push notifications using various third-party API
 
 ### Changelog  
 
-
+##### 1.0.7
+* Improved: Updated sendgrid sdk requirement
+  
+##### 1.0.6
+* Improved: Added support for Amazon SES APIs to send emails with attachments.
+  
+##### 1.0.5.1
+* Fixed: Removed the direct dependency of WP function so that we can use them in non-wp requests as well.
+* Fixed: Added missing Tracking info for SendGrid
+  
 ##### 1.0.4
 * Fixed: Added option to specify the template for msg91 sms.
 

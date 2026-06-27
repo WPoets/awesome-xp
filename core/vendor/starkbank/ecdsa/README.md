@@ -1,8 +1,18 @@
-## A lightweight and fast PHP ECDSA
+## A lightweight and fast pure PHP ECDSA
 
 ### Overview
 
-This is a PHP implementation of the Elliptic Curve Digital Signature Algorithm. It is compatible with PHP 5.5+. Please note that this library relies heavily on the openssl package for PHP, so - depending on your PHP installation - you may need to re-compile it with the "–with-openssl" flag.
+This is a pure PHP implementation of the Elliptic Curve Digital Signature Algorithm. It is compatible with OpenSSL and uses elegant math such as Jacobian Coordinates to speed up the ECDSA on pure PHP.
+
+### Security
+
+starkbank-ecdsa includes the following security features:
+
+- **RFC 6979 deterministic nonces**: Eliminates the catastrophic risk of nonce reuse that leaks private keys
+- **Low-S signature normalization**: Prevents signature malleability (BIP-62)
+- **Public key on-curve validation**: Blocks invalid-curve attacks during verification
+- **Montgomery ladder scalar multiplication**: Constant-operation point multiplication to mitigate timing side channels
+- **Hash truncation**: Correctly handles hash functions larger than the curve order (e.g. SHA-512 with secp256k1)
 
 ### Installation
 
@@ -20,17 +30,22 @@ To use the bindings, use Composer's autoload:
 require_once('vendor/autoload.php');
 ```
 
+#### External dependencies
+The package makes use of the 'GNU Multiple Precision' (GMP) library. For installation details, see: https://www.php.net/manual/en/gmp.installation.php
+
 ### Curves
 
-The module is wrapped around the builtin openssl functions, so all standar curves should be supported. The default is `secp256k1`.
+We currently support `secp256k1` and `prime256v1` (P-256), but you can add more curves to the project. You just need to use the `CurveFp::add()` method.
 
 ### Speed
 
-We ran a test on a MAC Pro i7 2017. We ran the library 100 times and got the average time displayed bellow:
+We ran a test on a MAC Pro using PHP 8.5. The library was run 100 times and the averages displayed below were obtained:
 
 | Library            | sign          | verify  |
 | ------------------ |:-------------:| -------:|
-| starkbank-ecdsa    |     0.6ms     |  0.4ms  |
+| starkbank-ecdsa    |     0.3ms     |  0.8ms  |
+
+Performance is driven by Jacobian coordinates, a branch-balanced Montgomery ladder for variable-base scalar multiplication, a precomputed affine table of powers-of-two multiples of the generator (`[G, 2G, 4G, ..., 2^n*G]`) combined with a width-2 NAF of the scalar to eliminate doublings during signing, a mixed affine+Jacobian addition fast path, curve-specific shortcuts in point doubling (A=0 for secp256k1, A=-3 for prime256v1), the secp256k1 GLV endomorphism to split 256-bit scalars into two ~128-bit halves for a 4-scalar simultaneous multi-exponentiation during verification, Shamir's trick with Joint Sparse Form as the fallback path for curves without an efficient endomorphism, and the extended Euclidean algorithm for modular inversion.
 
 ### Sample Code
 
@@ -98,6 +113,52 @@ echo "\n" . EllipticCurve\Ecdsa::verify($message, $signature, $publicKey);
 
 ```
 
+How to add more curves:
+
+```php
+$newCurve = new EllipticCurve\CurveFp(
+    "0xf1fd178c0b3ad58f10126de8ce42435b3961adbcabc8ca6de8fcf353d86e9c00",
+    "0xee353fca5428a9300d4aba754a44c00fdfec0c9ae4b1a1803075ed967b7bb73f",
+    "0xf1fd178c0b3ad58f10126de8ce42435b3961adbcabc8ca6de8fcf353d86e9c03",
+    "0xf1fd178c0b3ad58f10126de8ce42435b53dc67e140d2bf941ffdd459c6d655e1",
+    "0xb6b3d4c356c139eb31183d4749d423958c27d2dcaf98b70164c97a2dd98f5cff",
+    "0x6142e0f7c8b204911f9271f0f3ecef8c2701c307e8e4c9e183115a1554062cfb",
+    "frp256v1",
+    array(1, 2, 250, 1, 223, 101, 256, 1)
+);
+
+EllipticCurve\CurveFp::add($newCurve);
+
+$publicKeyPem = "-----BEGIN PUBLIC KEY-----
+MFswFQYHKoZIzj0CAQYKKoF6AYFfZYIAAQNCAATeEFFYiQL+HmDYTf+QDmvQmWGD
+dRJPqLj11do8okvkSxq2lwB6Ct4aITMlCyg3f1msafc/ROSN/Vgj69bDhZK6
+-----END PUBLIC KEY-----";
+
+$publicKey = EllipticCurve\PublicKey::fromPem($publicKeyPem);
+
+print_r($publicKey->toPem());
+
+```
+
+How to generate a compressed public key:
+
+```php
+$privateKey = new EllipticCurve\PrivateKey;
+$publicKey = $privateKey->publicKey();
+$compressedPublicKey = $publicKey->toCompressed();
+
+echo $compressedPublicKey;
+```
+
+How to recover a compressed public key:
+
+```php
+$compressedPublicKey = "0252972572d465d016d4c501887b8df303eee3ed602c056b1eb09260dfa0da0ab2";
+$publicKey = EllipticCurve\PublicKey::fromCompressed($compressedPublicKey);
+
+print_r($publicKey->toPem());
+```
+
 ### OpenSSL
 
 This library is compatible with OpenSSL, so you can use it to generate keys:
@@ -156,6 +217,12 @@ echo "\n" . $signature->toBase64();
 
 ```sh
 php tests/test.php
+```
+
+### Run benchmark
+
+```sh
+php benchmark.php
 ```
 
 [python-ecdsa]: https://github.com/warner/python-ecdsa

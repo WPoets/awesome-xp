@@ -34,15 +34,15 @@
         "matthiasmullie/minify": "^1.3",
         "mobiledetect/mobiledetectlib": "^2.8",
         "wikimedia/less.php": "4.1.1",
-        "yahnis-elsts/plugin-update-checker": "^4.10",
-        "wpoets/communication-handler": "1.0.5.1",
+        "wpoets/communication-handler": "1.0.7.2",
         "wpoets/curl-handler": "^1.0",
         "wpoets/debug-handler": ">=1.0",
         "wpoets/excel-handler": "^1.0",
         "wpoets/google-handler": "^1.0",
         "wpoets/jwt-handler": "^1.2",
         "wpoets/pdf-handler": "^1.0",
-        "wpoets/simple-mysqli": ">=1.5.6"
+        "wpoets/simple-mysqli": ">=1.5.6",
+        "yahnis-elsts/plugin-update-checker": "^4.10"
     },
 	"extra": {
         "installer-types": ["awesome-handler"],

@@ -17,16 +17,21 @@
     },
     "require": {
         "php": ">=7.0",
+        "aws/aws-sdk-php": "^3.324",
         "composer/installers": "~1.0",
         "oomphinc/composer-installers-extender": "^2.0",
-        "sendgrid/sendgrid": "^7.9"
+        "sendgrid/sendgrid": "^8.0"
     },
 	 "extra": { 
 		"installer-name": "communication"
     },
     "config": {
 		"process-timeout": 600,
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "composer/installers": true,
+            "oomphinc/composer-installers-extender": true
+        }
     },
 	"prefer-stable": true
 }

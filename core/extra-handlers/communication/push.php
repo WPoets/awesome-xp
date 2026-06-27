@@ -3,7 +3,7 @@ namespace aw2;
 
 \aw2_library::add_service('aw2.push','Send a Push notification from your site.',['namespace'=>__NAMESPACE__]);
 
-function push($atts,$content=null,$shortcode){
+function push($atts,$content=null,$shortcode=null){
 	if(\aw2_library::pre_actions('all',$atts,$content,$shortcode)==false)return;
 	
 	extract(\aw2_library::shortcode_atts( array(
