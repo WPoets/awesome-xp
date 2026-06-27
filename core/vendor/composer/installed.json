@@ -3769,17 +3769,17 @@
         },
         {
             "name": "wpoets/google-handler",
-            "version": "1.1.1.1",
-            "version_normalized": "1.1.1.1",
+            "version": "1.1.1.2",
+            "version_normalized": "1.1.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/WPoets/google-handler.git",
-                "reference": "8913720abc5165e7813cc2670c64271a9691128c"
+                "reference": "e9e888316e923306b10e873f013d988fc9ab61cb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/WPoets/google-handler/zipball/8913720abc5165e7813cc2670c64271a9691128c",
-                "reference": "8913720abc5165e7813cc2670c64271a9691128c",
+                "url": "https://api.github.com/repos/WPoets/google-handler/zipball/e9e888316e923306b10e873f013d988fc9ab61cb",
+                "reference": "e9e888316e923306b10e873f013d988fc9ab61cb",
                 "shasum": ""
             },
             "require": {
@@ -3788,7 +3788,7 @@
                 "oomphinc/composer-installers-extender": "^2.0",
                 "php": ">=7.0"
             },
-            "time": "2026-06-26T11:49:06+00:00",
+            "time": "2026-06-26T17:21:22+00:00",
             "type": "awesome-handler",
             "extra": {
                 "installer-name": "google"
@@ -3816,7 +3816,7 @@
             "support": {
                 "docs": "https://www.getawesomestudio.com/enterprise-tutorial/",
                 "issues": "https://github.com/WPoets/google-handler/issues",
-                "source": "https://github.com/WPoets/google-handler/tree/1.1.1.1"
+                "source": "https://github.com/WPoets/google-handler/tree/1.1.1.2"
             },
             "install-path": "../../extra-handlers/google"
         },

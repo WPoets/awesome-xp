@@ -5,7 +5,7 @@
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => 'd5cacb15cb73f39922cc57b0440dc937b3b6c27d',
+        'reference' => 'c1ea0d8f27987a630f89c2a1fbdb8a951d33808d',
         'name' => 'wpoets/awesome-enterprise-core',
         'dev' => true,
     ),
@@ -490,7 +490,7 @@
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => 'd5cacb15cb73f39922cc57b0440dc937b3b6c27d',
+            'reference' => 'c1ea0d8f27987a630f89c2a1fbdb8a951d33808d',
             'dev_requirement' => false,
         ),
         'wpoets/communication-handler' => array(
@@ -530,12 +530,12 @@
             'dev_requirement' => false,
         ),
         'wpoets/google-handler' => array(
-            'pretty_version' => '1.1.1.1',
-            'version' => '1.1.1.1',
+            'pretty_version' => '1.1.1.2',
+            'version' => '1.1.1.2',
             'type' => 'awesome-handler',
             'install_path' => __DIR__ . '/../../extra-handlers/google',
             'aliases' => array(),
-            'reference' => '8913720abc5165e7813cc2670c64271a9691128c',
+            'reference' => 'e9e888316e923306b10e873f013d988fc9ab61cb',
             'dev_requirement' => false,
         ),
         'wpoets/jwt-handler' => array(
