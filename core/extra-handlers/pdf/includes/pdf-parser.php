@@ -3,11 +3,11 @@
 class pdf_parser {
 	public $data;
 
-	function __construct($filename, $data_format = NULL, $give_attachments = false, $attachment_extension) {
+	function __construct($filename, $data_format = NULL, $give_attachments = false, $attachment_extension=null) {
 		$this->data = $this->parseForm($filename, $data_format, $give_attachments, $attachment_extension);
 	}
 	
-	function parseForm($file_path, $data_format = '', $give_attachments = false, $attachment_extension)
+	function parseForm($file_path, $data_format = '', $give_attachments = false, $attachment_extension=null)
 	{
 		$final_attrs = null;
 		$start = false;

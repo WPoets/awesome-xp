@@ -15,7 +15,7 @@ function setup(){
 
 \aw2_library::add_service('debugbar.head','Generate Scripts for DebugBar',['namespace'=>__NAMESPACE__]);
 
-function head($atts,$content=null,$shortcode){
+function head($atts,$content=null,$shortcode=null){
 	if(\aw2_library::get('debug_config.active')!=='yes')return;
 	if(\aw2_library::get('debug_config.output')!=='debugbar')return;
 	

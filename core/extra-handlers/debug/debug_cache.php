@@ -127,7 +127,7 @@ function hget($atts,$content=null,$shortcode=null){
 }
 
 \aw2_library::add_service('debug_cache.flush','Flush the Debug Cache',['namespace'=>__NAMESPACE__]);
-function flush($atts,$content=null,$shortcode){
+function flush($atts,$content=null,$shortcode=null){
 	if(\aw2_library::pre_actions('all',$atts,$content,$shortcode)==false)return;
 	//Connect to Redis and store the data
 		$redis = \aw2_library::redis_connect(REDIS_DATABASE_DEBUG_CACHE);
