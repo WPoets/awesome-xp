@@ -261,5 +261,5 @@ function aw2_period($atts,$content=null,$shortcode = array()){
 }
 
 function pluralize( $count, $text ){ 
-    return $count . ( ( $count == 1 ) ? ( " $text" ) : ( " ${text}s" ) );
+    return $count . ( ( $count == 1 ) ? ( " $text" ) : ( " {$text}s" ) );
 }

@@ -311,7 +311,7 @@ function when_check($when = array()) {
 }
 
 
-function out_run($out = array(),$reply) {
+function out_run($out,$reply) {
 
     if (!isset($out['service']))
     throw new \InvalidArgumentException("Error: service missing in out:");
@@ -359,7 +359,7 @@ function out_run($out = array(),$reply) {
 
 
 
-function pipe_run($pipe = array(),$reply) {
+function pipe_run($pipe,$reply) {
     if (!isset($pipe['service']))
         throw new \InvalidArgumentException("Error: service missing in out:");
 
