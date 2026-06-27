@@ -15,6 +15,9 @@ Initial setup requires configuration in wp-config.php.
 
 ### Changelog 
 
+##### 1.0.5
+* Fixed: compatibility issues with php 8.2+
+  
 ##### 1.0.4
 * Fixed: Increased the compatibitlity with PHP 8.0+
 * Fixed: Upgraded the handler dependencies to latest versions.
