@@ -15,6 +15,11 @@ Initial setup requires configuration in wp-config.php.
 
 ### Changelog 
 
+##### 1.0.4
+* Fixed: Increased the compatibitlity with PHP 8.0+
+* Fixed: Upgraded the handler dependencies to latest versions.
+
+
 ##### 1.0.3
 * Improved: Added layout option to sub fields in row_repeater field, so that they look good
 * Improved: Added three new fields - post-select,taxonomy-select,filtered-post-select
