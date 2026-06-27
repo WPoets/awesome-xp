@@ -15,7 +15,7 @@ Initial setup requires configuration in wp-config.php.
 
 ### Changelog 
 
-##### 1.0.5
+##### 1.0.5.1
 * Fixed: compatibility issues with php 8.2+
   
 ##### 1.0.4
