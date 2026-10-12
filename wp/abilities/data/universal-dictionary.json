@@ -1,0 +1,99 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "version": "1.0.0",
+  "description": "Awesome Enterprise Universal Dictionary parameter names and semantic meanings for Gutenberg block fields and data bindings.",
+  "fields": {
+    "title": {
+      "type": "string",
+      "recommended_control": "title",
+      "purpose": "Primary headline, card title, or name of the entity.",
+      "examples": ["Hero Title", "Product Name", "Section Header"]
+    },
+    "text": {
+      "type": "string",
+      "recommended_control": "textarea",
+      "purpose": "Main body copy, narrative text, or descriptive paragraph.",
+      "examples": ["Body content", "Detailed description", "Intro text"]
+    },
+    "description": {
+      "type": "string",
+      "recommended_control": "textarea",
+      "purpose": "Secondary explanatory text, subtitle, or brief overview.",
+      "examples": ["Subheading", "Card summary", "Lead paragraph"]
+    },
+    "items": {
+      "type": "array",
+      "recommended_control": "row_repeater",
+      "purpose": "List or repeater collection of structured items or cards.",
+      "examples": ["Feature items", "Testimonial cards", "Pricing tiers"]
+    },
+    "image": {
+      "type": "object",
+      "recommended_control": "image",
+      "purpose": "Visual asset including URL, alt text, dimensions, and ID.",
+      "properties": {
+        "url": { "type": "string" },
+        "alt": { "type": "string" },
+        "id": { "type": "integer" },
+        "width": { "type": "integer" },
+        "height": { "type": "integer" }
+      }
+    },
+    "icon": {
+      "type": "string",
+      "recommended_control": "select",
+      "purpose": "Icon identifier, Dashicon, or SVG symbol name.",
+      "examples": ["dashicons-star-filled", "check-circle", "shield"]
+    },
+    "url": {
+      "type": "string",
+      "recommended_control": "text",
+      "purpose": "Destination link, action URL, or href target.",
+      "examples": ["/get-started", "https://example.com/demo"]
+    },
+    "button_text": {
+      "type": "string",
+      "recommended_control": "text",
+      "purpose": "Label for call-to-action button or link.",
+      "examples": ["Learn More", "Get Started", "Download Now"]
+    },
+    "layout": {
+      "type": "string",
+      "recommended_control": "select",
+      "purpose": "Structural arrangement variant.",
+      "options": ["standard", "card", "compact", "hero", "grid"],
+      "default": "standard"
+    },
+    "style": {
+      "type": "string",
+      "recommended_control": "select",
+      "purpose": "Visual style appearance variant (aligns with awx modifier classes).",
+      "options": ["default", "bordered", "minimal", "flat", "elevated"],
+      "default": "default"
+    },
+    "category": {
+      "type": "string",
+      "recommended_control": "text",
+      "purpose": "Classification taxonomy tag or badge text.",
+      "examples": ["Case Study", "Update", "Announcement"]
+    },
+    "date": {
+      "type": "string",
+      "recommended_control": "date",
+      "purpose": "Publication date, timestamp, or event schedule.",
+      "examples": ["2026-10-09", "October 9, 2026"]
+    },
+    "author": {
+      "type": "string",
+      "recommended_control": "text",
+      "purpose": "Name or handle of creator or speaker.",
+      "examples": ["Jane Doe", "Editorial Team"]
+    },
+    "status": {
+      "type": "string",
+      "recommended_control": "select",
+      "purpose": "Current state badge or indicator.",
+      "options": ["active", "draft", "coming-soon", "archived"]
+    }
+  }
+}

@@ -69,6 +69,7 @@ require_once __DIR__ .'/wp/includes/app-rights.php';
 require_once __DIR__ .'/wp/includes/monoframe.php';
 require_once __DIR__ .'/wp/includes/wordpress-hooks.php';
 require_once __DIR__ .'/wp/libraries/db-delta.php';
+require_once __DIR__ .'/wp/abilities/abilities-init.php';
 
 
 aw2_library::load_handlers_from_path(HANDLERS_PATH,'structure','lang','cache','session');

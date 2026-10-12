@@ -23,6 +23,7 @@ class Monoframe
 		require_once($plugin_path . '/libraries/elementor/elementor-blocks.php');
 		require_once($plugin_path . '/libraries/gutenberg/gutenberg-init.php');
 		require_once($plugin_path . '/includes/awesome-css-tokens.php');
+		require_once($plugin_path . '/abilities/abilities-init.php');
 
 	}
 
