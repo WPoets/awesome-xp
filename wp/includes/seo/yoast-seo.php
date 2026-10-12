@@ -16,13 +16,15 @@ class yoast_seo{
 		$registered_apps=&\aw2_library::get_array_ref('apps');
 		$remove_cpt_from_sitemap=array();
 		foreach($registered_apps as $key=>$app){
-			if(isset($app['collection']['pages']))
+			if(isset($app['collection']['pages']['post_type']))
 				array_push($remove_cpt_from_sitemap,$app['collection']['pages']['post_type']);
 			
-			if(isset($app['collection']['posts']))
+			if(isset($app['collection']['posts']['post_type']))
 				array_push($remove_cpt_from_sitemap,$app['collection']['posts']['post_type']);
 		}
 		if( in_array( $post_type, $remove_cpt_from_sitemap ) ) return true;
+		
+		return $value;
 	}
 	
 	static function  add_apps_to_sitemap(){
@@ -126,7 +128,14 @@ class yoast_seo{
 					if(in_array($p->post_name,$skip_slugs)){
 						continue;
 					}
-					$slug= $p->post_name.'/';
+					$page_path = $p->post_name;
+					if ( ! empty( $p->post_parent ) && \is_post_type_hierarchical( $app['collection']['pages']['post_type'] ) ) {
+						$uri = \get_page_uri( $p );
+						if ( ! empty( $uri ) ) {
+							$page_path = $uri;
+						}
+					}
+					$slug= $page_path.'/';
 					if($slug=='home/')
 						$slug='';
 					
@@ -188,7 +197,14 @@ class yoast_seo{
 							$url['mod'] = $p->post_date;
 						}
 					}
-					$url['loc'] = site_url().'/'.$app['slug'].'/'.$p->post_name.'/';
+					$post_path = $p->post_name;
+					if ( ! empty( $p->post_parent ) && \is_post_type_hierarchical( $app['collection']['posts']['post_type'] ) ) {
+						$uri = \get_page_uri( $p );
+						if ( ! empty( $uri ) ) {
+							$post_path = $uri;
+						}
+					}
+					$url['loc'] = site_url().'/'.$app['slug'].'/'.$post_path.'/';
 					$url['chf'] = $chf;
 					$url['pri'] = $pri;
 					$output .= $wpseo_sitemaps->renderer->sitemap_url( $url );
