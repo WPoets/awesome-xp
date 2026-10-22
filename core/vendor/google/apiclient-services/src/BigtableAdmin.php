@@ -435,6 +435,20 @@ class BigtableAdmin extends \Google\Service
                   'required' => true,
                 ],
               ],
+            ],'updateMemoryLayer' => [
+              'path' => 'v2/{+name}',
+              'httpMethod' => 'PATCH',
+              'parameters' => [
+                'name' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'updateMask' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+              ],
             ],
           ]
         ]
@@ -751,6 +765,10 @@ class BigtableAdmin extends \Google\Service
                   'location' => 'path',
                   'type' => 'string',
                   'required' => true,
+                ],
+                'ignoreWarnings' => [
+                  'location' => 'query',
+                  'type' => 'boolean',
                 ],
                 'materializedViewId' => [
                   'location' => 'query',

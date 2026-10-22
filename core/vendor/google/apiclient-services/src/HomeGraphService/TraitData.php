@@ -27,6 +27,14 @@ class TraitData extends \Google\Model
    */
   public $commitTime;
   /**
+   * The custom timestamp supplied by the provider during a
+   * ReportStateAndNotification update (if provided). This field is returned as
+   * part of the `QueryResponse`.
+   *
+   * @var string
+   */
+  public $providerUpdateTime;
+  /**
    * The Provider Home API trait payload.
    *
    * @var array[]
@@ -49,6 +57,24 @@ class TraitData extends \Google\Model
   public function getCommitTime()
   {
     return $this->commitTime;
+  }
+  /**
+   * The custom timestamp supplied by the provider during a
+   * ReportStateAndNotification update (if provided). This field is returned as
+   * part of the `QueryResponse`.
+   *
+   * @param string $providerUpdateTime
+   */
+  public function setProviderUpdateTime($providerUpdateTime)
+  {
+    $this->providerUpdateTime = $providerUpdateTime;
+  }
+  /**
+   * @return string
+   */
+  public function getProviderUpdateTime()
+  {
+    return $this->providerUpdateTime;
   }
   /**
    * The Provider Home API trait payload.

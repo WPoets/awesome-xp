@@ -20,6 +20,12 @@ namespace Google\Service\CloudSecurityToken;
 class GoogleIdentityStsV1Jwk extends \Google\Model
 {
   /**
+   * Algorithm intended for use with the key. Currently "RS256".
+   *
+   * @var string
+   */
+  public $alg;
+  /**
    * Exponent value for kty="RSA".
    *
    * @var string
@@ -44,12 +50,28 @@ class GoogleIdentityStsV1Jwk extends \Google\Model
    */
   public $n;
   /**
-   * Public key use. Currently "jwt-svid".
+   * Public key use. Currently "sig".
    *
    * @var string
    */
   public $use;
 
+  /**
+   * Algorithm intended for use with the key. Currently "RS256".
+   *
+   * @param string $alg
+   */
+  public function setAlg($alg)
+  {
+    $this->alg = $alg;
+  }
+  /**
+   * @return string
+   */
+  public function getAlg()
+  {
+    return $this->alg;
+  }
   /**
    * Exponent value for kty="RSA".
    *
@@ -115,7 +137,7 @@ class GoogleIdentityStsV1Jwk extends \Google\Model
     return $this->n;
   }
   /**
-   * Public key use. Currently "jwt-svid".
+   * Public key use. Currently "sig".
    *
    * @param string $use
    */

@@ -166,6 +166,10 @@ class GoogleCloudRetailV2Product extends \Google\Collection
    */
   public $description;
   /**
+   * The timestamp when this product becomes unavailable for
+   * SearchService.Search. If it is set, the Product is not available for
+   * SearchService.Search after expire_time. However, the product can still be
+   * retrieved by ProductService.GetProduct and ProductService.ListProducts.
    * Note that this field is applied in the following ways: * If the Product is
    * already expired when it is uploaded, this product is not indexed for
    * search. * If the Product is not expired when it is uploaded, only the
@@ -315,8 +319,9 @@ class GoogleCloudRetailV2Product extends \Google\Collection
    * size type; "M" represents size value. In "GIRLS:27", size system is empty;
    * "GIRLS" represents size type; "27" represents size value. In "32 inches",
    * both size system and size type are empty, while size value is "32 inches".
-   * A maximum of 20 values are allowed per Product. Each value must be a UTF-8
-   * encoded string with a length limit of 128 characters. Otherwise, an
+   * A maximum of 20 values are allowed per Product by default. This limit can
+   * be increased using dynamic override configurations. Each value must be a
+   * UTF-8 encoded string with a length limit of 128 characters. Otherwise, an
    * INVALID_ARGUMENT error is returned. Corresponding properties: Google
    * Merchant Center property
    * [size](https://support.google.com/merchants/answer/6324492),
@@ -635,6 +640,10 @@ class GoogleCloudRetailV2Product extends \Google\Collection
     return $this->description;
   }
   /**
+   * The timestamp when this product becomes unavailable for
+   * SearchService.Search. If it is set, the Product is not available for
+   * SearchService.Search after expire_time. However, the product can still be
+   * retrieved by ProductService.GetProduct and ProductService.ListProducts.
    * Note that this field is applied in the following ways: * If the Product is
    * already expired when it is uploaded, this product is not indexed for
    * search. * If the Product is not expired when it is uploaded, only the
@@ -983,8 +992,9 @@ class GoogleCloudRetailV2Product extends \Google\Collection
    * size type; "M" represents size value. In "GIRLS:27", size system is empty;
    * "GIRLS" represents size type; "27" represents size value. In "32 inches",
    * both size system and size type are empty, while size value is "32 inches".
-   * A maximum of 20 values are allowed per Product. Each value must be a UTF-8
-   * encoded string with a length limit of 128 characters. Otherwise, an
+   * A maximum of 20 values are allowed per Product by default. This limit can
+   * be increased using dynamic override configurations. Each value must be a
+   * UTF-8 encoded string with a length limit of 128 characters. Otherwise, an
    * INVALID_ARGUMENT error is returned. Corresponding properties: Google
    * Merchant Center property
    * [size](https://support.google.com/merchants/answer/6324492),

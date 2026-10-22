@@ -27,14 +27,15 @@ class BigtableConfig extends \Google\Model
    * @var string
    */
   public $appProfileId;
+  protected $columnFamilyMappingType = ColumnFamilyMapping::class;
+  protected $columnFamilyMappingDataType = '';
   /**
    * Optional. The service account to use to write to Bigtable. The subscription
    * creator or updater that specifies this field must have
    * `iam.serviceAccounts.actAs` permission on the service account. If not
    * specified, the Pub/Sub [service
-   * agent]({$universe.dns_names.final_documentation_domain}/iam/docs/service-
-   * agents), service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com, is
-   * used.
+   * agent](https://cloud.google.com/iam/docs/service-agents),
+   * service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com, is used.
    *
    * @var string
    */
@@ -77,13 +78,30 @@ class BigtableConfig extends \Google\Model
     return $this->appProfileId;
   }
   /**
+   * Optional. Configuration that allows writing row keys and/or columns based
+   * on fields in the input message. The input message format must be JSON if
+   * this field is set.
+   *
+   * @param ColumnFamilyMapping $columnFamilyMapping
+   */
+  public function setColumnFamilyMapping(ColumnFamilyMapping $columnFamilyMapping)
+  {
+    $this->columnFamilyMapping = $columnFamilyMapping;
+  }
+  /**
+   * @return ColumnFamilyMapping
+   */
+  public function getColumnFamilyMapping()
+  {
+    return $this->columnFamilyMapping;
+  }
+  /**
    * Optional. The service account to use to write to Bigtable. The subscription
    * creator or updater that specifies this field must have
    * `iam.serviceAccounts.actAs` permission on the service account. If not
    * specified, the Pub/Sub [service
-   * agent]({$universe.dns_names.final_documentation_domain}/iam/docs/service-
-   * agents), service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com, is
-   * used.
+   * agent](https://cloud.google.com/iam/docs/service-agents),
+   * service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com, is used.
    *
    * @param string $serviceAccountEmail
    */

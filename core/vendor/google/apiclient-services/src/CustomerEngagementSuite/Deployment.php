@@ -20,6 +20,24 @@ namespace Google\Service\CustomerEngagementSuite;
 class Deployment extends \Google\Model
 {
   /**
+   * Unknown modality.
+   */
+  public const MODALITY_MODALITY_UNSPECIFIED = 'MODALITY_UNSPECIFIED';
+  /**
+   * Text modality.
+   */
+  public const MODALITY_MODALITY_TEXT = 'MODALITY_TEXT';
+  /**
+   * Voice modality.
+   */
+  public const MODALITY_MODALITY_VOICE = 'MODALITY_VOICE';
+  /**
+   * Video modality.
+   */
+  public const MODALITY_MODALITY_VIDEO = 'MODALITY_VIDEO';
+  protected $agentRegistryDeploymentType = AgentRegistryDeployment::class;
+  protected $agentRegistryDeploymentDataType = '';
+  /**
    * Optional. The resource name of the app version to deploy. Format:
    * `projects/{project}/locations/{location}/apps/{app}/versions/{version}` Use
    * `projects/{project}/locations/{location}/apps/{app}/versions/-` to use the
@@ -52,6 +70,18 @@ class Deployment extends \Google\Model
   public $etag;
   protected $experimentConfigType = ExperimentConfig::class;
   protected $experimentConfigDataType = '';
+  protected $instagramCredentialsType = InstagramCredentials::class;
+  protected $instagramCredentialsDataType = '';
+  /**
+   * Optional. The modality of the deployment. Note: Deployment-level modality
+   * override is gated behind an allowlist. Contact the CXAS team to enable this
+   * field.
+   *
+   * @var string
+   */
+  public $modality;
+  protected $modelSettingsType = ModelSettings::class;
+  protected $modelSettingsDataType = '';
   /**
    * Identifier. The resource name of the deployment. Format: `projects/{project
    * }/locations/{location}/apps/{app}/deployments/{deployment}`
@@ -65,7 +95,26 @@ class Deployment extends \Google\Model
    * @var string
    */
   public $updateTime;
+  protected $whatsappCredentialsType = WhatsAppCredentials::class;
+  protected $whatsappCredentialsDataType = '';
 
+  /**
+   * Optional. Configuration for deploying this deployment to Agent Registry. If
+   * present, this deployment will be published to Agent Registry.
+   *
+   * @param AgentRegistryDeployment $agentRegistryDeployment
+   */
+  public function setAgentRegistryDeployment(AgentRegistryDeployment $agentRegistryDeployment)
+  {
+    $this->agentRegistryDeployment = $agentRegistryDeployment;
+  }
+  /**
+   * @return AgentRegistryDeployment
+   */
+  public function getAgentRegistryDeployment()
+  {
+    return $this->agentRegistryDeployment;
+  }
   /**
    * Optional. The resource name of the app version to deploy. Format:
    * `projects/{project}/locations/{location}/apps/{app}/versions/{version}` Use
@@ -168,6 +217,63 @@ class Deployment extends \Google\Model
     return $this->experimentConfig;
   }
   /**
+   * Optional. Input only. Ephemeral Instagram credentials required when
+   * configuring a Instagram channel profile.
+   *
+   * @param InstagramCredentials $instagramCredentials
+   */
+  public function setInstagramCredentials(InstagramCredentials $instagramCredentials)
+  {
+    $this->instagramCredentials = $instagramCredentials;
+  }
+  /**
+   * @return InstagramCredentials
+   */
+  public function getInstagramCredentials()
+  {
+    return $this->instagramCredentials;
+  }
+  /**
+   * Optional. The modality of the deployment. Note: Deployment-level modality
+   * override is gated behind an allowlist. Contact the CXAS team to enable this
+   * field.
+   *
+   * Accepted values: MODALITY_UNSPECIFIED, MODALITY_TEXT, MODALITY_VOICE,
+   * MODALITY_VIDEO
+   *
+   * @param self::MODALITY_* $modality
+   */
+  public function setModality($modality)
+  {
+    $this->modality = $modality;
+  }
+  /**
+   * @return self::MODALITY_*
+   */
+  public function getModality()
+  {
+    return $this->modality;
+  }
+  /**
+   * Optional. Model settings for the deployment. Overrides model settings
+   * configured at the app/agent levels. Note: Deployment-level model settings
+   * override is gated behind an allowlist. Contact the CXAS team to enable this
+   * field.
+   *
+   * @param ModelSettings $modelSettings
+   */
+  public function setModelSettings(ModelSettings $modelSettings)
+  {
+    $this->modelSettings = $modelSettings;
+  }
+  /**
+   * @return ModelSettings
+   */
+  public function getModelSettings()
+  {
+    return $this->modelSettings;
+  }
+  /**
    * Identifier. The resource name of the deployment. Format: `projects/{project
    * }/locations/{location}/apps/{app}/deployments/{deployment}`
    *
@@ -199,6 +305,23 @@ class Deployment extends \Google\Model
   public function getUpdateTime()
   {
     return $this->updateTime;
+  }
+  /**
+   * Optional. Input only. Ephemeral WhatsApp credentials required when
+   * configuring a WhatsApp channel profile.
+   *
+   * @param WhatsAppCredentials $whatsappCredentials
+   */
+  public function setWhatsappCredentials(WhatsAppCredentials $whatsappCredentials)
+  {
+    $this->whatsappCredentials = $whatsappCredentials;
+  }
+  /**
+   * @return WhatsAppCredentials
+   */
+  public function getWhatsappCredentials()
+  {
+    return $this->whatsappCredentials;
   }
 }
 

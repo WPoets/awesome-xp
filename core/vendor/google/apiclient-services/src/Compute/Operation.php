@@ -19,8 +19,17 @@ namespace Google\Service\Compute;
 
 class Operation extends \Google\Collection
 {
+  /**
+   * The operation has completed processing successfully or with an error.
+   */
   public const STATUS_DONE = 'DONE';
+  /**
+   * The operation is waiting to be processed.
+   */
   public const STATUS_PENDING = 'PENDING';
+  /**
+   * The operation is actively being processed.
+   */
   public const STATUS_RUNNING = 'RUNNING';
   protected $collection_key = 'warnings';
   /**
@@ -52,6 +61,8 @@ class Operation extends \Google\Collection
   public $endTime;
   protected $errorType = OperationError::class;
   protected $errorDataType = '';
+  protected $getHealthOperationMetadataType = GetHealthOperationMetadata::class;
+  protected $getHealthOperationMetadataDataType = '';
   protected $getVersionOperationMetadataType = GetVersionOperationMetadata::class;
   protected $getVersionOperationMetadataDataType = '';
   /**
@@ -274,6 +285,22 @@ class Operation extends \Google\Collection
   public function getError()
   {
     return $this->error;
+  }
+  /**
+   * Output only. Metadata for GetHealth operations.
+   *
+   * @param GetHealthOperationMetadata $getHealthOperationMetadata
+   */
+  public function setGetHealthOperationMetadata(GetHealthOperationMetadata $getHealthOperationMetadata)
+  {
+    $this->getHealthOperationMetadata = $getHealthOperationMetadata;
+  }
+  /**
+   * @return GetHealthOperationMetadata
+   */
+  public function getGetHealthOperationMetadata()
+  {
+    return $this->getHealthOperationMetadata;
   }
   /**
    * @param GetVersionOperationMetadata $getVersionOperationMetadata

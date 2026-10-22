@@ -20,17 +20,12 @@ namespace Google\Service\WebContentPublisher;
 class TosAcceptance extends \Google\Model
 {
   /**
-   * Optional. The name of the person who accepted the TOS.
+   * Optional. Whether the user opted in to receive product updates and email
+   * communications.
    *
-   * @var string
+   * @var bool
    */
-  public $signer;
-  /**
-   * Optional. The job title or role of the signer.
-   *
-   * @var string
-   */
-  public $signerTitle;
+  public $emailOptIn;
   /**
    * Required. Whether the user has accepted the Terms of Service.
    *
@@ -39,36 +34,21 @@ class TosAcceptance extends \Google\Model
   public $userAccepted;
 
   /**
-   * Optional. The name of the person who accepted the TOS.
+   * Optional. Whether the user opted in to receive product updates and email
+   * communications.
    *
-   * @param string $signer
+   * @param bool $emailOptIn
    */
-  public function setSigner($signer)
+  public function setEmailOptIn($emailOptIn)
   {
-    $this->signer = $signer;
+    $this->emailOptIn = $emailOptIn;
   }
   /**
-   * @return string
+   * @return bool
    */
-  public function getSigner()
+  public function getEmailOptIn()
   {
-    return $this->signer;
-  }
-  /**
-   * Optional. The job title or role of the signer.
-   *
-   * @param string $signerTitle
-   */
-  public function setSignerTitle($signerTitle)
-  {
-    $this->signerTitle = $signerTitle;
-  }
-  /**
-   * @return string
-   */
-  public function getSignerTitle()
-  {
-    return $this->signerTitle;
+    return $this->emailOptIn;
   }
   /**
    * Required. Whether the user has accepted the Terms of Service.

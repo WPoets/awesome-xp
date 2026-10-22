@@ -20,6 +20,13 @@ namespace Google\Service\NetworkServices;
 class AgentGateway extends \Google\Collection
 {
   protected $collection_key = 'registries';
+  /**
+   * Optional. The resource name of the AgentConnectivityTemplate. Format: proje
+   * cts/{project}/locations/{location}/agentConnectivityTemplates/{template}
+   *
+   * @var string
+   */
+  public $agentConnectivityTemplate;
   protected $agentGatewayCardType = AgentGatewayAgentGatewayOutputCard::class;
   protected $agentGatewayCardDataType = '';
   /**
@@ -71,7 +78,7 @@ class AgentGateway extends \Google\Collection
    * Optional. A list of Agent registries containing the agents, MCP servers and
    * tools governed by the Agent Gateway. Note: Currently limited to project-
    * scoped registries Must be of format
-   * `//agentregistry.googleapis.com/projects/{project}/locations/{location}/
+   * `//agentregistry.googleapis.com/projects/{project}/locations/{location}/`
    *
    * @var string[]
    */
@@ -85,6 +92,23 @@ class AgentGateway extends \Google\Collection
    */
   public $updateTime;
 
+  /**
+   * Optional. The resource name of the AgentConnectivityTemplate. Format: proje
+   * cts/{project}/locations/{location}/agentConnectivityTemplates/{template}
+   *
+   * @param string $agentConnectivityTemplate
+   */
+  public function setAgentConnectivityTemplate($agentConnectivityTemplate)
+  {
+    $this->agentConnectivityTemplate = $agentConnectivityTemplate;
+  }
+  /**
+   * @return string
+   */
+  public function getAgentConnectivityTemplate()
+  {
+    return $this->agentConnectivityTemplate;
+  }
   /**
    * Output only. Field for populated AgentGateway card.
    *
@@ -240,7 +264,7 @@ class AgentGateway extends \Google\Collection
    * Optional. A list of Agent registries containing the agents, MCP servers and
    * tools governed by the Agent Gateway. Note: Currently limited to project-
    * scoped registries Must be of format
-   * `//agentregistry.googleapis.com/projects/{project}/locations/{location}/
+   * `//agentregistry.googleapis.com/projects/{project}/locations/{location}/`
    *
    * @param string[] $registries
    */

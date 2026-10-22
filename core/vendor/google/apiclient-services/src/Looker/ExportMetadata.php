@@ -31,9 +31,22 @@ class ExportMetadata extends \Google\Collection
    * Source of export is Looker Original
    */
   public const SOURCE_LOOKER_ORIGINAL = 'LOOKER_ORIGINAL';
+  /**
+   * Source of export is Self-Hosted Looker
+   */
+  public const SOURCE_LOOKER_SELF_HOSTED = 'LOOKER_SELF_HOSTED';
   protected $collection_key = 'filePaths';
+  /**
+   * Source BigQuery dataset (formatted as `project_id:dataset_id`) for O2C
+   * Elite System Activity (ESA) direct dataset migration.
+   *
+   * @var string
+   */
+  public $esaSourceDatasetId;
   protected $exportEncryptionKeyType = ExportMetadataEncryptionKey::class;
   protected $exportEncryptionKeyDataType = '';
+  protected $exportMetricsType = ExportMetrics::class;
+  protected $exportMetricsDataType = '';
   /**
    * List of files created as part of export artifact (excluding the metadata).
    * The paths are relative to the folder containing the metadata.
@@ -76,6 +89,23 @@ class ExportMetadata extends \Google\Collection
   public $source;
 
   /**
+   * Source BigQuery dataset (formatted as `project_id:dataset_id`) for O2C
+   * Elite System Activity (ESA) direct dataset migration.
+   *
+   * @param string $esaSourceDatasetId
+   */
+  public function setEsaSourceDatasetId($esaSourceDatasetId)
+  {
+    $this->esaSourceDatasetId = $esaSourceDatasetId;
+  }
+  /**
+   * @return string
+   */
+  public function getEsaSourceDatasetId()
+  {
+    return $this->esaSourceDatasetId;
+  }
+  /**
    * Encryption key that was used to encrypt the export artifacts.
    *
    * @param ExportMetadataEncryptionKey $exportEncryptionKey
@@ -90,6 +120,22 @@ class ExportMetadata extends \Google\Collection
   public function getExportEncryptionKey()
   {
     return $this->exportEncryptionKey;
+  }
+  /**
+   * Overall export metrics, timing, and component telemetry.
+   *
+   * @param ExportMetrics $exportMetrics
+   */
+  public function setExportMetrics(ExportMetrics $exportMetrics)
+  {
+    $this->exportMetrics = $exportMetrics;
+  }
+  /**
+   * @return ExportMetrics
+   */
+  public function getExportMetrics()
+  {
+    return $this->exportMetrics;
   }
   /**
    * List of files created as part of export artifact (excluding the metadata).
@@ -178,7 +224,8 @@ class ExportMetadata extends \Google\Collection
   /**
    * The source type of the migration.
    *
-   * Accepted values: SOURCE_UNSPECIFIED, LOOKER_CORE, LOOKER_ORIGINAL
+   * Accepted values: SOURCE_UNSPECIFIED, LOOKER_CORE, LOOKER_ORIGINAL,
+   * LOOKER_SELF_HOSTED
    *
    * @param self::SOURCE_* $source
    */

@@ -32,8 +32,12 @@ class GoogleCloudAiplatformV1GenerateUserScenariosRequest extends \Google\Model
    * @var bool
    */
   public $allowCrossRegionModel;
+  protected $geminiAgentConfigType = GoogleCloudAiplatformV1GeminiAgentConfig::class;
+  protected $geminiAgentConfigDataType = '';
   /**
-   * Required. The agent id to identify the root agent.
+   * Optional. The agent id to identify the root agent. Required unless
+   * `gemini_agent_config` is set, in which case it is derived from the
+   * referenced Gemini Agent.
    *
    * @var string
    */
@@ -42,9 +46,11 @@ class GoogleCloudAiplatformV1GenerateUserScenariosRequest extends \Google\Model
   protected $userScenarioGenerationConfigDataType = '';
 
   /**
-   * Required. A map containing the static configurations for each agent in the
+   * Optional. A map containing the static configurations for each agent in the
    * system. Key: agent_id (matches the `author` field in events). Value: The
-   * static configuration of the agent.
+   * static configuration of the agent. Required unless `gemini_agent_config` is
+   * set, in which case the agents map and `root_agent_id` are derived from the
+   * referenced Gemini Agent.
    *
    * @param GoogleCloudAiplatformV1AgentConfig[] $agents
    */
@@ -81,7 +87,25 @@ class GoogleCloudAiplatformV1GenerateUserScenariosRequest extends \Google\Model
     return $this->allowCrossRegionModel;
   }
   /**
-   * Required. The agent id to identify the root agent.
+   * Optional. Config for a Gemini Agent to generate user scenarios for.
+   *
+   * @param GoogleCloudAiplatformV1GeminiAgentConfig $geminiAgentConfig
+   */
+  public function setGeminiAgentConfig(GoogleCloudAiplatformV1GeminiAgentConfig $geminiAgentConfig)
+  {
+    $this->geminiAgentConfig = $geminiAgentConfig;
+  }
+  /**
+   * @return GoogleCloudAiplatformV1GeminiAgentConfig
+   */
+  public function getGeminiAgentConfig()
+  {
+    return $this->geminiAgentConfig;
+  }
+  /**
+   * Optional. The agent id to identify the root agent. Required unless
+   * `gemini_agent_config` is set, in which case it is derived from the
+   * referenced Gemini Agent.
    *
    * @param string $rootAgentId
    */

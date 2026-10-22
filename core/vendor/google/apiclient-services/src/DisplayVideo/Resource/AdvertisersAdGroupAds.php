@@ -32,10 +32,7 @@ use Google\Service\DisplayVideo\ListAdGroupAdsResponse;
 class AdvertisersAdGroupAds extends \Google\Service\Resource
 {
   /**
-   * Creates an ad group ad. This method is only supported for Demand Gen ads.
-   * Retrieval and management of Demand Gen resources is currently rolling out.
-   * This method will be available to all partners by *June 24, 2026*.
-   * (adGroupAds.create)
+   * Creates an ad group ad. (adGroupAds.create)
    *
    * @param string $advertiserId Output only. The unique ID of the advertiser the
    * ad belongs to.
@@ -51,15 +48,11 @@ class AdvertisersAdGroupAds extends \Google\Service\Resource
     return $this->call('create', [$params], AdGroupAd::class);
   }
   /**
-   * Deletes an ad group ad. This method is only supported for Demand Gen ads.
-   * Retrieval and management of Demand Gen resources is currently rolling out.
-   * This method will be available to all partners by *June 24, 2026*.
-   * (adGroupAds.delete)
+   * Deletes an ad group ad. (adGroupAds.delete)
    *
    * @param string $advertiserId Required. The ID of the advertiser the ad belongs
    * to.
-   * @param string $adGroupAdId Required. The ID of the ad to delete. Only Demand
-   * Gen ads are supported.
+   * @param string $adGroupAdId Required. The ID of the ad to delete.
    * @param array $optParams Optional parameters.
    * @return DisplayvideoEmpty
    * @throws \Google\Service\Exception
@@ -99,12 +92,13 @@ class AdvertisersAdGroupAds extends \Google\Service\Resource
    * restrictions implicitly uses `AND`. * A restriction has the form of `{field}
    * {operator} {value}`. * All fields must use the `EQUALS (=)` operator.
    * Supported fields: * `adGroupId` * `displayName` * `entityStatus` *
-   * `adGroupAdId` Examples: * All ad group ads under an ad group:
-   * `adGroupId="1234"` * All ad group ads under an ad group with an entityStatus
-   * of `ENTITY_STATUS_ACTIVE` or `ENTITY_STATUS_PAUSED`:
+   * `adGroupAdId` * `parentCreativeId` Examples: * All ad group ads under an ad
+   * group: `adGroupId="1234"` * All ad group ads under an ad group with an
+   * entityStatus of `ENTITY_STATUS_ACTIVE` or `ENTITY_STATUS_PAUSED`:
    * `(entityStatus="ENTITY_STATUS_ACTIVE" OR entityStatus="ENTITY_STATUS_PAUSED")
-   * AND adGroupId="12345"` The length of this field should be no more than 500
-   * characters. Reference our [filter `LIST` requests](/display-
+   * AND adGroupId="12345"` * All ad group ads under a parent creative:
+   * `parentCreativeId="12345"` The length of this field should be no more than
+   * 500 characters. Reference our [filter `LIST` requests](/display-
    * video/api/guides/how-tos/filters) guide for more information.
    * @opt_param string orderBy Optional. Field by which to sort the list.
    * Acceptable values are: * `displayName` (default) * `entityStatus` The default
@@ -127,10 +121,7 @@ class AdvertisersAdGroupAds extends \Google\Service\Resource
     return $this->call('list', [$params], ListAdGroupAdsResponse::class);
   }
   /**
-   * Updates an ad group ad. This method is only supported for Demand Gen ads.
-   * Retrieval and management of Demand Gen resources is currently rolling out.
-   * This method will be available to all partners by *June 24, 2026*.
-   * (adGroupAds.patch)
+   * Updates an ad group ad. (adGroupAds.patch)
    *
    * @param string $advertiserId Output only. The unique ID of the advertiser the
    * ad belongs to.

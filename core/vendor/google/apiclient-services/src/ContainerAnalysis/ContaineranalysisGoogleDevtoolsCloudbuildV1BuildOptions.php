@@ -116,6 +116,11 @@ class ContaineranalysisGoogleDevtoolsCloudbuildV1BuildOptions extends \Google\Co
    */
   public const REQUESTED_VERIFY_OPTION_VERIFIED = 'VERIFIED';
   /**
+   * Build verification is best effort. If provenance generation fails, the
+   * build will still succeed.
+   */
+  public const REQUESTED_VERIFY_OPTION_BEST_EFFORT = 'BEST_EFFORT';
+  /**
    * Fails the build if error in substitutions checks, like missing a
    * substitution in the template or in the map.
    */
@@ -209,6 +214,12 @@ class ContaineranalysisGoogleDevtoolsCloudbuildV1BuildOptions extends \Google\Co
    */
   public $requestedVerifyOption;
   /**
+   * Output only. Worker release resolved from the release channel.
+   *
+   * @var string
+   */
+  public $resolvedWorkerRelease;
+  /**
    * A list of global environment variables, which are encrypted using a Cloud
    * Key Management Service crypto key. These values must be specified in the
    * build's `Secret`. These variables will be available to all build steps in
@@ -240,6 +251,13 @@ class ContaineranalysisGoogleDevtoolsCloudbuildV1BuildOptions extends \Google\Co
    * @var string
    */
   public $workerPool;
+  /**
+   * Optional. Option to specify which release or release channel
+   * (rapid|regular|stable) to use to run this build.
+   *
+   * @var string
+   */
+  public $workerRelease;
 
   /**
    * Option to include built-in and custom substitutions as env variables for
@@ -448,7 +466,7 @@ class ContaineranalysisGoogleDevtoolsCloudbuildV1BuildOptions extends \Google\Co
   /**
    * Requested verifiability options.
    *
-   * Accepted values: NOT_VERIFIED, VERIFIED
+   * Accepted values: NOT_VERIFIED, VERIFIED, BEST_EFFORT
    *
    * @param self::REQUESTED_VERIFY_OPTION_* $requestedVerifyOption
    */
@@ -462,6 +480,22 @@ class ContaineranalysisGoogleDevtoolsCloudbuildV1BuildOptions extends \Google\Co
   public function getRequestedVerifyOption()
   {
     return $this->requestedVerifyOption;
+  }
+  /**
+   * Output only. Worker release resolved from the release channel.
+   *
+   * @param string $resolvedWorkerRelease
+   */
+  public function setResolvedWorkerRelease($resolvedWorkerRelease)
+  {
+    $this->resolvedWorkerRelease = $resolvedWorkerRelease;
+  }
+  /**
+   * @return string
+   */
+  public function getResolvedWorkerRelease()
+  {
+    return $this->resolvedWorkerRelease;
   }
   /**
    * A list of global environment variables, which are encrypted using a Cloud
@@ -556,6 +590,23 @@ class ContaineranalysisGoogleDevtoolsCloudbuildV1BuildOptions extends \Google\Co
   public function getWorkerPool()
   {
     return $this->workerPool;
+  }
+  /**
+   * Optional. Option to specify which release or release channel
+   * (rapid|regular|stable) to use to run this build.
+   *
+   * @param string $workerRelease
+   */
+  public function setWorkerRelease($workerRelease)
+  {
+    $this->workerRelease = $workerRelease;
+  }
+  /**
+   * @return string
+   */
+  public function getWorkerRelease()
+  {
+    return $this->workerRelease;
   }
 }
 

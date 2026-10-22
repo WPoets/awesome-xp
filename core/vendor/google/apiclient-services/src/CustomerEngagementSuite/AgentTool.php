@@ -38,15 +38,6 @@ class AgentTool extends \Google\Model
    * @var string
    */
   public $name;
-  /**
-   * Optional. Deprecated: Use `agent` instead. The resource name of the root
-   * agent that is the entry point of the tool. Format:
-   * `projects/{project}/locations/{location}/agents/{agent}`
-   *
-   * @deprecated
-   * @var string
-   */
-  public $rootAgent;
 
   /**
    * Optional. The resource name of the agent that is the entry point of the
@@ -96,26 +87,6 @@ class AgentTool extends \Google\Model
   public function getName()
   {
     return $this->name;
-  }
-  /**
-   * Optional. Deprecated: Use `agent` instead. The resource name of the root
-   * agent that is the entry point of the tool. Format:
-   * `projects/{project}/locations/{location}/agents/{agent}`
-   *
-   * @deprecated
-   * @param string $rootAgent
-   */
-  public function setRootAgent($rootAgent)
-  {
-    $this->rootAgent = $rootAgent;
-  }
-  /**
-   * @deprecated
-   * @return string
-   */
-  public function getRootAgent()
-  {
-    return $this->rootAgent;
   }
 }
 

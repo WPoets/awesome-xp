@@ -26,8 +26,12 @@ class GoogleCloudAiplatformV1Agent extends \Google\Collection
         "systemInstruction" => "system_instruction",
   ];
   /**
-   * Required. The base agent for the agent. Supported values: * `antigravity-
-   * preview-05-2026`
+   * Required. Immutable. The base agent for the agent. Supported values: *
+   * `antigravity-preview-05-2026` Immutable: `UpdateAgent` rejects a change,
+   * including clearing it. The kind of agent this is gets derived from this
+   * field when the agent is created and is recorded then; nothing recomputes it
+   * afterwards, so a later change would leave the agent described as one kind
+   * and behaving as another. Create a new agent instead.
    *
    * @var string
    */
@@ -53,6 +57,12 @@ class GoogleCloudAiplatformV1Agent extends \Google\Collection
    */
   public $description;
   /**
+   * Output only. The resolved Agent Identity (SPIFFE principal) of the agent.
+   *
+   * @var string
+   */
+  public $effectiveIdentity;
+  /**
    * Immutable. The user-specified ID for the agent. This ID becomes the final
    * component of the agent resource name. If not provided, Vertex AI will
    * generate a value for this ID. The ID can be up to 63 characters and must
@@ -67,6 +77,8 @@ class GoogleCloudAiplatformV1Agent extends \Google\Collection
    * @var string[]
    */
   public $metadata;
+  protected $modelConfigType = GoogleCloudAiplatformV1AgentModelConfig::class;
+  protected $modelConfigDataType = '';
   /**
    * Identifier. The resource name of the agent. Format:
    * `projects/{project}/locations/{location}/agents/{agent}`.
@@ -81,6 +93,8 @@ class GoogleCloudAiplatformV1Agent extends \Google\Collection
    * @var string
    */
   public $object;
+  protected $observabilityConfigType = GoogleCloudAiplatformV1ObservabilityConfig::class;
+  protected $observabilityConfigDataType = '';
   /**
    * Optional. The instructions for the agent to follow. These instructions are
    * passed to the LLM as a system instruction.
@@ -98,8 +112,12 @@ class GoogleCloudAiplatformV1Agent extends \Google\Collection
   public $updated;
 
   /**
-   * Required. The base agent for the agent. Supported values: * `antigravity-
-   * preview-05-2026`
+   * Required. Immutable. The base agent for the agent. Supported values: *
+   * `antigravity-preview-05-2026` Immutable: `UpdateAgent` rejects a change,
+   * including clearing it. The kind of agent this is gets derived from this
+   * field when the agent is created and is recorded then; nothing recomputes it
+   * afterwards, so a later change would leave the agent described as one kind
+   * and behaving as another. Create a new agent instead.
    *
    * @param string $baseAgent
    */
@@ -165,6 +183,22 @@ class GoogleCloudAiplatformV1Agent extends \Google\Collection
     return $this->description;
   }
   /**
+   * Output only. The resolved Agent Identity (SPIFFE principal) of the agent.
+   *
+   * @param string $effectiveIdentity
+   */
+  public function setEffectiveIdentity($effectiveIdentity)
+  {
+    $this->effectiveIdentity = $effectiveIdentity;
+  }
+  /**
+   * @return string
+   */
+  public function getEffectiveIdentity()
+  {
+    return $this->effectiveIdentity;
+  }
+  /**
    * Immutable. The user-specified ID for the agent. This ID becomes the final
    * component of the agent resource name. If not provided, Vertex AI will
    * generate a value for this ID. The ID can be up to 63 characters and must
@@ -200,6 +234,24 @@ class GoogleCloudAiplatformV1Agent extends \Google\Collection
     return $this->metadata;
   }
   /**
+   * Optional. Model configuration for the agent. When set, tasks running under
+   * this agent default to this model configuration if they do not specify their
+   * own.
+   *
+   * @param GoogleCloudAiplatformV1AgentModelConfig $modelConfig
+   */
+  public function setModelConfig(GoogleCloudAiplatformV1AgentModelConfig $modelConfig)
+  {
+    $this->modelConfig = $modelConfig;
+  }
+  /**
+   * @return GoogleCloudAiplatformV1AgentModelConfig
+   */
+  public function getModelConfig()
+  {
+    return $this->modelConfig;
+  }
+  /**
    * Identifier. The resource name of the agent. Format:
    * `projects/{project}/locations/{location}/agents/{agent}`.
    *
@@ -232,6 +284,22 @@ class GoogleCloudAiplatformV1Agent extends \Google\Collection
   public function getObject()
   {
     return $this->object;
+  }
+  /**
+   * Optional. Observability settings for this agent's sessions.
+   *
+   * @param GoogleCloudAiplatformV1ObservabilityConfig $observabilityConfig
+   */
+  public function setObservabilityConfig(GoogleCloudAiplatformV1ObservabilityConfig $observabilityConfig)
+  {
+    $this->observabilityConfig = $observabilityConfig;
+  }
+  /**
+   * @return GoogleCloudAiplatformV1ObservabilityConfig
+   */
+  public function getObservabilityConfig()
+  {
+    return $this->observabilityConfig;
   }
   /**
    * Optional. The instructions for the agent to follow. These instructions are

@@ -42,10 +42,10 @@ class GoogleCloudDiscoveryengineV1alphaLicenseConfig extends \Google\Model
    */
   public const STATE_WITHDRAWN = 'WITHDRAWN';
   /**
-   * The license config is terminated earlier than the expiration date and it is
-   * deactivating. The customer will still have access in this state. It will be
-   * converted to EXPIRED after the deactivating period ends (14 days) or when
-   * the end date is reached, whichever comes first.
+   * The license config is in a grace period. Its subscription has ended, either
+   * through early termination or by reaching its end date, but the customer
+   * keeps access for a limited time. It becomes EXPIRED when the grace period
+   * ends.
    */
   public const STATE_DEACTIVATING = 'DEACTIVATING';
   /**
@@ -131,6 +131,10 @@ class GoogleCloudDiscoveryengineV1alphaLicenseConfig extends \Google\Model
    * billed purely on usage (PAYG).
    */
   public const SUBSCRIPTION_TIER_SUBSCRIPTION_TIER_CONSUMPTION_ONLY = 'SUBSCRIPTION_TIER_CONSUMPTION_ONLY';
+  /**
+   * Gemini Enterprise EDU tier for government in emerging markets.
+   */
+  public const SUBSCRIPTION_TIER_SUBSCRIPTION_TIER_EDU_GOV_EMERGING = 'SUBSCRIPTION_TIER_EDU_GOV_EMERGING';
   protected $alertPolicyResourceConfigType = GoogleCloudDiscoveryengineV1alphaAlertPolicyResourceConfig::class;
   protected $alertPolicyResourceConfigDataType = '';
   /**
@@ -140,6 +144,13 @@ class GoogleCloudDiscoveryengineV1alphaLicenseConfig extends \Google\Model
    * @var bool
    */
   public $autoRenew;
+  /**
+   * Output only. The name of the BillingAccountLicenseConfig from which this
+   * LicenseConfig is assigned, if this field is set.
+   *
+   * @var string
+   */
+  public $billingAccountLicenseConfig;
   /**
    * Output only. Indication of whether the subscription is terminated earlier
    * than the expiration date. This is usually terminated by pipeline once the
@@ -164,6 +175,16 @@ class GoogleCloudDiscoveryengineV1alphaLicenseConfig extends \Google\Model
    * @var bool
    */
   public $geminiBundle;
+  /**
+   * Optional. Timestamp of the most recent user-initiated update (seat count
+   * change or subscription term change). Unlike `update_time`, this field is
+   * only stamped when a customer explicitly updates the license (e.g. via the
+   * UI), and is not touched by system-driven writes (subscription pipeline,
+   * BALC propagation, etc.).
+   *
+   * @var string
+   */
+  public $lastUserUpdateTime;
   /**
    * Required. Number of licenses purchased.
    *
@@ -231,6 +252,23 @@ class GoogleCloudDiscoveryengineV1alphaLicenseConfig extends \Google\Model
   public function getAutoRenew()
   {
     return $this->autoRenew;
+  }
+  /**
+   * Output only. The name of the BillingAccountLicenseConfig from which this
+   * LicenseConfig is assigned, if this field is set.
+   *
+   * @param string $billingAccountLicenseConfig
+   */
+  public function setBillingAccountLicenseConfig($billingAccountLicenseConfig)
+  {
+    $this->billingAccountLicenseConfig = $billingAccountLicenseConfig;
+  }
+  /**
+   * @return string
+   */
+  public function getBillingAccountLicenseConfig()
+  {
+    return $this->billingAccountLicenseConfig;
   }
   /**
    * Output only. Indication of whether the subscription is terminated earlier
@@ -314,6 +352,26 @@ class GoogleCloudDiscoveryengineV1alphaLicenseConfig extends \Google\Model
   public function getGeminiBundle()
   {
     return $this->geminiBundle;
+  }
+  /**
+   * Optional. Timestamp of the most recent user-initiated update (seat count
+   * change or subscription term change). Unlike `update_time`, this field is
+   * only stamped when a customer explicitly updates the license (e.g. via the
+   * UI), and is not touched by system-driven writes (subscription pipeline,
+   * BALC propagation, etc.).
+   *
+   * @param string $lastUserUpdateTime
+   */
+  public function setLastUserUpdateTime($lastUserUpdateTime)
+  {
+    $this->lastUserUpdateTime = $lastUserUpdateTime;
+  }
+  /**
+   * @return string
+   */
+  public function getLastUserUpdateTime()
+  {
+    return $this->lastUserUpdateTime;
   }
   /**
    * Required. Number of licenses purchased.
@@ -414,7 +472,7 @@ class GoogleCloudDiscoveryengineV1alphaLicenseConfig extends \Google\Model
    * SUBSCRIPTION_TIER_ENTERPRISE_EMERGING, SUBSCRIPTION_TIER_EDU,
    * SUBSCRIPTION_TIER_EDU_PRO, SUBSCRIPTION_TIER_EDU_EMERGING,
    * SUBSCRIPTION_TIER_EDU_PRO_EMERGING, SUBSCRIPTION_TIER_FRONTLINE_STARTER,
-   * SUBSCRIPTION_TIER_CONSUMPTION_ONLY
+   * SUBSCRIPTION_TIER_CONSUMPTION_ONLY, SUBSCRIPTION_TIER_EDU_GOV_EMERGING
    *
    * @param self::SUBSCRIPTION_TIER_* $subscriptionTier
    */

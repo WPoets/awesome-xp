@@ -20,6 +20,20 @@ namespace Google\Service\CustomerEngagementSuite;
 class SynthesizeSpeechConfig extends \Google\Model
 {
   /**
+   * Optional. The instruction used to synthesize speech when using a generative
+   * model.
+   *
+   * @var string
+   */
+  public $instruction;
+  /**
+   * Optional. The model used to synthesize audio. Currently supported values: -
+   * "gemini-3.1-flash-tts-preview" If empty, Chirp3-HD is used.
+   *
+   * @var string
+   */
+  public $model;
+  /**
    * Optional. The speaking rate/speed in the range [0.25, 2.0]. 1.0 is the
    * normal native speed supported by the specific voice. 2.0 is twice as fast,
    * and 0.5 is half as fast. Values outside of the range [0.25, 2.0] will
@@ -39,6 +53,40 @@ class SynthesizeSpeechConfig extends \Google\Model
    */
   public $voice;
 
+  /**
+   * Optional. The instruction used to synthesize speech when using a generative
+   * model.
+   *
+   * @param string $instruction
+   */
+  public function setInstruction($instruction)
+  {
+    $this->instruction = $instruction;
+  }
+  /**
+   * @return string
+   */
+  public function getInstruction()
+  {
+    return $this->instruction;
+  }
+  /**
+   * Optional. The model used to synthesize audio. Currently supported values: -
+   * "gemini-3.1-flash-tts-preview" If empty, Chirp3-HD is used.
+   *
+   * @param string $model
+   */
+  public function setModel($model)
+  {
+    $this->model = $model;
+  }
+  /**
+   * @return string
+   */
+  public function getModel()
+  {
+    return $this->model;
+  }
   public function setSpeakingRate($speakingRate)
   {
     $this->speakingRate = $speakingRate;

@@ -44,6 +44,8 @@ class GoogleCloudAiplatformV1GenerationConfig extends \Google\Collection
    * @var bool
    */
   public $audioTimestamp;
+  protected $audioTranscriptionConfigType = GoogleCloudAiplatformV1AudioTranscriptionConfig::class;
+  protected $audioTranscriptionConfigDataType = '';
   /**
    * Optional. The number of candidate responses to generate. A higher
    * `candidate_count` can provide more options to choose from, but it also
@@ -209,6 +211,8 @@ class GoogleCloudAiplatformV1GenerationConfig extends \Google\Collection
    * @var float
    */
   public $topP;
+  protected $translationConfigType = GoogleCloudAiplatformV1TranslationConfig::class;
+  protected $translationConfigDataType = '';
 
   /**
    * Optional. If enabled, audio timestamps will be included in the request to
@@ -227,6 +231,22 @@ class GoogleCloudAiplatformV1GenerationConfig extends \Google\Collection
   public function getAudioTimestamp()
   {
     return $this->audioTimestamp;
+  }
+  /**
+   * Optional. Configuration for audio transcription (speech recognition).
+   *
+   * @param GoogleCloudAiplatformV1AudioTranscriptionConfig $audioTranscriptionConfig
+   */
+  public function setAudioTranscriptionConfig(GoogleCloudAiplatformV1AudioTranscriptionConfig $audioTranscriptionConfig)
+  {
+    $this->audioTranscriptionConfig = $audioTranscriptionConfig;
+  }
+  /**
+   * @return GoogleCloudAiplatformV1AudioTranscriptionConfig
+   */
+  public function getAudioTranscriptionConfig()
+  {
+    return $this->audioTranscriptionConfig;
   }
   /**
    * Optional. The number of candidate responses to generate. A higher
@@ -653,6 +673,22 @@ class GoogleCloudAiplatformV1GenerationConfig extends \Google\Collection
   public function getTopP()
   {
     return $this->topP;
+  }
+  /**
+   * Optional. Config for translation.
+   *
+   * @param GoogleCloudAiplatformV1TranslationConfig $translationConfig
+   */
+  public function setTranslationConfig(GoogleCloudAiplatformV1TranslationConfig $translationConfig)
+  {
+    $this->translationConfig = $translationConfig;
+  }
+  /**
+   * @return GoogleCloudAiplatformV1TranslationConfig
+   */
+  public function getTranslationConfig()
+  {
+    return $this->translationConfig;
   }
 }
 

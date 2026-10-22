@@ -63,6 +63,8 @@ use Google\Service\Compute\ZoneSetPolicyRequest;
  */
 class Instances extends \Google\Service\Resource
 {
+  protected $apiVersion = '2026-09-01';
+
   /**
    * Adds an access config to an instance's network interface.
    * (instances.addAccessConfig)
@@ -242,13 +244,6 @@ class Instances extends \Google\Service\Resource
    * @opt_param string pageToken Specifies a page token to use. Set `pageToken` to
    * the `nextPageToken` returned by a previous list request to get the next page
    * of results.
-   * @opt_param bool returnPartialSuccess Opt-in for partial success behavior
-   * which provides partial results in case of failure. The default value is
-   * false.
-   *
-   * For example, when partial success behavior is enabled, aggregatedList for a
-   * single zone scope either returns all resources in the zone or no resources,
-   * with an error code.
    * @opt_param string serviceProjectNumber The Shared VPC service project id or
    * service project number for which aggregated list request is invoked for
    * subnetworks list-usable api.
@@ -337,6 +332,8 @@ class Instances extends \Google\Service\Resource
    * @param string $instance Name of the instance resource to delete.
    * @param array $optParams Optional parameters.
    *
+   * @opt_param bool noGracefulShutdown If set to true, Graceful Shutdown is
+   * skipped.
    * @opt_param string requestId An optional request ID to identify requests.
    * Specify a unique request ID so that if you must retry your request, the
    * server will know to ignore the request if it has already been completed.
@@ -718,13 +715,6 @@ class Instances extends \Google\Service\Resource
    * @opt_param string pageToken Specifies a page token to use. Set `pageToken` to
    * the `nextPageToken` returned by a previous list request to get the next page
    * of results.
-   * @opt_param bool returnPartialSuccess Opt-in for partial success behavior
-   * which provides partial results in case of failure. The default value is
-   * false.
-   *
-   * For example, when partial success behavior is enabled, aggregatedList for a
-   * single zone scope either returns all resources in the zone or no resources,
-   * with an error code.
    * @return InstanceList
    * @throws \Google\Service\Exception
    */
@@ -808,13 +798,6 @@ class Instances extends \Google\Service\Resource
    * @opt_param string pageToken Specifies a page token to use. Set `pageToken` to
    * the `nextPageToken` returned by a previous list request to get the next page
    * of results.
-   * @opt_param bool returnPartialSuccess Opt-in for partial success behavior
-   * which provides partial results in case of failure. The default value is
-   * false.
-   *
-   * For example, when partial success behavior is enabled, aggregatedList for a
-   * single zone scope either returns all resources in the zone or no resources,
-   * with an error code.
    * @return InstanceListReferrers
    * @throws \Google\Service\Exception
    */
@@ -1534,6 +1517,8 @@ class Instances extends \Google\Service\Resource
    * any attached Local SSD disks. If false, Local SSD data will be preserved when
    * the instance is suspended. If true, the contents of any attached Local SSD
    * disks will be discarded.
+   * @opt_param bool noGracefulShutdown If set to true, Graceful Shutdown is
+   * skipped.
    * @opt_param string requestId An optional request ID to identify requests.
    * Specify a unique request ID so that if you must retry your request, the
    * server will know to ignore the request if it has already been completed.

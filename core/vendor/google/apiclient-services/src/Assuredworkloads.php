@@ -38,14 +38,22 @@ class Assuredworkloads extends \Google\Service
   const CLOUD_PLATFORM =
       "https://www.googleapis.com/auth/cloud-platform";
 
-  public $assuredworkloads;
   public $folders_locations_dbFindingSummaries;
+  public $folders_locations_dbFrameworkComplianceReports;
+  public $folders_locations_dbFrameworkComplianceReports_dbControlComplianceSummaries;
+  public $folders_locations_dbFrameworkComplianceSummaries;
   public $organizations_locations_dbFindingSummaries;
+  public $organizations_locations_dbFrameworkComplianceReports;
+  public $organizations_locations_dbFrameworkComplianceReports_dbControlComplianceSummaries;
+  public $organizations_locations_dbFrameworkComplianceSummaries;
   public $organizations_locations_operations;
   public $organizations_locations_workloads;
   public $organizations_locations_workloads_updates;
   public $organizations_locations_workloads_violations;
   public $projects_locations_dbFindingSummaries;
+  public $projects_locations_dbFrameworkComplianceReports;
+  public $projects_locations_dbFrameworkComplianceReports_dbControlComplianceSummaries;
+  public $projects_locations_dbFrameworkComplianceSummaries;
   public $rootUrlTemplate;
 
   /**
@@ -65,24 +73,6 @@ class Assuredworkloads extends \Google\Service
     $this->version = 'v1';
     $this->serviceName = 'assuredworkloads';
 
-    $this->assuredworkloads = new Assuredworkloads\Resource\Assuredworkloads(
-        $this,
-        $this->serviceName,
-        'assuredworkloads',
-        [
-          'methods' => [
-            'archiveResourceEvents' => [
-              'path' => 'v1/assuredworkloads:archiveResourceEvents',
-              'httpMethod' => 'POST',
-              'parameters' => [],
-            ],'revertArchivedResourceEvents' => [
-              'path' => 'v1/assuredworkloads:revertArchivedResourceEvents',
-              'httpMethod' => 'POST',
-              'parameters' => [],
-            ],
-          ]
-        ]
-    );
     $this->folders_locations_dbFindingSummaries = new Assuredworkloads\Resource\FoldersLocationsDbFindingSummaries(
         $this,
         $this->serviceName,
@@ -115,6 +105,124 @@ class Assuredworkloads extends \Google\Service
           ]
         ]
     );
+    $this->folders_locations_dbFrameworkComplianceReports = new Assuredworkloads\Resource\FoldersLocationsDbFrameworkComplianceReports(
+        $this,
+        $this->serviceName,
+        'dbFrameworkComplianceReports',
+        [
+          'methods' => [
+            'aggregate' => [
+              'path' => 'v1/{+name}:aggregate',
+              'httpMethod' => 'GET',
+              'parameters' => [
+                'name' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'filter' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+                'interval.endTime' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+                'interval.startTime' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+              ],
+            ],'fetch' => [
+              'path' => 'v1/{+name}:fetch',
+              'httpMethod' => 'GET',
+              'parameters' => [
+                'name' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'endTime' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+                'filter' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+              ],
+            ],
+          ]
+        ]
+    );
+    $this->folders_locations_dbFrameworkComplianceReports_dbControlComplianceSummaries = new Assuredworkloads\Resource\FoldersLocationsDbFrameworkComplianceReportsDbControlComplianceSummaries(
+        $this,
+        $this->serviceName,
+        'dbControlComplianceSummaries',
+        [
+          'methods' => [
+            'list' => [
+              'path' => 'v1/{+parent}/dbControlComplianceSummaries',
+              'httpMethod' => 'GET',
+              'parameters' => [
+                'parent' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'filter' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+                'pageSize' => [
+                  'location' => 'query',
+                  'type' => 'integer',
+                ],
+                'pageToken' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+              ],
+            ],
+          ]
+        ]
+    );
+    $this->folders_locations_dbFrameworkComplianceSummaries = new Assuredworkloads\Resource\FoldersLocationsDbFrameworkComplianceSummaries(
+        $this,
+        $this->serviceName,
+        'dbFrameworkComplianceSummaries',
+        [
+          'methods' => [
+            'list' => [
+              'path' => 'v1/{+parent}/dbFrameworkComplianceSummaries',
+              'httpMethod' => 'GET',
+              'parameters' => [
+                'parent' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'filter' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+                'pageSize' => [
+                  'location' => 'query',
+                  'type' => 'integer',
+                ],
+                'pageToken' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+                'view' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+              ],
+            ],
+          ]
+        ]
+    );
     $this->organizations_locations_dbFindingSummaries = new Assuredworkloads\Resource\OrganizationsLocationsDbFindingSummaries(
         $this,
         $this->serviceName,
@@ -139,6 +247,124 @@ class Assuredworkloads extends \Google\Service
                   'type' => 'integer',
                 ],
                 'pageToken' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+              ],
+            ],
+          ]
+        ]
+    );
+    $this->organizations_locations_dbFrameworkComplianceReports = new Assuredworkloads\Resource\OrganizationsLocationsDbFrameworkComplianceReports(
+        $this,
+        $this->serviceName,
+        'dbFrameworkComplianceReports',
+        [
+          'methods' => [
+            'aggregate' => [
+              'path' => 'v1/{+name}:aggregate',
+              'httpMethod' => 'GET',
+              'parameters' => [
+                'name' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'filter' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+                'interval.endTime' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+                'interval.startTime' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+              ],
+            ],'fetch' => [
+              'path' => 'v1/{+name}:fetch',
+              'httpMethod' => 'GET',
+              'parameters' => [
+                'name' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'endTime' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+                'filter' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+              ],
+            ],
+          ]
+        ]
+    );
+    $this->organizations_locations_dbFrameworkComplianceReports_dbControlComplianceSummaries = new Assuredworkloads\Resource\OrganizationsLocationsDbFrameworkComplianceReportsDbControlComplianceSummaries(
+        $this,
+        $this->serviceName,
+        'dbControlComplianceSummaries',
+        [
+          'methods' => [
+            'list' => [
+              'path' => 'v1/{+parent}/dbControlComplianceSummaries',
+              'httpMethod' => 'GET',
+              'parameters' => [
+                'parent' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'filter' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+                'pageSize' => [
+                  'location' => 'query',
+                  'type' => 'integer',
+                ],
+                'pageToken' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+              ],
+            ],
+          ]
+        ]
+    );
+    $this->organizations_locations_dbFrameworkComplianceSummaries = new Assuredworkloads\Resource\OrganizationsLocationsDbFrameworkComplianceSummaries(
+        $this,
+        $this->serviceName,
+        'dbFrameworkComplianceSummaries',
+        [
+          'methods' => [
+            'list' => [
+              'path' => 'v1/{+parent}/dbFrameworkComplianceSummaries',
+              'httpMethod' => 'GET',
+              'parameters' => [
+                'parent' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'filter' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+                'pageSize' => [
+                  'location' => 'query',
+                  'type' => 'integer',
+                ],
+                'pageToken' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+                'view' => [
                   'location' => 'query',
                   'type' => 'string',
                 ],
@@ -398,16 +624,6 @@ class Assuredworkloads extends \Google\Service
                   'required' => true,
                 ],
               ],
-            ],'batchAcknowledgeViolations' => [
-              'path' => 'v1/{+parent}/violations:batchAcknowledgeViolations',
-              'httpMethod' => 'POST',
-              'parameters' => [
-                'parent' => [
-                  'location' => 'path',
-                  'type' => 'string',
-                  'required' => true,
-                ],
-              ],
             ],'get' => [
               'path' => 'v1/{+name}',
               'httpMethod' => 'GET',
@@ -416,6 +632,10 @@ class Assuredworkloads extends \Google\Service
                   'location' => 'path',
                   'type' => 'string',
                   'required' => true,
+                ],
+                'view' => [
+                  'location' => 'query',
+                  'type' => 'string',
                 ],
               ],
             ],'list' => [
@@ -451,6 +671,10 @@ class Assuredworkloads extends \Google\Service
                   'location' => 'query',
                   'type' => 'string',
                 ],
+                'view' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
               ],
             ],
           ]
@@ -480,6 +704,124 @@ class Assuredworkloads extends \Google\Service
                   'type' => 'integer',
                 ],
                 'pageToken' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+              ],
+            ],
+          ]
+        ]
+    );
+    $this->projects_locations_dbFrameworkComplianceReports = new Assuredworkloads\Resource\ProjectsLocationsDbFrameworkComplianceReports(
+        $this,
+        $this->serviceName,
+        'dbFrameworkComplianceReports',
+        [
+          'methods' => [
+            'aggregate' => [
+              'path' => 'v1/{+name}:aggregate',
+              'httpMethod' => 'GET',
+              'parameters' => [
+                'name' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'filter' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+                'interval.endTime' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+                'interval.startTime' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+              ],
+            ],'fetch' => [
+              'path' => 'v1/{+name}:fetch',
+              'httpMethod' => 'GET',
+              'parameters' => [
+                'name' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'endTime' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+                'filter' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+              ],
+            ],
+          ]
+        ]
+    );
+    $this->projects_locations_dbFrameworkComplianceReports_dbControlComplianceSummaries = new Assuredworkloads\Resource\ProjectsLocationsDbFrameworkComplianceReportsDbControlComplianceSummaries(
+        $this,
+        $this->serviceName,
+        'dbControlComplianceSummaries',
+        [
+          'methods' => [
+            'list' => [
+              'path' => 'v1/{+parent}/dbControlComplianceSummaries',
+              'httpMethod' => 'GET',
+              'parameters' => [
+                'parent' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'filter' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+                'pageSize' => [
+                  'location' => 'query',
+                  'type' => 'integer',
+                ],
+                'pageToken' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+              ],
+            ],
+          ]
+        ]
+    );
+    $this->projects_locations_dbFrameworkComplianceSummaries = new Assuredworkloads\Resource\ProjectsLocationsDbFrameworkComplianceSummaries(
+        $this,
+        $this->serviceName,
+        'dbFrameworkComplianceSummaries',
+        [
+          'methods' => [
+            'list' => [
+              'path' => 'v1/{+parent}/dbFrameworkComplianceSummaries',
+              'httpMethod' => 'GET',
+              'parameters' => [
+                'parent' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'filter' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+                'pageSize' => [
+                  'location' => 'query',
+                  'type' => 'integer',
+                ],
+                'pageToken' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+                'view' => [
                   'location' => 'query',
                   'type' => 'string',
                 ],

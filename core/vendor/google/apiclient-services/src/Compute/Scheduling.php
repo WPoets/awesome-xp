@@ -83,6 +83,15 @@ class Scheduling extends \Google\Collection
    */
   public $availabilityDomain;
   /**
+   * This optional flag exposes the hashed physical host ID in the
+   * ResourceStatus resource of the VM.
+   *
+   * @var bool
+   */
+  public $exposeHostTopology;
+  protected $gracefulShutdownType = SchedulingGracefulShutdown::class;
+  protected $gracefulShutdownDataType = '';
+  /**
    * Specify the time in seconds for host error detection, the value must be
    * within the range of [90, 330] with the increment of 30, if unset, the
    * default behavior of host error recovery will be used.
@@ -136,6 +145,8 @@ class Scheduling extends \Google\Collection
    * @var bool
    */
   public $preemptible;
+  protected $preemptionNoticeDurationType = Duration::class;
+  protected $preemptionNoticeDurationDataType = '';
   /**
    * Specifies the provisioning model of the instance.
    *
@@ -197,6 +208,37 @@ class Scheduling extends \Google\Collection
   public function getAvailabilityDomain()
   {
     return $this->availabilityDomain;
+  }
+  /**
+   * This optional flag exposes the hashed physical host ID in the
+   * ResourceStatus resource of the VM.
+   *
+   * @param bool $exposeHostTopology
+   */
+  public function setExposeHostTopology($exposeHostTopology)
+  {
+    $this->exposeHostTopology = $exposeHostTopology;
+  }
+  /**
+   * @return bool
+   */
+  public function getExposeHostTopology()
+  {
+    return $this->exposeHostTopology;
+  }
+  /**
+   * @param SchedulingGracefulShutdown $gracefulShutdown
+   */
+  public function setGracefulShutdown(SchedulingGracefulShutdown $gracefulShutdown)
+  {
+    $this->gracefulShutdown = $gracefulShutdown;
+  }
+  /**
+   * @return SchedulingGracefulShutdown
+   */
+  public function getGracefulShutdown()
+  {
+    return $this->gracefulShutdown;
   }
   /**
    * Specify the time in seconds for host error detection, the value must be
@@ -376,6 +418,24 @@ class Scheduling extends \Google\Collection
   public function getPreemptible()
   {
     return $this->preemptible;
+  }
+  /**
+   * Specifies the Metadata Service preemption notice duration before the GCE
+   * ACPI G2 Soft Off signal is triggered for Spot VMs only. If not specified,
+   * there will be no wait before the G2 Soft Off signal is triggered.
+   *
+   * @param Duration $preemptionNoticeDuration
+   */
+  public function setPreemptionNoticeDuration(Duration $preemptionNoticeDuration)
+  {
+    $this->preemptionNoticeDuration = $preemptionNoticeDuration;
+  }
+  /**
+   * @return Duration
+   */
+  public function getPreemptionNoticeDuration()
+  {
+    return $this->preemptionNoticeDuration;
   }
   /**
    * Specifies the provisioning model of the instance.

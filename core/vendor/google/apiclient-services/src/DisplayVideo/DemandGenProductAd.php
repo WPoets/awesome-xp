@@ -96,7 +96,9 @@ class DemandGenProductAd extends \Google\Model
    */
   public const CALL_TO_ACTION_WATCH_NOW = 'WATCH_NOW';
   /**
-   * Required. The business name shown on the ad.
+   * Optional. The business name shown on the ad. This setting is required
+   * unless a default value is set at the advertiser level. If left unset, the
+   * default value will be applied.
    *
    * @var string
    */
@@ -170,7 +172,9 @@ class DemandGenProductAd extends \Google\Model
   public $userSpecifiedTrackingUrl;
 
   /**
-   * Required. The business name shown on the ad.
+   * Optional. The business name shown on the ad. This setting is required
+   * unless a default value is set at the advertiser level. If left unset, the
+   * default value will be applied.
    *
    * @param string $businessName
    */
@@ -323,7 +327,9 @@ class DemandGenProductAd extends \Google\Model
     return $this->headline;
   }
   /**
-   * Required. The logo image used by this ad.
+   * Optional. The logo image used by this ad. This setting is required unless a
+   * default value is set at the advertiser level. If left unset, the default
+   * value will be applied.
    *
    * @param ImageAsset $logo
    */

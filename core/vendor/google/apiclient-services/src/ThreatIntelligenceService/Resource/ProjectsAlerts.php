@@ -19,6 +19,7 @@ namespace Google\Service\ThreatIntelligenceService\Resource;
 
 use Google\Service\ThreatIntelligenceService\Alert;
 use Google\Service\ThreatIntelligenceService\EnumerateAlertFacetsResponse;
+use Google\Service\ThreatIntelligenceService\GetPasswordResponse;
 use Google\Service\ThreatIntelligenceService\ListAlertsResponse;
 use Google\Service\ThreatIntelligenceService\MarkAlertAsBenignRequest;
 use Google\Service\ThreatIntelligenceService\MarkAlertAsDuplicateRequest;
@@ -137,6 +138,21 @@ class ProjectsAlerts extends \Google\Service\Resource
     $params = ['name' => $name];
     $params = array_merge($params, $optParams);
     return $this->call('get', [$params], Alert::class);
+  }
+  /**
+   * Get the decrypted password of an alert. (alerts.getPassword)
+   *
+   * @param string $name Required. Name of the alert to get password for. Format:
+   * projects/{project}/alerts/{alert}
+   * @param array $optParams Optional parameters.
+   * @return GetPasswordResponse
+   * @throws \Google\Service\Exception
+   */
+  public function getPassword($name, $optParams = [])
+  {
+    $params = ['name' => $name];
+    $params = array_merge($params, $optParams);
+    return $this->call('getPassword', [$params], GetPasswordResponse::class);
   }
   /**
    * Get a list of alerts that meet the filter criteria.

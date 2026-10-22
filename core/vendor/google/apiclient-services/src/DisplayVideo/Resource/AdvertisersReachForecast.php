@@ -36,7 +36,9 @@ class AdvertisersReachForecast extends \Google\Service\Resource
 {
   /**
    * Generates a reach forecast for a given advertiser and targeting
-   * configuration. (reachForecast.generateReachForecast)
+   * configuration. API support for generating reach forecasts and retrieving
+   * related metadata is in beta. This method is only available to allowlisted
+   * users. (reachForecast.generateReachForecast)
    *
    * @param string $advertiserId Required. The ID of the advertiser that will run
    * the planned campaign.
@@ -52,7 +54,9 @@ class AdvertisersReachForecast extends \Google\Service\Resource
     return $this->call('generateReachForecast', [$params], GenerateReachForecastResponse::class);
   }
   /**
-   * Retrieves the list of countries where reach forecasting is supported.
+   * Retrieves the list of countries where reach forecasting is supported. API
+   * support for generating reach forecasts and retrieving related metadata is in
+   * beta. This method is only available to allowlisted users.
    * (reachForecast.retrievePlannableLocations)
    *
    * @param string $advertiserId Required. The ID of the advertiser to list
@@ -68,7 +72,9 @@ class AdvertisersReachForecast extends \Google\Service\Resource
     return $this->call('retrievePlannableLocations', [$params], RetrievePlannableLocationsResponse::class);
   }
   /**
-   * Retrieves the list of products that can be planned for a location.
+   * Retrieves the list of products that can be planned for a location. API
+   * support for generating reach forecasts and retrieving related metadata is in
+   * beta. This method is only available to allowlisted users.
    * (reachForecast.retrievePlannableProducts)
    *
    * @param string $advertiserId Required. The ID of the advertiser to list
@@ -87,7 +93,9 @@ class AdvertisersReachForecast extends \Google\Service\Resource
     return $this->call('retrievePlannableProducts', [$params], RetrievePlannableProductsResponse::class);
   }
   /**
-   * Retrieves Google Audiences (User Interests) available for forecasting.
+   * Retrieves Google Audiences (User Interests) available for forecasting. API
+   * support for generating reach forecasts and retrieving related metadata is in
+   * beta. This method is only available to allowlisted users.
    * (reachForecast.retrievePlannableUserInterests)
    *
    * @param string $advertiserId Required. The ID of the advertiser to list
@@ -106,7 +114,9 @@ class AdvertisersReachForecast extends \Google\Service\Resource
     return $this->call('retrievePlannableUserInterests', [$params], RetrievePlannableUserInterestsResponse::class);
   }
   /**
-   * Retrieves first and third party user lists available for forecasting.
+   * Retrieves first and third party user lists available for forecasting. API
+   * support for generating reach forecasts and retrieving related metadata is in
+   * beta. This method is only available to allowlisted users.
    * (reachForecast.retrievePlannableUserLists)
    *
    * @param string $advertiserId Required. The ID of the advertiser to retrieve
@@ -117,13 +127,15 @@ class AdvertisersReachForecast extends \Google\Service\Resource
    * properties. Supported syntax: * Filter expressions are made up of one or more
    * restrictions. * Restrictions can be combined by `AND` or `OR` logical
    * operators. * A restriction has the form of `{field} {operator} {value}`. *
-   * The `updateTime` field must use the `GREATER THAN OR EQUAL TO (>=)` or `LESS
-   * THAN OR EQUAL TO (<=)` operators. * All other fields must use the `EQUALS
-   * (=)` operator. Supported fields: * `plannableStatus` Examples: * All
-   * plannable user lists: `plannableStatus="PLANNABLE"` The length of this field
-   * should be no more than 500 characters. Reference our [filter `LIST`
-   * requests](/display-video/api/guides/how-tos/filters) guide for more
-   * information.
+   * The `displayName` field must use the `HAS (:)` operator. * All other fields
+   * must use the `EQUALS (=)` operator. Supported fields: * `plannableStatus` *
+   * `displayName` * `userListType` * `name` Examples: * All plannable user lists:
+   * `plannableStatus="PLANNABLE"` * Plannable user lists with display name
+   * containing "Shopping": `plannableStatus="PLANNABLE" AND
+   * displayName:"Shopping"` * First party user lists:
+   * `userListType="FIRST_PARTY"` The length of this field should be no more than
+   * 500 characters. Reference our [filter `LIST` requests](/display-
+   * video/api/guides/how-tos/filters) guide for more information.
    * @opt_param int pageSize Optional. Requested page size. Must be between `1`
    * and `5000`. If unspecified will default to `5000`.
    * @opt_param string pageToken Optional. A token identifying a page of results

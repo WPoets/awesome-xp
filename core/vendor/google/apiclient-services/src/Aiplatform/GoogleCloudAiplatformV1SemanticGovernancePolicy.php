@@ -22,7 +22,7 @@ class GoogleCloudAiplatformV1SemanticGovernancePolicy extends \Google\Collection
   protected $collection_key = 'mcpTools';
   /**
    * Required. The name of the agent in Agent Registry that is affected by this
-   * policy.
+   * policy. Format: `projects/{project}/locations/{location}/agents/{agent}`
    *
    * @var string
    */
@@ -39,6 +39,8 @@ class GoogleCloudAiplatformV1SemanticGovernancePolicy extends \Google\Collection
    * @var string
    */
   public $agentIdentity;
+  protected $agentResponseCustomizationType = GoogleCloudAiplatformV1AgentResponseCustomization::class;
+  protected $agentResponseCustomizationDataType = '';
   /**
    * Output only. Timestamp when this SemanticGovernancePolicy was created.
    *
@@ -57,6 +59,18 @@ class GoogleCloudAiplatformV1SemanticGovernancePolicy extends \Google\Collection
    * @var string
    */
   public $displayName;
+  /**
+   * Optional. If true, this policy is evaluated and its result is reported, but
+   * the policy is not enforced: a violation does not block the agent's action.
+   * Use this to validate a policy against real traffic before turning
+   * enforcement on. Defaults to `false`, meaning the policy is enforced. This
+   * setting applies only to this policy. If the SemanticGovernancePolicyEngine
+   * for the project is itself in dry run, every policy behaves as dry run
+   * regardless of this field.
+   *
+   * @var bool
+   */
+  public $dryRun;
   /**
    * Optional. Used to perform consistent read-modify-write transactions. If
    * provided, the request will only succeed if the etag matches the current
@@ -88,7 +102,7 @@ class GoogleCloudAiplatformV1SemanticGovernancePolicy extends \Google\Collection
 
   /**
    * Required. The name of the agent in Agent Registry that is affected by this
-   * policy.
+   * policy. Format: `projects/{project}/locations/{location}/agents/{agent}`
    *
    * @param string $agent
    */
@@ -124,6 +138,24 @@ class GoogleCloudAiplatformV1SemanticGovernancePolicy extends \Google\Collection
   public function getAgentIdentity()
   {
     return $this->agentIdentity;
+  }
+  /**
+   * Optional. Settings for customizing the agent's response to end users when
+   * this policy is evaluated, such as messages displayed when the policy denies
+   * a request.
+   *
+   * @param GoogleCloudAiplatformV1AgentResponseCustomization $agentResponseCustomization
+   */
+  public function setAgentResponseCustomization(GoogleCloudAiplatformV1AgentResponseCustomization $agentResponseCustomization)
+  {
+    $this->agentResponseCustomization = $agentResponseCustomization;
+  }
+  /**
+   * @return GoogleCloudAiplatformV1AgentResponseCustomization
+   */
+  public function getAgentResponseCustomization()
+  {
+    return $this->agentResponseCustomization;
   }
   /**
    * Output only. Timestamp when this SemanticGovernancePolicy was created.
@@ -172,6 +204,28 @@ class GoogleCloudAiplatformV1SemanticGovernancePolicy extends \Google\Collection
   public function getDisplayName()
   {
     return $this->displayName;
+  }
+  /**
+   * Optional. If true, this policy is evaluated and its result is reported, but
+   * the policy is not enforced: a violation does not block the agent's action.
+   * Use this to validate a policy against real traffic before turning
+   * enforcement on. Defaults to `false`, meaning the policy is enforced. This
+   * setting applies only to this policy. If the SemanticGovernancePolicyEngine
+   * for the project is itself in dry run, every policy behaves as dry run
+   * regardless of this field.
+   *
+   * @param bool $dryRun
+   */
+  public function setDryRun($dryRun)
+  {
+    $this->dryRun = $dryRun;
+  }
+  /**
+   * @return bool
+   */
+  public function getDryRun()
+  {
+    return $this->dryRun;
   }
   /**
    * Optional. Used to perform consistent read-modify-write transactions. If

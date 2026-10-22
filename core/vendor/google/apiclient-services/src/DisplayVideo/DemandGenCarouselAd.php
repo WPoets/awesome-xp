@@ -21,7 +21,9 @@ class DemandGenCarouselAd extends \Google\Collection
 {
   protected $collection_key = 'cards';
   /**
-   * Required. The business name shown on the ad.
+   * Optional. The business name shown on the ad. This setting is required
+   * unless a default value is set at the advertiser level. If left unset, the
+   * default value will be applied.
    *
    * @var string
    */
@@ -77,7 +79,9 @@ class DemandGenCarouselAd extends \Google\Collection
   public $userSpecifiedTrackingUrl;
 
   /**
-   * Required. The business name shown on the ad.
+   * Optional. The business name shown on the ad. This setting is required
+   * unless a default value is set at the advertiser level. If left unset, the
+   * default value will be applied.
    *
    * @param string $businessName
    */
@@ -191,7 +195,9 @@ class DemandGenCarouselAd extends \Google\Collection
     return $this->headline;
   }
   /**
-   * Required. The logo image used by this ad.
+   * Optional. The logo image used by this ad. This setting is required unless a
+   * default value is set at the advertiser level. If left unset, the default
+   * value will be applied.
    *
    * @param ImageAsset $logo
    */

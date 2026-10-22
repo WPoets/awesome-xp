@@ -21,10 +21,14 @@ class RemoveAudienceMembersStatus extends \Google\Model
 {
   protected $compositeDataRemovalStatusType = RemoveCompositeDataStatus::class;
   protected $compositeDataRemovalStatusDataType = '';
+  protected $googleUserIdDataRemovalStatusType = RemoveGoogleUserIdDataStatus::class;
+  protected $googleUserIdDataRemovalStatusDataType = '';
   protected $mobileDataRemovalStatusType = RemoveMobileDataStatus::class;
   protected $mobileDataRemovalStatusDataType = '';
   protected $pairDataRemovalStatusType = RemovePairDataStatus::class;
   protected $pairDataRemovalStatusDataType = '';
+  protected $partnerProvidedIdDataRemovalStatusType = RemovePartnerProvidedIdDataStatus::class;
+  protected $partnerProvidedIdDataRemovalStatusDataType = '';
   protected $ppidDataRemovalStatusType = RemovePpidDataStatus::class;
   protected $ppidDataRemovalStatusDataType = '';
   protected $userDataRemovalStatusType = RemoveUserDataStatus::class;
@@ -33,8 +37,6 @@ class RemoveAudienceMembersStatus extends \Google\Model
   protected $userIdDataRemovalStatusDataType = '';
 
   /**
-   * The status of the composite data removal from the destination.
-   *
    * @param RemoveCompositeDataStatus $compositeDataRemovalStatus
    */
   public function setCompositeDataRemovalStatus(RemoveCompositeDataStatus $compositeDataRemovalStatus)
@@ -49,8 +51,20 @@ class RemoveAudienceMembersStatus extends \Google\Model
     return $this->compositeDataRemovalStatus;
   }
   /**
-   * The status of the mobile data removal from the destination.
-   *
+   * @param RemoveGoogleUserIdDataStatus $googleUserIdDataRemovalStatus
+   */
+  public function setGoogleUserIdDataRemovalStatus(RemoveGoogleUserIdDataStatus $googleUserIdDataRemovalStatus)
+  {
+    $this->googleUserIdDataRemovalStatus = $googleUserIdDataRemovalStatus;
+  }
+  /**
+   * @return RemoveGoogleUserIdDataStatus
+   */
+  public function getGoogleUserIdDataRemovalStatus()
+  {
+    return $this->googleUserIdDataRemovalStatus;
+  }
+  /**
    * @param RemoveMobileDataStatus $mobileDataRemovalStatus
    */
   public function setMobileDataRemovalStatus(RemoveMobileDataStatus $mobileDataRemovalStatus)
@@ -65,8 +79,6 @@ class RemoveAudienceMembersStatus extends \Google\Model
     return $this->mobileDataRemovalStatus;
   }
   /**
-   * The status of the pair data removal from the destination.
-   *
    * @param RemovePairDataStatus $pairDataRemovalStatus
    */
   public function setPairDataRemovalStatus(RemovePairDataStatus $pairDataRemovalStatus)
@@ -81,8 +93,20 @@ class RemoveAudienceMembersStatus extends \Google\Model
     return $this->pairDataRemovalStatus;
   }
   /**
-   * The status of the ppid data removal from the destination.
-   *
+   * @param RemovePartnerProvidedIdDataStatus $partnerProvidedIdDataRemovalStatus
+   */
+  public function setPartnerProvidedIdDataRemovalStatus(RemovePartnerProvidedIdDataStatus $partnerProvidedIdDataRemovalStatus)
+  {
+    $this->partnerProvidedIdDataRemovalStatus = $partnerProvidedIdDataRemovalStatus;
+  }
+  /**
+   * @return RemovePartnerProvidedIdDataStatus
+   */
+  public function getPartnerProvidedIdDataRemovalStatus()
+  {
+    return $this->partnerProvidedIdDataRemovalStatus;
+  }
+  /**
    * @param RemovePpidDataStatus $ppidDataRemovalStatus
    */
   public function setPpidDataRemovalStatus(RemovePpidDataStatus $ppidDataRemovalStatus)
@@ -97,8 +121,6 @@ class RemoveAudienceMembersStatus extends \Google\Model
     return $this->ppidDataRemovalStatus;
   }
   /**
-   * The status of the user data removal from the destination.
-   *
    * @param RemoveUserDataStatus $userDataRemovalStatus
    */
   public function setUserDataRemovalStatus(RemoveUserDataStatus $userDataRemovalStatus)
@@ -113,8 +135,6 @@ class RemoveAudienceMembersStatus extends \Google\Model
     return $this->userDataRemovalStatus;
   }
   /**
-   * The status of the user id data removal from the destination.
-   *
    * @param RemoveUserIdDataStatus $userIdDataRemovalStatus
    */
   public function setUserIdDataRemovalStatus(RemoveUserIdDataStatus $userIdDataRemovalStatus)

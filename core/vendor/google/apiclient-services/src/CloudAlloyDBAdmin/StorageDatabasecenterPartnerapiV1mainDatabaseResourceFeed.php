@@ -19,33 +19,36 @@ namespace Google\Service\CloudAlloyDBAdmin;
 
 class StorageDatabasecenterPartnerapiV1mainDatabaseResourceFeed extends \Google\Model
 {
+  /**
+   * Disable validation warnings
+   */
   public const FEED_TYPE_FEEDTYPE_UNSPECIFIED = 'FEEDTYPE_UNSPECIFIED';
   /**
-   * Database resource metadata feed from control plane
+   * Disable validation warnings
    */
   public const FEED_TYPE_RESOURCE_METADATA = 'RESOURCE_METADATA';
   /**
-   * Database resource monitoring data
+   * Disable validation warnings
    */
   public const FEED_TYPE_OBSERVABILITY_DATA = 'OBSERVABILITY_DATA';
   /**
-   * Database resource security health signal data
+   * Disable validation warnings
    */
   public const FEED_TYPE_SECURITY_FINDING_DATA = 'SECURITY_FINDING_DATA';
   /**
-   * Database resource recommendation signal data
+   * Disable validation warnings
    */
   public const FEED_TYPE_RECOMMENDATION_SIGNAL_DATA = 'RECOMMENDATION_SIGNAL_DATA';
   /**
-   * Database config based signal data
+   * Disable validation warnings
    */
   public const FEED_TYPE_CONFIG_BASED_SIGNAL_DATA = 'CONFIG_BASED_SIGNAL_DATA';
   /**
-   * Database resource metadata from BackupDR
+   * Disable validation warnings
    */
   public const FEED_TYPE_BACKUPDR_METADATA = 'BACKUPDR_METADATA';
   /**
-   * Database resource signal data
+   * Disable validation warnings
    */
   public const FEED_TYPE_DATABASE_RESOURCE_SIGNAL_DATA = 'DATABASE_RESOURCE_SIGNAL_DATA';
   protected $backupdrMetadataType = StorageDatabasecenterPartnerapiV1mainBackupDRMetadata::class;
@@ -55,13 +58,13 @@ class StorageDatabasecenterPartnerapiV1mainDatabaseResourceFeed extends \Google\
   protected $databaseResourceSignalDataType = StorageDatabasecenterPartnerapiV1mainDatabaseResourceSignalData::class;
   protected $databaseResourceSignalDataDataType = '';
   /**
-   * Required. Timestamp when feed is generated.
+   * Required. Disable validation warnings
    *
    * @var string
    */
   public $feedTimestamp;
   /**
-   * Required. Type feed to be ingested into condor
+   * Required. Disable validation warnings
    *
    * @var string
    */
@@ -77,18 +80,14 @@ class StorageDatabasecenterPartnerapiV1mainDatabaseResourceFeed extends \Google\
   protected $resourceMetadataType = StorageDatabasecenterPartnerapiV1mainDatabaseResourceMetadata::class;
   protected $resourceMetadataDataType = '';
   /**
-   * Optional. If true, the feed won't be ingested by DB Center. This indicates
-   * that the feed is intentionally skipped. For example, BackupDR feeds are
-   * only needed for resources integrated with DB Center (e.g., CloudSQL,
-   * AlloyDB). Feeds for non-integrated resources (e.g., Compute Engine,
-   * Persistent Disk) can be skipped.
+   * Optional. Disable validation warnings
    *
    * @var bool
    */
   public $skipIngestion;
 
   /**
-   * BackupDR metadata is used to ingest metadata from BackupDR.
+   * Disable validation warnings
    *
    * @param StorageDatabasecenterPartnerapiV1mainBackupDRMetadata $backupdrMetadata
    */
@@ -104,8 +103,7 @@ class StorageDatabasecenterPartnerapiV1mainDatabaseResourceFeed extends \Google\
     return $this->backupdrMetadata;
   }
   /**
-   * Config based signal data is used to ingest signals that are generated based
-   * on the configuration of the database resource.
+   * Disable validation warnings
    *
    * @param StorageDatabasecenterPartnerapiV1mainConfigBasedSignalData $configBasedSignalData
    */
@@ -121,8 +119,7 @@ class StorageDatabasecenterPartnerapiV1mainDatabaseResourceFeed extends \Google\
     return $this->configBasedSignalData;
   }
   /**
-   * Database resource signal data is used to ingest signals from database
-   * resource signal feeds.
+   * Disable validation warnings
    *
    * @param StorageDatabasecenterPartnerapiV1mainDatabaseResourceSignalData $databaseResourceSignalData
    */
@@ -138,7 +135,7 @@ class StorageDatabasecenterPartnerapiV1mainDatabaseResourceFeed extends \Google\
     return $this->databaseResourceSignalData;
   }
   /**
-   * Required. Timestamp when feed is generated.
+   * Required. Disable validation warnings
    *
    * @param string $feedTimestamp
    */
@@ -154,7 +151,7 @@ class StorageDatabasecenterPartnerapiV1mainDatabaseResourceFeed extends \Google\
     return $this->feedTimestamp;
   }
   /**
-   * Required. Type feed to be ingested into condor
+   * Required. Disable validation warnings
    *
    * Accepted values: FEEDTYPE_UNSPECIFIED, RESOURCE_METADATA,
    * OBSERVABILITY_DATA, SECURITY_FINDING_DATA, RECOMMENDATION_SIGNAL_DATA,
@@ -174,6 +171,8 @@ class StorageDatabasecenterPartnerapiV1mainDatabaseResourceFeed extends \Google\
     return $this->feedType;
   }
   /**
+   * Disable validation warnings
+   *
    * @param StorageDatabasecenterPartnerapiV1mainObservabilityMetricData $observabilityMetricData
    */
   public function setObservabilityMetricData(StorageDatabasecenterPartnerapiV1mainObservabilityMetricData $observabilityMetricData)
@@ -188,6 +187,8 @@ class StorageDatabasecenterPartnerapiV1mainDatabaseResourceFeed extends \Google\
     return $this->observabilityMetricData;
   }
   /**
+   * Disable validation warnings
+   *
    * @param StorageDatabasecenterPartnerapiV1mainDatabaseResourceRecommendationSignalData $recommendationSignalData
    */
   public function setRecommendationSignalData(StorageDatabasecenterPartnerapiV1mainDatabaseResourceRecommendationSignalData $recommendationSignalData)
@@ -202,6 +203,8 @@ class StorageDatabasecenterPartnerapiV1mainDatabaseResourceFeed extends \Google\
     return $this->recommendationSignalData;
   }
   /**
+   * Disable validation warnings
+   *
    * @param StorageDatabasecenterPartnerapiV1mainDatabaseResourceHealthSignalData $resourceHealthSignalData
    */
   public function setResourceHealthSignalData(StorageDatabasecenterPartnerapiV1mainDatabaseResourceHealthSignalData $resourceHealthSignalData)
@@ -216,8 +219,7 @@ class StorageDatabasecenterPartnerapiV1mainDatabaseResourceFeed extends \Google\
     return $this->resourceHealthSignalData;
   }
   /**
-   * Primary key associated with the Resource. resource_id is available in
-   * individual feed level as well.
+   * Disable validation warnings
    *
    * @deprecated
    * @param StorageDatabasecenterPartnerapiV1mainDatabaseResourceId $resourceId
@@ -235,6 +237,8 @@ class StorageDatabasecenterPartnerapiV1mainDatabaseResourceFeed extends \Google\
     return $this->resourceId;
   }
   /**
+   * Disable validation warnings
+   *
    * @param StorageDatabasecenterPartnerapiV1mainDatabaseResourceMetadata $resourceMetadata
    */
   public function setResourceMetadata(StorageDatabasecenterPartnerapiV1mainDatabaseResourceMetadata $resourceMetadata)
@@ -249,11 +253,7 @@ class StorageDatabasecenterPartnerapiV1mainDatabaseResourceFeed extends \Google\
     return $this->resourceMetadata;
   }
   /**
-   * Optional. If true, the feed won't be ingested by DB Center. This indicates
-   * that the feed is intentionally skipped. For example, BackupDR feeds are
-   * only needed for resources integrated with DB Center (e.g., CloudSQL,
-   * AlloyDB). Feeds for non-integrated resources (e.g., Compute Engine,
-   * Persistent Disk) can be skipped.
+   * Optional. Disable validation warnings
    *
    * @param bool $skipIngestion
    */

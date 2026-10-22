@@ -26,9 +26,9 @@ class QueryDatabaseResourceGroupsRequest extends \Google\Collection
    * * product.engine * product.version * location * labels * resource_category
    * * machine_config.cpu_count * machine_config.memory_size_bytes *
    * machine_config.shard_count * resource_name * tags *
-   * backupdr_config.backupdr_managed * edition The expression is a list of zero
-   * or more restrictions combined via logical operators `AND` and `OR`. When
-   * `AND` and `OR` are both used in the expression, parentheses must be
+   * backupdr_config.backupdr_managed * edition * modes The expression is a list
+   * of zero or more restrictions combined via logical operators `AND` and `OR`.
+   * When `AND` and `OR` are both used in the expression, parentheses must be
    * appropriately used to group the combinations. Example: `location="us-
    * east1"` Example: `container="projects/123" OR container="projects/456"`
    * Example: `(container="projects/123" OR container="projects/456") AND
@@ -44,7 +44,7 @@ class QueryDatabaseResourceGroupsRequest extends \Google\Collection
    * product.engine * product.version * container * issue_count *
    * machine_config.vcpu_count * machine_config.memory_size_bytes *
    * machine_config.shard_count * resource_name * issue_severity * signal_type *
-   * location * resource_type * instance_type * edition *
+   * location * resource_type * instance_type * edition * modes *
    * metrics.p99_cpu_utilization * metrics.p95_cpu_utilization *
    * metrics.current_storage_used_bytes * metrics.node_count *
    * metrics.processing_unit_count * metrics.current_memory_used_bytes *
@@ -90,6 +90,8 @@ class QueryDatabaseResourceGroupsRequest extends \Google\Collection
   public $parent;
   protected $signalFiltersType = SignalFilter::class;
   protected $signalFiltersDataType = 'array';
+  protected $signalProductsFiltersType = SignalProductsFilters::class;
+  protected $signalProductsFiltersDataType = 'array';
   protected $signalTypeGroupsType = SignalTypeGroup::class;
   protected $signalTypeGroupsDataType = 'array';
 
@@ -99,9 +101,9 @@ class QueryDatabaseResourceGroupsRequest extends \Google\Collection
    * * product.engine * product.version * location * labels * resource_category
    * * machine_config.cpu_count * machine_config.memory_size_bytes *
    * machine_config.shard_count * resource_name * tags *
-   * backupdr_config.backupdr_managed * edition The expression is a list of zero
-   * or more restrictions combined via logical operators `AND` and `OR`. When
-   * `AND` and `OR` are both used in the expression, parentheses must be
+   * backupdr_config.backupdr_managed * edition * modes The expression is a list
+   * of zero or more restrictions combined via logical operators `AND` and `OR`.
+   * When `AND` and `OR` are both used in the expression, parentheses must be
    * appropriately used to group the combinations. Example: `location="us-
    * east1"` Example: `container="projects/123" OR container="projects/456"`
    * Example: `(container="projects/123" OR container="projects/456") AND
@@ -127,7 +129,7 @@ class QueryDatabaseResourceGroupsRequest extends \Google\Collection
    * product.engine * product.version * container * issue_count *
    * machine_config.vcpu_count * machine_config.memory_size_bytes *
    * machine_config.shard_count * resource_name * issue_severity * signal_type *
-   * location * resource_type * instance_type * edition *
+   * location * resource_type * instance_type * edition * modes *
    * metrics.p99_cpu_utilization * metrics.p95_cpu_utilization *
    * metrics.current_storage_used_bytes * metrics.node_count *
    * metrics.processing_unit_count * metrics.current_memory_used_bytes *
@@ -227,6 +229,23 @@ class QueryDatabaseResourceGroupsRequest extends \Google\Collection
   public function getSignalFilters()
   {
     return $this->signalFilters;
+  }
+  /**
+   * Optional. Filters based on signal and product. The filter list will be ORed
+   * across pairs and ANDed within a signal and products pair.
+   *
+   * @param SignalProductsFilters[] $signalProductsFilters
+   */
+  public function setSignalProductsFilters($signalProductsFilters)
+  {
+    $this->signalProductsFilters = $signalProductsFilters;
+  }
+  /**
+   * @return SignalProductsFilters[]
+   */
+  public function getSignalProductsFilters()
+  {
+    return $this->signalProductsFilters;
   }
   /**
    * Optional. Groups of signal types that are requested.

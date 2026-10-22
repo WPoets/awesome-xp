@@ -17,15 +17,42 @@
 
 namespace Google\Service\Aiplatform;
 
-class GoogleCloudAiplatformV1SandboxEnvironmentTemplateEgressControlConfig extends \Google\Model
+class GoogleCloudAiplatformV1SandboxEnvironmentTemplateEgressControlConfig extends \Google\Collection
 {
+  protected $collection_key = 'dnsPeeringConfigs';
+  protected $dnsPeeringConfigsType = GoogleCloudAiplatformV1SandboxEnvironmentTemplateEgressControlConfigDnsPeeringConfig::class;
+  protected $dnsPeeringConfigsDataType = 'array';
   /**
    * Optional. Whether to allow internet access.
    *
    * @var bool
    */
   public $internetAccess;
+  /**
+   * Optional. The name of the customer VPC `NetworkAttachment` used to draw a
+   * PSC interface IP into the customer VPC for sandbox egress.
+   *
+   * @var string
+   */
+  public $networkAttachment;
 
+  /**
+   * Optional. DNS peering configurations that allow sandbox egress to resolve
+   * customer-internal domains via the customer VPC.
+   *
+   * @param GoogleCloudAiplatformV1SandboxEnvironmentTemplateEgressControlConfigDnsPeeringConfig[] $dnsPeeringConfigs
+   */
+  public function setDnsPeeringConfigs($dnsPeeringConfigs)
+  {
+    $this->dnsPeeringConfigs = $dnsPeeringConfigs;
+  }
+  /**
+   * @return GoogleCloudAiplatformV1SandboxEnvironmentTemplateEgressControlConfigDnsPeeringConfig[]
+   */
+  public function getDnsPeeringConfigs()
+  {
+    return $this->dnsPeeringConfigs;
+  }
   /**
    * Optional. Whether to allow internet access.
    *
@@ -41,6 +68,23 @@ class GoogleCloudAiplatformV1SandboxEnvironmentTemplateEgressControlConfig exten
   public function getInternetAccess()
   {
     return $this->internetAccess;
+  }
+  /**
+   * Optional. The name of the customer VPC `NetworkAttachment` used to draw a
+   * PSC interface IP into the customer VPC for sandbox egress.
+   *
+   * @param string $networkAttachment
+   */
+  public function setNetworkAttachment($networkAttachment)
+  {
+    $this->networkAttachment = $networkAttachment;
+  }
+  /**
+   * @return string
+   */
+  public function getNetworkAttachment()
+  {
+    return $this->networkAttachment;
   }
 }
 

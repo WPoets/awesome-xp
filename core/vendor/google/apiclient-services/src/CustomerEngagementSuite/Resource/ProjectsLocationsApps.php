@@ -21,7 +21,10 @@ use Google\Service\CustomerEngagementSuite\App;
 use Google\Service\CustomerEngagementSuite\ExecuteToolRequest;
 use Google\Service\CustomerEngagementSuite\ExecuteToolResponse;
 use Google\Service\CustomerEngagementSuite\ExportAppRequest;
+use Google\Service\CustomerEngagementSuite\GenerateOnboardingSuggestionsRequest;
+use Google\Service\CustomerEngagementSuite\GenerateOnboardingSuggestionsResponse;
 use Google\Service\CustomerEngagementSuite\ImportAppRequest;
+use Google\Service\CustomerEngagementSuite\LfA2aV1AgentCard;
 use Google\Service\CustomerEngagementSuite\ListAppsResponse;
 use Google\Service\CustomerEngagementSuite\Operation;
 use Google\Service\CustomerEngagementSuite\RetrieveToolSchemaRequest;
@@ -109,6 +112,26 @@ class ProjectsLocationsApps extends \Google\Service\Resource
     return $this->call('exportApp', [$params], Operation::class);
   }
   /**
+   * Generates personalized onboarding suggestions for the AI assistant zero
+   * state: classifies the requesting user (new / exploring / returning) from
+   * their assistant-session history in the app and returns suggestion chips
+   * (resume a session, continue work, or start something new) to render before
+   * any message is sent. (apps.generateOnboardingSuggestions)
+   *
+   * @param string $name Required. The app whose zero state is being rendered.
+   * Format: `projects/{project}/locations/{location}/apps/{app}`
+   * @param GenerateOnboardingSuggestionsRequest $postBody
+   * @param array $optParams Optional parameters.
+   * @return GenerateOnboardingSuggestionsResponse
+   * @throws \Google\Service\Exception
+   */
+  public function generateOnboardingSuggestions($name, GenerateOnboardingSuggestionsRequest $postBody, $optParams = [])
+  {
+    $params = ['name' => $name, 'postBody' => $postBody];
+    $params = array_merge($params, $optParams);
+    return $this->call('generateOnboardingSuggestions', [$params], GenerateOnboardingSuggestionsResponse::class);
+  }
+  /**
    * Gets details of the specified app. (apps.get)
    *
    * @param string $name Required. The resource name of the app to retrieve.
@@ -121,6 +144,23 @@ class ProjectsLocationsApps extends \Google\Service\Resource
     $params = ['name' => $name];
     $params = array_merge($params, $optParams);
     return $this->call('get', [$params], App::class);
+  }
+  /**
+   * Gets the extended agent card for the authenticated agent.
+   * (apps.getExtendedAgentCard)
+   *
+   * @param string $tenant Optional. Opaque routing identifier. Must match the
+   * `tenant` value from the selected `AgentInterface` in the Agent Card when that
+   * field is set.
+   * @param array $optParams Optional parameters.
+   * @return LfA2aV1AgentCard
+   * @throws \Google\Service\Exception
+   */
+  public function getExtendedAgentCard($tenant, $optParams = [])
+  {
+    $params = ['tenant' => $tenant];
+    $params = array_merge($params, $optParams);
+    return $this->call('getExtendedAgentCard', [$params], LfA2aV1AgentCard::class);
   }
   /**
    * Imports the specified app. (apps.importApp)

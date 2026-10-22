@@ -19,6 +19,7 @@ namespace Google\Service\WebContentPublisher\Resource;
 
 use Google\Service\WebContentPublisher\ListPublicationsResponse;
 use Google\Service\WebContentPublisher\Publication;
+use Google\Service\WebContentPublisher\SurveyQuestionCatalog;
 
 /**
  * The "publications" collection of methods.
@@ -66,10 +67,31 @@ class OrganizationsPublications extends \Google\Service\Resource
     return $this->call('get', [$params], Publication::class);
   }
   /**
+   * Retrieves the catalog of predefined survey questions and answer choices
+   * available for a publication. (publications.getSurveyQuestionCatalog)
+   *
+   * @param string $name Required. The resource name of the survey question
+   * catalog to retrieve. Format: `organizations/{organization}/publications/{publ
+   * ication}/surveyQuestionCatalog`.
+   * @param array $optParams Optional parameters.
+   *
+   * @opt_param string languageCode Optional. The BCP-47 language code (e.g., "en-
+   * US", "es-419") to override the publication's configured primary language.
+   * @return SurveyQuestionCatalog
+   * @throws \Google\Service\Exception
+   */
+  public function getSurveyQuestionCatalog($name, $optParams = [])
+  {
+    $params = ['name' => $name];
+    $params = array_merge($params, $optParams);
+    return $this->call('getSurveyQuestionCatalog', [$params], SurveyQuestionCatalog::class);
+  }
+  /**
    * Lists publications. (publications.listOrganizationsPublications)
    *
    * @param string $parent Required. The parent organization whose publications to
-   * list. Format: `organizations/{organization}`.
+   * list, or "organizations/-" for all organizations a user has access to.
+   * Format: `organizations/{organization}`.
    * @param array $optParams Optional parameters.
    *
    * @opt_param string filter Optional. A filter expression to filter the

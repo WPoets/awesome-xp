@@ -67,8 +67,6 @@ class TransferRun extends \Google\Model
   public $endTime;
   protected $errorStatusType = Status::class;
   protected $errorStatusDataType = '';
-  protected $metadataDestinationType = MetadataDestination::class;
-  protected $metadataDestinationDataType = '';
   /**
    * Identifier. The resource name of the transfer run. Transfer run names have
    * the form `projects/{project_id}/locations/{location}/transferConfigs/{confi
@@ -85,6 +83,8 @@ class TransferRun extends \Google\Model
    * @var string
    */
   public $notificationPubsubTopic;
+  protected $parameterConfigType = ParameterConfig::class;
+  protected $parameterConfigDataType = '';
   /**
    * Output only. Parameters specific to each data source. For more information
    * see the bq tab in the 'Setting up a data transfer' section for each data
@@ -228,22 +228,6 @@ class TransferRun extends \Google\Model
     return $this->errorStatus;
   }
   /**
-   * Output only. The metadata destination of the transfer run.
-   *
-   * @param MetadataDestination $metadataDestination
-   */
-  public function setMetadataDestination(MetadataDestination $metadataDestination)
-  {
-    $this->metadataDestination = $metadataDestination;
-  }
-  /**
-   * @return MetadataDestination
-   */
-  public function getMetadataDestination()
-  {
-    return $this->metadataDestination;
-  }
-  /**
    * Identifier. The resource name of the transfer run. Transfer run names have
    * the form `projects/{project_id}/locations/{location}/transferConfigs/{confi
    * g_id}/runs/{run_id}`. The name is ignored when creating a transfer run.
@@ -278,6 +262,22 @@ class TransferRun extends \Google\Model
   public function getNotificationPubsubTopic()
   {
     return $this->notificationPubsubTopic;
+  }
+  /**
+   * Output only. The parameter config of the transfer run.
+   *
+   * @param ParameterConfig $parameterConfig
+   */
+  public function setParameterConfig(ParameterConfig $parameterConfig)
+  {
+    $this->parameterConfig = $parameterConfig;
+  }
+  /**
+   * @return ParameterConfig
+   */
+  public function getParameterConfig()
+  {
+    return $this->parameterConfig;
   }
   /**
    * Output only. Parameters specific to each data source. For more information

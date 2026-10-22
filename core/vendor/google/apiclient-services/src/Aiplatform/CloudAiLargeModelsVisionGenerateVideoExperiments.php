@@ -25,18 +25,36 @@ class CloudAiLargeModelsVisionGenerateVideoExperiments extends \Google\Collectio
   public const CODEC_VIDEO_CODEC_DNXHR = 'VIDEO_CODEC_DNXHR';
   protected $collection_key = 'conditioningFrames';
   /**
+   * If false, when a non-subscription customer tries to call an experimental
+   * feature, the request will be rejected. This field has no effect for
+   * subscription customers.
+   *
+   * @var bool
+   */
+  public $allowMeteredBilling;
+  /**
    * Optional. If true, anchors the last frame in video generation by generating
    * a custom border mask.
    *
    * @var bool
    */
   public $anchorLastFrame;
+  protected $audioControlType = CloudAiLargeModelsVisionGenerateVideoExperimentsAudioControlConfig::class;
+  protected $audioControlDataType = '';
+  /**
+   * CFG scale for video-transform, perf-generation, a2v, video-textures models.
+   *
+   * @var float
+   */
+  public $cfgScale;
   /**
    * Optional. Video codec to use for output.
    *
    * @var string
    */
   public $codec;
+  protected $colorAlignmentType = CloudAiLargeModelsVisionGenerateVideoExperimentsColorAlignmentConfig::class;
+  protected $colorAlignmentDataType = '';
   protected $conditioningFramesType = CloudAiLargeModelsVisionGenerateVideoExperimentsConditioningFrame::class;
   protected $conditioningFramesDataType = 'array';
   /**
@@ -46,8 +64,23 @@ class CloudAiLargeModelsVisionGenerateVideoExperiments extends \Google\Collectio
    * @var array[]
    */
   public $customParameters;
+  /**
+   * Optional. Colorspace to be used for all EXR inputs.
+   *
+   * @var string
+   */
+  public $exrColorSpaceOverride;
   protected $humanPoseType = CloudAiLargeModelsVisionHumanPose::class;
   protected $humanPoseDataType = '';
+  protected $loraConfigType = CloudAiLargeModelsVisionGenerateVideoExperimentsLoraConfig::class;
+  protected $loraConfigDataType = '';
+  /**
+   * Optional. BNS override for model backend. Enabled only for local and
+   * autopush environments by the flag `lvm_allow_model_zoo_bns_override`.
+   *
+   * @var string
+   */
+  public $modelEndpointOverride;
   /**
    * Model names, as defined in: xyz
    *
@@ -60,6 +93,8 @@ class CloudAiLargeModelsVisionGenerateVideoExperiments extends \Google\Collectio
    * @var int
    */
   public $numDiffusionSteps;
+  protected $omniRewriterType = CloudAiLargeModelsVisionGenerateVideoExperimentsOmniRewriterConfig::class;
+  protected $omniRewriterDataType = '';
   /**
    * The original REST API request JSON sent by the user, in the
    * instances/parameters format. Preserved for saving alongside output
@@ -69,6 +104,10 @@ class CloudAiLargeModelsVisionGenerateVideoExperiments extends \Google\Collectio
    * @var string
    */
   public $originalRequestJson;
+  protected $outpaintConfigType = CloudAiLargeModelsVisionGenerateVideoExperimentsOutpaintConfig::class;
+  protected $outpaintConfigDataType = '';
+  protected $proEditType = CloudAiLargeModelsVisionGenerateVideoExperimentsProEditConfig::class;
+  protected $proEditDataType = '';
   protected $promptInputsType = CloudAiLargeModelsVisionPromptInputs::class;
   protected $promptInputsDataType = '';
   /**
@@ -85,6 +124,10 @@ class CloudAiLargeModelsVisionGenerateVideoExperiments extends \Google\Collectio
   protected $schedulingConfigDataType = '';
   protected $seamlessType = CloudAiLargeModelsVisionSeamless::class;
   protected $seamlessDataType = '';
+  protected $spatialAlignmentType = CloudAiLargeModelsVisionGenerateVideoExperimentsSpatialAlignmentConfig::class;
+  protected $spatialAlignmentDataType = '';
+  protected $superResConfigType = CloudAiLargeModelsVisionGenerateVideoExperimentsSuperResConfig::class;
+  protected $superResConfigDataType = '';
   /**
    * If true (default), truncate input videos that exceed the model's maximum
    * frame count by applying a frame_selection_config to __video_file__ inputs.
@@ -93,20 +136,42 @@ class CloudAiLargeModelsVisionGenerateVideoExperiments extends \Google\Collectio
    * @var bool
    */
   public $truncateInputVideo;
+  protected $videoTransformType = CloudAiLargeModelsVisionGenerateVideoExperimentsVideoTransform::class;
+  protected $videoTransformDataType = '';
   /**
    * GCS URI of the grayscale video mask for Differential Diffusion. Maps to
    * sdedit_video_tmax_scale_map
    *
+   * @deprecated
    * @var string
    */
   public $videoTransformMaskGcsUri;
   /**
    * SDEdit: Scalar noise level (0.0 to 1.0) Maps to sdedit_tmax
    *
+   * @deprecated
    * @var float
    */
   public $videoTransformStrength;
 
+  /**
+   * If false, when a non-subscription customer tries to call an experimental
+   * feature, the request will be rejected. This field has no effect for
+   * subscription customers.
+   *
+   * @param bool $allowMeteredBilling
+   */
+  public function setAllowMeteredBilling($allowMeteredBilling)
+  {
+    $this->allowMeteredBilling = $allowMeteredBilling;
+  }
+  /**
+   * @return bool
+   */
+  public function getAllowMeteredBilling()
+  {
+    return $this->allowMeteredBilling;
+  }
   /**
    * Optional. If true, anchors the last frame in video generation by generating
    * a custom border mask.
@@ -123,6 +188,38 @@ class CloudAiLargeModelsVisionGenerateVideoExperiments extends \Google\Collectio
   public function getAnchorLastFrame()
   {
     return $this->anchorLastFrame;
+  }
+  /**
+   * Optional. Audio control configuration.
+   *
+   * @param CloudAiLargeModelsVisionGenerateVideoExperimentsAudioControlConfig $audioControl
+   */
+  public function setAudioControl(CloudAiLargeModelsVisionGenerateVideoExperimentsAudioControlConfig $audioControl)
+  {
+    $this->audioControl = $audioControl;
+  }
+  /**
+   * @return CloudAiLargeModelsVisionGenerateVideoExperimentsAudioControlConfig
+   */
+  public function getAudioControl()
+  {
+    return $this->audioControl;
+  }
+  /**
+   * CFG scale for video-transform, perf-generation, a2v, video-textures models.
+   *
+   * @param float $cfgScale
+   */
+  public function setCfgScale($cfgScale)
+  {
+    $this->cfgScale = $cfgScale;
+  }
+  /**
+   * @return float
+   */
+  public function getCfgScale()
+  {
+    return $this->cfgScale;
   }
   /**
    * Optional. Video codec to use for output.
@@ -142,6 +239,22 @@ class CloudAiLargeModelsVisionGenerateVideoExperiments extends \Google\Collectio
   public function getCodec()
   {
     return $this->codec;
+  }
+  /**
+   * Optional. Color alignment configuration.
+   *
+   * @param CloudAiLargeModelsVisionGenerateVideoExperimentsColorAlignmentConfig $colorAlignment
+   */
+  public function setColorAlignment(CloudAiLargeModelsVisionGenerateVideoExperimentsColorAlignmentConfig $colorAlignment)
+  {
+    $this->colorAlignment = $colorAlignment;
+  }
+  /**
+   * @return CloudAiLargeModelsVisionGenerateVideoExperimentsColorAlignmentConfig
+   */
+  public function getColorAlignment()
+  {
+    return $this->colorAlignment;
   }
   /**
    * Conditioning frames for veo experimental models ONLY, not to be confused
@@ -178,6 +291,22 @@ class CloudAiLargeModelsVisionGenerateVideoExperiments extends \Google\Collectio
     return $this->customParameters;
   }
   /**
+   * Optional. Colorspace to be used for all EXR inputs.
+   *
+   * @param string $exrColorSpaceOverride
+   */
+  public function setExrColorSpaceOverride($exrColorSpaceOverride)
+  {
+    $this->exrColorSpaceOverride = $exrColorSpaceOverride;
+  }
+  /**
+   * @return string
+   */
+  public function getExrColorSpaceOverride()
+  {
+    return $this->exrColorSpaceOverride;
+  }
+  /**
    * Human pose parameters for Pose Control
    *
    * @param CloudAiLargeModelsVisionHumanPose $humanPose
@@ -192,6 +321,39 @@ class CloudAiLargeModelsVisionGenerateVideoExperiments extends \Google\Collectio
   public function getHumanPose()
   {
     return $this->humanPose;
+  }
+  /**
+   * Optional. LoRA configuration for Omni editing/stylization models.
+   *
+   * @param CloudAiLargeModelsVisionGenerateVideoExperimentsLoraConfig $loraConfig
+   */
+  public function setLoraConfig(CloudAiLargeModelsVisionGenerateVideoExperimentsLoraConfig $loraConfig)
+  {
+    $this->loraConfig = $loraConfig;
+  }
+  /**
+   * @return CloudAiLargeModelsVisionGenerateVideoExperimentsLoraConfig
+   */
+  public function getLoraConfig()
+  {
+    return $this->loraConfig;
+  }
+  /**
+   * Optional. BNS override for model backend. Enabled only for local and
+   * autopush environments by the flag `lvm_allow_model_zoo_bns_override`.
+   *
+   * @param string $modelEndpointOverride
+   */
+  public function setModelEndpointOverride($modelEndpointOverride)
+  {
+    $this->modelEndpointOverride = $modelEndpointOverride;
+  }
+  /**
+   * @return string
+   */
+  public function getModelEndpointOverride()
+  {
+    return $this->modelEndpointOverride;
   }
   /**
    * Model names, as defined in: xyz
@@ -226,6 +388,22 @@ class CloudAiLargeModelsVisionGenerateVideoExperiments extends \Google\Collectio
     return $this->numDiffusionSteps;
   }
   /**
+   * Optional. Omni Rewriter configuration.
+   *
+   * @param CloudAiLargeModelsVisionGenerateVideoExperimentsOmniRewriterConfig $omniRewriter
+   */
+  public function setOmniRewriter(CloudAiLargeModelsVisionGenerateVideoExperimentsOmniRewriterConfig $omniRewriter)
+  {
+    $this->omniRewriter = $omniRewriter;
+  }
+  /**
+   * @return CloudAiLargeModelsVisionGenerateVideoExperimentsOmniRewriterConfig
+   */
+  public function getOmniRewriter()
+  {
+    return $this->omniRewriter;
+  }
+  /**
    * The original REST API request JSON sent by the user, in the
    * instances/parameters format. Preserved for saving alongside output
    * artifacts so users can reproduce their requests. This field is populated by
@@ -243,6 +421,38 @@ class CloudAiLargeModelsVisionGenerateVideoExperiments extends \Google\Collectio
   public function getOriginalRequestJson()
   {
     return $this->originalRequestJson;
+  }
+  /**
+   * Config for Outpainting task.
+   *
+   * @param CloudAiLargeModelsVisionGenerateVideoExperimentsOutpaintConfig $outpaintConfig
+   */
+  public function setOutpaintConfig(CloudAiLargeModelsVisionGenerateVideoExperimentsOutpaintConfig $outpaintConfig)
+  {
+    $this->outpaintConfig = $outpaintConfig;
+  }
+  /**
+   * @return CloudAiLargeModelsVisionGenerateVideoExperimentsOutpaintConfig
+   */
+  public function getOutpaintConfig()
+  {
+    return $this->outpaintConfig;
+  }
+  /**
+   * Configuration for Pro Edit.
+   *
+   * @param CloudAiLargeModelsVisionGenerateVideoExperimentsProEditConfig $proEdit
+   */
+  public function setProEdit(CloudAiLargeModelsVisionGenerateVideoExperimentsProEditConfig $proEdit)
+  {
+    $this->proEdit = $proEdit;
+  }
+  /**
+   * @return CloudAiLargeModelsVisionGenerateVideoExperimentsProEditConfig
+   */
+  public function getProEdit()
+  {
+    return $this->proEdit;
   }
   /**
    * Prompt chunks for "ProModel" prompting. If set, the prompt will not be
@@ -315,6 +525,38 @@ class CloudAiLargeModelsVisionGenerateVideoExperiments extends \Google\Collectio
     return $this->seamless;
   }
   /**
+   * Optional. Spatial alignment configuration.
+   *
+   * @param CloudAiLargeModelsVisionGenerateVideoExperimentsSpatialAlignmentConfig $spatialAlignment
+   */
+  public function setSpatialAlignment(CloudAiLargeModelsVisionGenerateVideoExperimentsSpatialAlignmentConfig $spatialAlignment)
+  {
+    $this->spatialAlignment = $spatialAlignment;
+  }
+  /**
+   * @return CloudAiLargeModelsVisionGenerateVideoExperimentsSpatialAlignmentConfig
+   */
+  public function getSpatialAlignment()
+  {
+    return $this->spatialAlignment;
+  }
+  /**
+   * Config for the Pro Super Res upsampling task.
+   *
+   * @param CloudAiLargeModelsVisionGenerateVideoExperimentsSuperResConfig $superResConfig
+   */
+  public function setSuperResConfig(CloudAiLargeModelsVisionGenerateVideoExperimentsSuperResConfig $superResConfig)
+  {
+    $this->superResConfig = $superResConfig;
+  }
+  /**
+   * @return CloudAiLargeModelsVisionGenerateVideoExperimentsSuperResConfig
+   */
+  public function getSuperResConfig()
+  {
+    return $this->superResConfig;
+  }
+  /**
    * If true (default), truncate input videos that exceed the model's maximum
    * frame count by applying a frame_selection_config to __video_file__ inputs.
    * Set to false to preserve the existing fail-fast behavior.
@@ -333,9 +575,26 @@ class CloudAiLargeModelsVisionGenerateVideoExperiments extends \Google\Collectio
     return $this->truncateInputVideo;
   }
   /**
+   * Video transform configuration for omni editing models.
+   *
+   * @param CloudAiLargeModelsVisionGenerateVideoExperimentsVideoTransform $videoTransform
+   */
+  public function setVideoTransform(CloudAiLargeModelsVisionGenerateVideoExperimentsVideoTransform $videoTransform)
+  {
+    $this->videoTransform = $videoTransform;
+  }
+  /**
+   * @return CloudAiLargeModelsVisionGenerateVideoExperimentsVideoTransform
+   */
+  public function getVideoTransform()
+  {
+    return $this->videoTransform;
+  }
+  /**
    * GCS URI of the grayscale video mask for Differential Diffusion. Maps to
    * sdedit_video_tmax_scale_map
    *
+   * @deprecated
    * @param string $videoTransformMaskGcsUri
    */
   public function setVideoTransformMaskGcsUri($videoTransformMaskGcsUri)
@@ -343,6 +602,7 @@ class CloudAiLargeModelsVisionGenerateVideoExperiments extends \Google\Collectio
     $this->videoTransformMaskGcsUri = $videoTransformMaskGcsUri;
   }
   /**
+   * @deprecated
    * @return string
    */
   public function getVideoTransformMaskGcsUri()
@@ -352,6 +612,7 @@ class CloudAiLargeModelsVisionGenerateVideoExperiments extends \Google\Collectio
   /**
    * SDEdit: Scalar noise level (0.0 to 1.0) Maps to sdedit_tmax
    *
+   * @deprecated
    * @param float $videoTransformStrength
    */
   public function setVideoTransformStrength($videoTransformStrength)
@@ -359,6 +620,7 @@ class CloudAiLargeModelsVisionGenerateVideoExperiments extends \Google\Collectio
     $this->videoTransformStrength = $videoTransformStrength;
   }
   /**
+   * @deprecated
    * @return float
    */
   public function getVideoTransformStrength()

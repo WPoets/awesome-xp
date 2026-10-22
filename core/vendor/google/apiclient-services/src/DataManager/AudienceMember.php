@@ -25,15 +25,17 @@ class AudienceMember extends \Google\Collection
   protected $consentType = Consent::class;
   protected $consentDataType = '';
   /**
-   * Optional. Defines which Destination to send the audience member to.
-   *
    * @var string[]
    */
   public $destinationReferences;
+  protected $googleUserIdDataType = GoogleUserIdData::class;
+  protected $googleUserIdDataDataType = '';
   protected $mobileDataType = MobileData::class;
   protected $mobileDataDataType = '';
   protected $pairDataType = PairData::class;
   protected $pairDataDataType = '';
+  protected $partnerProvidedIdDataType = PartnerProvidedIdData::class;
+  protected $partnerProvidedIdDataDataType = '';
   protected $ppidDataType = PpidData::class;
   protected $ppidDataDataType = '';
   protected $userDataType = UserData::class;
@@ -42,8 +44,6 @@ class AudienceMember extends \Google\Collection
   protected $userIdDataDataType = '';
 
   /**
-   * Group of multiple identifier types.
-   *
    * @param CompositeData $compositeData
    */
   public function setCompositeData(CompositeData $compositeData)
@@ -58,8 +58,6 @@ class AudienceMember extends \Google\Collection
     return $this->compositeData;
   }
   /**
-   * Optional. The consent setting for the user.
-   *
    * @param Consent $consent
    */
   public function setConsent(Consent $consent)
@@ -74,8 +72,6 @@ class AudienceMember extends \Google\Collection
     return $this->consent;
   }
   /**
-   * Optional. Defines which Destination to send the audience member to.
-   *
    * @param string[] $destinationReferences
    */
   public function setDestinationReferences($destinationReferences)
@@ -90,8 +86,20 @@ class AudienceMember extends \Google\Collection
     return $this->destinationReferences;
   }
   /**
-   * Data identifying the user's mobile devices.
-   *
+   * @param GoogleUserIdData $googleUserIdData
+   */
+  public function setGoogleUserIdData(GoogleUserIdData $googleUserIdData)
+  {
+    $this->googleUserIdData = $googleUserIdData;
+  }
+  /**
+   * @return GoogleUserIdData
+   */
+  public function getGoogleUserIdData()
+  {
+    return $this->googleUserIdData;
+  }
+  /**
    * @param MobileData $mobileData
    */
   public function setMobileData(MobileData $mobileData)
@@ -106,10 +114,6 @@ class AudienceMember extends \Google\Collection
     return $this->mobileData;
   }
   /**
-   * [Publisher Advertiser Identity Reconciliation (PAIR)
-   * IDs](//support.google.com/admanager/answer/15067908). This feature is only
-   * available to data partners.
-   *
    * @param PairData $pairData
    */
   public function setPairData(PairData $pairData)
@@ -124,9 +128,20 @@ class AudienceMember extends \Google\Collection
     return $this->pairData;
   }
   /**
-   * Data related to publisher provided identifiers. This feature is only
-   * available to data partners.
-   *
+   * @param PartnerProvidedIdData $partnerProvidedIdData
+   */
+  public function setPartnerProvidedIdData(PartnerProvidedIdData $partnerProvidedIdData)
+  {
+    $this->partnerProvidedIdData = $partnerProvidedIdData;
+  }
+  /**
+   * @return PartnerProvidedIdData
+   */
+  public function getPartnerProvidedIdData()
+  {
+    return $this->partnerProvidedIdData;
+  }
+  /**
    * @param PpidData $ppidData
    */
   public function setPpidData(PpidData $ppidData)
@@ -141,8 +156,6 @@ class AudienceMember extends \Google\Collection
     return $this->ppidData;
   }
   /**
-   * User-provided data that identifies the user.
-   *
    * @param UserData $userData
    */
   public function setUserData(UserData $userData)
@@ -157,9 +170,6 @@ class AudienceMember extends \Google\Collection
     return $this->userData;
   }
   /**
-   * Data related to unique identifiers for a user, as defined by the
-   * advertiser.
-   *
    * @param UserIdData $userIdData
    */
   public function setUserIdData(UserIdData $userIdData)

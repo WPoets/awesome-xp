@@ -19,6 +19,8 @@ namespace Google\Service\ThreatIntelligenceService;
 
 class ConfigurationDetail extends \Google\Model
 {
+  protected $customThreatScenarioType = CustomThreatScenarioConfig::class;
+  protected $customThreatScenarioDataType = '';
   protected $customerProfileType = CustomerProfileConfig::class;
   protected $customerProfileDataType = '';
   /**
@@ -28,9 +30,29 @@ class ConfigurationDetail extends \Google\Model
    * @var string
    */
   public $detailType;
+  protected $domainConfigurationType = DomainConfiguration::class;
+  protected $domainConfigurationDataType = '';
+  protected $domainMonitoringType = DomainMonitoringConfig::class;
+  protected $domainMonitoringDataType = '';
   protected $technologyWatchlistType = TechnologyWatchListConfig::class;
   protected $technologyWatchlistDataType = '';
 
+  /**
+   * Custom Threat Scenario detail config.
+   *
+   * @param CustomThreatScenarioConfig $customThreatScenario
+   */
+  public function setCustomThreatScenario(CustomThreatScenarioConfig $customThreatScenario)
+  {
+    $this->customThreatScenario = $customThreatScenario;
+  }
+  /**
+   * @return CustomThreatScenarioConfig
+   */
+  public function getCustomThreatScenario()
+  {
+    return $this->customThreatScenario;
+  }
   /**
    * Customer Profile detail config.
    *
@@ -63,6 +85,38 @@ class ConfigurationDetail extends \Google\Model
   public function getDetailType()
   {
     return $this->detailType;
+  }
+  /**
+   * Domain Configuration detail config.
+   *
+   * @param DomainConfiguration $domainConfiguration
+   */
+  public function setDomainConfiguration(DomainConfiguration $domainConfiguration)
+  {
+    $this->domainConfiguration = $domainConfiguration;
+  }
+  /**
+   * @return DomainConfiguration
+   */
+  public function getDomainConfiguration()
+  {
+    return $this->domainConfiguration;
+  }
+  /**
+   * Domain Monitoring detail config.
+   *
+   * @param DomainMonitoringConfig $domainMonitoring
+   */
+  public function setDomainMonitoring(DomainMonitoringConfig $domainMonitoring)
+  {
+    $this->domainMonitoring = $domainMonitoring;
+  }
+  /**
+   * @return DomainMonitoringConfig
+   */
+  public function getDomainMonitoring()
+  {
+    return $this->domainMonitoring;
   }
   /**
    * Technology Watchlist detail config.

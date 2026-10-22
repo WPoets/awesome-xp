@@ -20,7 +20,13 @@ namespace Google\Service\SaaSServiceManagement;
 class Saas extends \Google\Collection
 {
   /**
-   * State type is unspecified.
+   * State is unspecified.
+   */
+  public const STATE_STATE_UNSPECIFIED = 'STATE_UNSPECIFIED';
+  /**
+   * State type is unspecified. Deprecated: Use STATE_UNSPECIFIED instead.
+   *
+   * @deprecated
    */
   public const STATE_STATE_TYPE_UNSPECIFIED = 'STATE_TYPE_UNSPECIFIED';
   /**
@@ -47,6 +53,15 @@ class Saas extends \Google\Collection
    * @var string[]
    */
   public $annotations;
+  protected $applicationTemplateType = CompositeRef::class;
+  protected $applicationTemplateDataType = '';
+  /**
+   * Output only. Name of repository in Artifact Registry for system-generated
+   * Blueprints, eg. Blueprints of imported ApplicationTemplates.
+   *
+   * @var string
+   */
+  public $blueprintRepo;
   protected $conditionsType = SaasCondition::class;
   protected $conditionsDataType = 'array';
   /**
@@ -126,6 +141,43 @@ class Saas extends \Google\Collection
   public function getAnnotations()
   {
     return $this->annotations;
+  }
+  /**
+   * Optional. Reference to composite ApplicationTemplate. When specified, the
+   * template components will be imported into their equivalent UnitKind,
+   * Release and Blueprint resources. Deleted references will not delete
+   * imported resources. Should only be specified on source regions, and be
+   * unspecified on replica regions.
+   *
+   * @param CompositeRef $applicationTemplate
+   */
+  public function setApplicationTemplate(CompositeRef $applicationTemplate)
+  {
+    $this->applicationTemplate = $applicationTemplate;
+  }
+  /**
+   * @return CompositeRef
+   */
+  public function getApplicationTemplate()
+  {
+    return $this->applicationTemplate;
+  }
+  /**
+   * Output only. Name of repository in Artifact Registry for system-generated
+   * Blueprints, eg. Blueprints of imported ApplicationTemplates.
+   *
+   * @param string $blueprintRepo
+   */
+  public function setBlueprintRepo($blueprintRepo)
+  {
+    $this->blueprintRepo = $blueprintRepo;
+  }
+  /**
+   * @return string
+   */
+  public function getBlueprintRepo()
+  {
+    return $this->blueprintRepo;
   }
   /**
    * Output only. A set of conditions which indicate the various conditions this
@@ -251,8 +303,8 @@ class Saas extends \Google\Collection
    * Output only. State of the Saas. It is always in STATE_ACTIVE state if the
    * application_template is empty.
    *
-   * Accepted values: STATE_TYPE_UNSPECIFIED, STATE_ACTIVE, STATE_RUNNING,
-   * STATE_FAILED
+   * Accepted values: STATE_UNSPECIFIED, STATE_TYPE_UNSPECIFIED, STATE_ACTIVE,
+   * STATE_RUNNING, STATE_FAILED
    *
    * @param self::STATE_* $state
    */

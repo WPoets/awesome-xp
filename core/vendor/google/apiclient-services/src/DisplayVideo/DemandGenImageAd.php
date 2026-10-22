@@ -21,7 +21,9 @@ class DemandGenImageAd extends \Google\Collection
 {
   protected $collection_key = 'squareMarketingImages';
   /**
-   * Required. The business name shown on the ad.
+   * Optional. The business name shown on the ad. This setting is required
+   * unless a default value is set at the advertiser level. If left unset, the
+   * default value will be applied.
    *
    * @var string
    */
@@ -94,7 +96,9 @@ class DemandGenImageAd extends \Google\Collection
   public $userSpecifiedTrackingUrl;
 
   /**
-   * Required. The business name shown on the ad.
+   * Optional. The business name shown on the ad. This setting is required
+   * unless a default value is set at the advertiser level. If left unset, the
+   * default value will be applied.
    *
    * @param string $businessName
    */
@@ -225,7 +229,9 @@ class DemandGenImageAd extends \Google\Collection
     return $this->headlines;
   }
   /**
-   * The list of logo images shown on the ad.
+   * The list of logo images shown on the ad. This setting is required unless a
+   * default value is set at the advertiser level. If left unset, the default
+   * value will be applied.
    *
    * @param ImageAsset[] $logoImages
    */

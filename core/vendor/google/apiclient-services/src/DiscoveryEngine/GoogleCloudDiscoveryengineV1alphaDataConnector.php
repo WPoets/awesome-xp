@@ -282,20 +282,10 @@ class GoogleCloudDiscoveryengineV1alphaDataConnector extends \Google\Collection
   protected $dataProtectionPolicyType = GoogleCloudDiscoveryengineV1alphaDataProtectionPolicy::class;
   protected $dataProtectionPolicyDataType = '';
   /**
-   * Required. The identifier for the data source. This is a partial list of
-   * supported connectors. Please refer to the [documentation](https://docs.clou
-   * d.google.com/gemini/enterprise/docs/connectors/introduction-to-connectors-
-   * and-data-stores) for the full list of connectors. Supported first-party
-   * connectors include: * `gcs` * `bigquery` * `gcp_fhir` * `google_mail` *
-   * `google_drive` * `google_calendar` * `google_chat` Supported third-party
-   * connectors include: Generally available (GA) connectors: * `onedrive` *
-   * `outlook` * `confluence` * `jira` * `servicenow` * `sharepoint` Preview
-   * connectors: * `asana` * `azure_active_directory` * `box` * `canva` *
-   * `confluence_server` * `custom_connector` * `docusign` * `dropbox` *
-   * `dynamics365` * `github` * `gitlab` * `hubspot` * `jira_server` * `linear`
-   * * `native_cloud_identity` * `notion` * `okta` * `pagerduty` * `peoplesoft`
-   * * `salesforce` * `shopify` * `slack` * `snowflake` * `teams` * `trello` *
-   * `workday` * `zendesk`
+   * Required. The identifier for the data source. For the full, up-to-date list
+   * of supported connectors and their values, see [Connect a third-party data s
+   * ource](https://docs.cloud.google.com/gemini/enterprise/docs/connectors/conn
+   * ect-third-party-data-source#sources-by-launch-stage).
    *
    * @var string
    */
@@ -394,6 +384,8 @@ class GoogleCloudDiscoveryengineV1alphaDataConnector extends \Google\Collection
    * @var string
    */
   public $latestPauseTime;
+  protected $metadataType = GoogleCloudDiscoveryengineV1alphaDataConnectorConnectorMetadata::class;
+  protected $metadataDataType = '';
   /**
    * Identifier. The full resource name of the Data Connector. Format:
    * `projects/locations/collections/dataConnector`.
@@ -403,6 +395,16 @@ class GoogleCloudDiscoveryengineV1alphaDataConnector extends \Google\Collection
   public $name;
   protected $nextSyncTimeType = GoogleTypeDateTime::class;
   protected $nextSyncTimeDataType = '';
+  /**
+   * Output only. The static IP addresses used by this connector for OAuth APIs
+   * (e.g. end user authentication). These are surfaced separately from
+   * `static_ip_addresses` so that customers can apply granular firewall
+   * settings for OAuth endpoints. Only populated for connectors that have
+   * static IP enabled and are used for actions and/or federated search.
+   *
+   * @var string[]
+   */
+  public $oauthStaticIpAddresses;
   /**
    * Required data connector parameters in structured json format.
    *
@@ -469,6 +471,23 @@ class GoogleCloudDiscoveryengineV1alphaDataConnector extends \Google\Collection
    * @var string
    */
   public $syncMode;
+  /**
+   * Optional. Immutable. User-facing, version-independent label for this
+   * connector. May be shared by multiple connectors under the same (project,
+   * location, collection, data_source); tag-based lookup returns the one with
+   * the greatest create_time. Optional at Create time. If the caller omits
+   * `tag`, the server auto-derives one from the collection_id (falling back to
+   * data_source, else a time-based `t-` sentinel). The auto-derived tag is
+   * subject to the same immutability guarantee as a caller-supplied one, so
+   * callers who care about the exact tag value should provide it explicitly
+   * rather than relying on the server default. Agent Designer resolves
+   * connectors via (data_source, tag) when set, falling back to the legacy
+   * resource-name lookup when unset, so connectors created before the tag-write
+   * launch continue to work without a backfill.
+   *
+   * @var string
+   */
+  public $tag;
   /**
    * Output only. Timestamp the DataConnector was last updated.
    *
@@ -725,20 +744,10 @@ class GoogleCloudDiscoveryengineV1alphaDataConnector extends \Google\Collection
     return $this->dataProtectionPolicy;
   }
   /**
-   * Required. The identifier for the data source. This is a partial list of
-   * supported connectors. Please refer to the [documentation](https://docs.clou
-   * d.google.com/gemini/enterprise/docs/connectors/introduction-to-connectors-
-   * and-data-stores) for the full list of connectors. Supported first-party
-   * connectors include: * `gcs` * `bigquery` * `gcp_fhir` * `google_mail` *
-   * `google_drive` * `google_calendar` * `google_chat` Supported third-party
-   * connectors include: Generally available (GA) connectors: * `onedrive` *
-   * `outlook` * `confluence` * `jira` * `servicenow` * `sharepoint` Preview
-   * connectors: * `asana` * `azure_active_directory` * `box` * `canva` *
-   * `confluence_server` * `custom_connector` * `docusign` * `dropbox` *
-   * `dynamics365` * `github` * `gitlab` * `hubspot` * `jira_server` * `linear`
-   * * `native_cloud_identity` * `notion` * `okta` * `pagerduty` * `peoplesoft`
-   * * `salesforce` * `shopify` * `slack` * `snowflake` * `teams` * `trello` *
-   * `workday` * `zendesk`
+   * Required. The identifier for the data source. For the full, up-to-date list
+   * of supported connectors and their values, see [Connect a third-party data s
+   * ource](https://docs.cloud.google.com/gemini/enterprise/docs/connectors/conn
+   * ect-third-party-data-source#sources-by-launch-stage).
    *
    * @param string $dataSource
    */
@@ -1042,6 +1051,23 @@ class GoogleCloudDiscoveryengineV1alphaDataConnector extends \Google\Collection
     return $this->latestPauseTime;
   }
   /**
+   * Optional. User-facing metadata for the connector. Populated from the
+   * connector's generated metadata / registry `ConnectorSource`.
+   *
+   * @param GoogleCloudDiscoveryengineV1alphaDataConnectorConnectorMetadata $metadata
+   */
+  public function setMetadata(GoogleCloudDiscoveryengineV1alphaDataConnectorConnectorMetadata $metadata)
+  {
+    $this->metadata = $metadata;
+  }
+  /**
+   * @return GoogleCloudDiscoveryengineV1alphaDataConnectorConnectorMetadata
+   */
+  public function getMetadata()
+  {
+    return $this->metadata;
+  }
+  /**
    * Identifier. The full resource name of the Data Connector. Format:
    * `projects/locations/collections/dataConnector`.
    *
@@ -1078,6 +1104,26 @@ class GoogleCloudDiscoveryengineV1alphaDataConnector extends \Google\Collection
   public function getNextSyncTime()
   {
     return $this->nextSyncTime;
+  }
+  /**
+   * Output only. The static IP addresses used by this connector for OAuth APIs
+   * (e.g. end user authentication). These are surfaced separately from
+   * `static_ip_addresses` so that customers can apply granular firewall
+   * settings for OAuth endpoints. Only populated for connectors that have
+   * static IP enabled and are used for actions and/or federated search.
+   *
+   * @param string[] $oauthStaticIpAddresses
+   */
+  public function setOauthStaticIpAddresses($oauthStaticIpAddresses)
+  {
+    $this->oauthStaticIpAddresses = $oauthStaticIpAddresses;
+  }
+  /**
+   * @return string[]
+   */
+  public function getOauthStaticIpAddresses()
+  {
+    return $this->oauthStaticIpAddresses;
   }
   /**
    * Required data connector parameters in structured json format.
@@ -1256,6 +1302,33 @@ class GoogleCloudDiscoveryengineV1alphaDataConnector extends \Google\Collection
   public function getSyncMode()
   {
     return $this->syncMode;
+  }
+  /**
+   * Optional. Immutable. User-facing, version-independent label for this
+   * connector. May be shared by multiple connectors under the same (project,
+   * location, collection, data_source); tag-based lookup returns the one with
+   * the greatest create_time. Optional at Create time. If the caller omits
+   * `tag`, the server auto-derives one from the collection_id (falling back to
+   * data_source, else a time-based `t-` sentinel). The auto-derived tag is
+   * subject to the same immutability guarantee as a caller-supplied one, so
+   * callers who care about the exact tag value should provide it explicitly
+   * rather than relying on the server default. Agent Designer resolves
+   * connectors via (data_source, tag) when set, falling back to the legacy
+   * resource-name lookup when unset, so connectors created before the tag-write
+   * launch continue to work without a backfill.
+   *
+   * @param string $tag
+   */
+  public function setTag($tag)
+  {
+    $this->tag = $tag;
+  }
+  /**
+   * @return string
+   */
+  public function getTag()
+  {
+    return $this->tag;
   }
   /**
    * Output only. Timestamp the DataConnector was last updated.

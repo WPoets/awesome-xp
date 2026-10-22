@@ -46,6 +46,8 @@ class Sleep extends \Google\Collection
   protected $metadataDataType = '';
   protected $outOfBedSegmentsType = OutOfBedSegment::class;
   protected $outOfBedSegmentsDataType = 'array';
+  protected $shortAwakeningsType = SleepStage::class;
+  protected $shortAwakeningsDataType = 'array';
   protected $stagesType = SleepStage::class;
   protected $stagesDataType = 'array';
   protected $summaryType = SleepSummary::class;
@@ -96,7 +98,8 @@ class Sleep extends \Google\Collection
     return $this->interval;
   }
   /**
-   * Optional. Sleep metadata: processing, main, manually edited, stages status.
+   * Optional. Sleep metadata: `processed`, `main_sleep`, `manually_edited`, and
+   * `stages_status`.
    *
    * @param SleepMetadata $metadata
    */
@@ -126,6 +129,23 @@ class Sleep extends \Google\Collection
   public function getOutOfBedSegments()
   {
     return $this->outOfBedSegments;
+  }
+  /**
+   * Output only. List of short awake segments (under a set threshold) that are
+   * part of the sleep session. These can overlap with sleep stages.
+   *
+   * @param SleepStage[] $shortAwakenings
+   */
+  public function setShortAwakenings($shortAwakenings)
+  {
+    $this->shortAwakenings = $shortAwakenings;
+  }
+  /**
+   * @return SleepStage[]
+   */
+  public function getShortAwakenings()
+  {
+    return $this->shortAwakenings;
   }
   /**
    * Optional. List of non-overlapping contiguous sleep stage segments that

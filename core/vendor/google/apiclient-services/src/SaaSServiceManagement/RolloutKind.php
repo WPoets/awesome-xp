@@ -93,7 +93,7 @@ class RolloutKind extends \Google\Model
    */
   public $uid;
   /**
-   * Optional. CEL(https://github.com/google/cel-spec) formatted filter string
+   * Optional. [CEL](https://github.com/google/cel-spec) formatted filter string
    * against Unit. The filter will be applied to determine the eligible unit
    * population. This filter can only reduce, but not expand the scope of the
    * rollout.
@@ -102,7 +102,7 @@ class RolloutKind extends \Google\Model
    */
   public $unitFilter;
   /**
-   * Required. Immutable. UnitKind that this rollout kind corresponds to.
+   * Optional. Immutable. UnitKind that this rollout kind corresponds to.
    * Rollouts stemming from this rollout kind will target the units of this unit
    * kind. In other words, this defines the population of target units to be
    * upgraded by rollouts.
@@ -277,7 +277,7 @@ class RolloutKind extends \Google\Model
     return $this->uid;
   }
   /**
-   * Optional. CEL(https://github.com/google/cel-spec) formatted filter string
+   * Optional. [CEL](https://github.com/google/cel-spec) formatted filter string
    * against Unit. The filter will be applied to determine the eligible unit
    * population. This filter can only reduce, but not expand the scope of the
    * rollout.
@@ -296,7 +296,7 @@ class RolloutKind extends \Google\Model
     return $this->unitFilter;
   }
   /**
-   * Required. Immutable. UnitKind that this rollout kind corresponds to.
+   * Optional. Immutable. UnitKind that this rollout kind corresponds to.
    * Rollouts stemming from this rollout kind will target the units of this unit
    * kind. In other words, this defines the population of target units to be
    * upgraded by rollouts.

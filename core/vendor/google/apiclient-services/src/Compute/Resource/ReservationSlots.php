@@ -33,6 +33,8 @@ use Google\Service\Compute\ReservationSlotsListResponse;
  */
 class ReservationSlots extends \Google\Service\Resource
 {
+  protected $apiVersion = '2026-09-01';
+
   /**
    * Retrieves information about the specified reservation slot.
    * (reservationSlots.get)
@@ -54,6 +56,30 @@ class ReservationSlots extends \Google\Service\Resource
     $params = ['project' => $project, 'zone' => $zone, 'parentName' => $parentName, 'reservationSlot' => $reservationSlot];
     $params = array_merge($params, $optParams);
     return $this->call('get', [$params], ReservationSlotsGetResponse::class);
+  }
+  /**
+   * Get health info on a reservation slot. (reservationSlots.getHealth)
+   *
+   * @param string $project Project ID for this request.
+   * @param string $zone Name of the zone for this request. Zone name should
+   * conform to RFC1035.
+   * @param string $parentName The name of the parent reservation, parent block
+   * and parent sub-block. In the format of reservations/{reservation_name}/reserv
+   * ationBlocks/{reservation_block_name}/reservationSubBlocks/{reservation_sub_bl
+   * ock_name}
+   * @param string $reservationSlot The name of the reservation slot. Name should
+   * conform to RFC1035 or be a resource ID.
+   * @param array $optParams Optional parameters.
+   *
+   * @opt_param string requestId An optional request ID to identify requests.
+   * @return Operation
+   * @throws \Google\Service\Exception
+   */
+  public function getHealth($project, $zone, $parentName, $reservationSlot, $optParams = [])
+  {
+    $params = ['project' => $project, 'zone' => $zone, 'parentName' => $parentName, 'reservationSlot' => $reservationSlot];
+    $params = array_merge($params, $optParams);
+    return $this->call('getHealth', [$params], Operation::class);
   }
   /**
    * Allows customers to get SBOM versions of a reservation slot.
@@ -165,13 +191,6 @@ class ReservationSlots extends \Google\Service\Resource
    * @opt_param string pageToken Specifies a page token to use. Set `pageToken` to
    * the `nextPageToken` returned by a previous list request to get the next page
    * of results.
-   * @opt_param bool returnPartialSuccess Opt-in for partial success behavior
-   * which provides partial results in case of failure. The default value is
-   * false.
-   *
-   * For example, when partial success behavior is enabled, aggregatedList for a
-   * single zone scope either returns all resources in the zone or no resources,
-   * with an error code.
    * @return ReservationSlotsListResponse
    * @throws \Google\Service\Exception
    */

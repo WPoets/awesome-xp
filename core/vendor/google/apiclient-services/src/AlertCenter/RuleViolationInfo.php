@@ -28,6 +28,10 @@ class RuleViolationInfo extends \Google\Collection
    */
   public const AGENT_TYPE_STUDIO = 'STUDIO';
   /**
+   * Work Agent agent type.
+   */
+  public const AGENT_TYPE_WORK_AGENT = 'WORK_AGENT';
+  /**
    * Data source is unspecified.
    */
   public const DATA_SOURCE_DATA_SOURCE_UNSPECIFIED = 'DATA_SOURCE_UNSPECIFIED';
@@ -112,6 +116,14 @@ class RuleViolationInfo extends \Google\Collection
    * Agent execution.
    */
   public const TRIGGER_AGENT_EXECUTION = 'AGENT_EXECUTION';
+  /**
+   * Text copied from Chrome.
+   */
+  public const TRIGGER_CHROME_DATA_COPIED = 'CHROME_DATA_COPIED';
+  /**
+   * Network request from Chrome.
+   */
+  public const TRIGGER_CHROME_NETWORK_REQUEST = 'CHROME_NETWORK_REQUEST';
   protected $collection_key = 'triggeredActionTypes';
   /**
    * Optional. Agent type that triggered the rule.
@@ -179,7 +191,7 @@ class RuleViolationInfo extends \Google\Collection
   /**
    * Optional. Agent type that triggered the rule.
    *
-   * Accepted values: AGENT_TYPE_UNSPECIFIED, STUDIO
+   * Accepted values: AGENT_TYPE_UNSPECIFIED, STUDIO, WORK_AGENT
    *
    * @param self::AGENT_TYPE_* $agentType
    */
@@ -321,7 +333,8 @@ class RuleViolationInfo extends \Google\Collection
    * Accepted values: TRIGGER_UNSPECIFIED, DRIVE_SHARE, MAIL_BEING_SENT,
    * CHROME_FILE_DOWNLOAD, CHROME_FILE_UPLOAD, CHROME_WEB_CONTENT_UPLOAD,
    * CHAT_MESSAGE_SENT, CHAT_ATTACHMENT_UPLOADED, CHROME_PAGE_PRINT,
-   * CHROME_URL_VISITED, CHROMEOS_FILE_TRANSFER, GEMINI_ACCESS, AGENT_EXECUTION
+   * CHROME_URL_VISITED, CHROMEOS_FILE_TRANSFER, GEMINI_ACCESS, AGENT_EXECUTION,
+   * CHROME_DATA_COPIED, CHROME_NETWORK_REQUEST
    *
    * @param self::TRIGGER_* $trigger
    */

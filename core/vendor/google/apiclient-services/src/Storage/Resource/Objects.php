@@ -20,6 +20,7 @@ namespace Google\Service\Storage\Resource;
 use Google\Service\Storage\BulkRestoreObjectsRequest;
 use Google\Service\Storage\ComposeRequest;
 use Google\Service\Storage\GoogleLongrunningOperation;
+use Google\Service\Storage\ObjectFullContext;
 use Google\Service\Storage\Objects as ObjectsModel;
 use Google\Service\Storage\Policy;
 use Google\Service\Storage\RewriteResponse;
@@ -66,8 +67,13 @@ class Objects extends \Google\Service\Resource
    *
    * @opt_param string destinationPredefinedAcl Apply a predefined set of access
    * controls to the destination object.
-   * @opt_param string dropContextGroups Specifies which groups of Object Contexts
-   * from the source object(s) should be dropped from the destination object.
+   * @opt_param string dropContextGroups Specifies which object context groups to
+   * drop from the source object(s) during a compose operation. The accepted value
+   * is 'custom'. Destination contexts behave as follows: - When request body
+   * contexts are provided, they override all source contexts. - When no request
+   * body contexts are provided, source contexts are preserved unless
+   * 'dropContextGroups' contains 'custom', in which case all contexts are
+   * dropped.
    * @opt_param string ifGenerationMatch Makes the operation conditional on
    * whether the object's current generation matches the given value. Setting to 0
    * makes the operation succeed only if there are no live versions of the object.
@@ -529,8 +535,13 @@ class Objects extends \Google\Service\Resource
    * object metadata's kms_key_name value, if any.
    * @opt_param string destinationPredefinedAcl Apply a predefined set of access
    * controls to the destination object.
-   * @opt_param string dropContextGroups Specifies which groups of Object Contexts
-   * from the source object should be dropped from the destination object.
+   * @opt_param string dropContextGroups Specifies which object context groups to
+   * drop from the source object during a copy operation. The accepted value is
+   * 'custom'. Destination contexts behave as follows: - When request body
+   * contexts are provided, they override all source contexts. - When no request
+   * body contexts are provided, source contexts are preserved unless
+   * 'dropContextGroups' contains 'custom', in which case all contexts are
+   * dropped.
    * @opt_param string ifGenerationMatch Makes the operation conditional on
    * whether the object's current generation matches the given value. Setting to 0
    * makes the operation succeed only if there are no live versions of the object.
@@ -669,6 +680,30 @@ class Objects extends \Google\Service\Resource
     $params = ['bucket' => $bucket, 'object' => $object, 'postBody' => $postBody];
     $params = array_merge($params, $optParams);
     return $this->call('update', [$params], StorageObject::class);
+  }
+  /**
+   * Retrieves a specific object context with its extended data for a given
+   * object. (objects.viewFullContext)
+   *
+   * @param string $bucket Name of the bucket in which the object resides.
+   * @param string $object Name of the object. For information about how to URL
+   * encode object names to be path safe, see [Encoding URI Path
+   * Parts](https://cloud.google.com/storage/docs/request-endpoints#encoding).
+   * @param string $contextKey Key identifying the object context to retrieve.
+   * @param array $optParams Optional parameters.
+   *
+   * @opt_param string generation If present, selects a specific revision of this
+   * object (as opposed to the latest version, the default).
+   * @opt_param string userProject The project to be billed for this request.
+   * Required for Requester Pays buckets.
+   * @return ObjectFullContext
+   * @throws \Google\Service\Exception
+   */
+  public function viewFullContext($bucket, $object, $contextKey, $optParams = [])
+  {
+    $params = ['bucket' => $bucket, 'object' => $object, 'contextKey' => $contextKey];
+    $params = array_merge($params, $optParams);
+    return $this->call('viewFullContext', [$params], ObjectFullContext::class);
   }
 }
 

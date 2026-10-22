@@ -51,10 +51,14 @@ class GoogleChromeManagementVersionsV1ConnectorConfig extends \Google\Model
    * Content analysis connector.
    */
   public const TYPE_CONTENT_ANALYSIS = 'CONTENT_ANALYSIS';
+  /**
+   * Enterprise proxy connector.
+   */
+  public const TYPE_ENTERPRISE_PROXY = 'ENTERPRISE_PROXY';
   protected $detailsType = GoogleChromeManagementVersionsV1ConnectorConfigDetails::class;
   protected $detailsDataType = '';
   /**
-   * Required. The display name of the config.
+   * Required. The display name of the config. Must be at most 100 characters.
    *
    * @var string
    */
@@ -92,7 +96,7 @@ class GoogleChromeManagementVersionsV1ConnectorConfig extends \Google\Model
     return $this->details;
   }
   /**
-   * Required. The display name of the config.
+   * Required. The display name of the config. Must be at most 100 characters.
    *
    * @param string $displayName
    */
@@ -145,7 +149,7 @@ class GoogleChromeManagementVersionsV1ConnectorConfig extends \Google\Model
    *
    * Accepted values: CONNECTOR_TYPE_UNSPECIFIED, REPORTING, DEVICE_TRUST, XDR,
    * IDENTITY_BASED_ENROLLMENT, CERTIFICATE_AUTHORITY, ROOT_STORE,
-   * CONTENT_ANALYSIS
+   * CONTENT_ANALYSIS, ENTERPRISE_PROXY
    *
    * @param self::TYPE_* $type
    */

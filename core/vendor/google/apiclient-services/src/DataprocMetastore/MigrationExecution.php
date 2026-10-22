@@ -73,8 +73,16 @@ class MigrationExecution extends \Google\Model
    * The migration execution is being deleted.
    */
   public const STATE_DELETING = 'DELETING';
-  protected $cloudSqlMigrationConfigType = CloudSQLMigrationConfig::class;
-  protected $cloudSqlMigrationConfigDataType = '';
+  /**
+   * The migration execution has been rolled back. This occurs when
+   * CancelMigration is invoked after the migration has completed and the
+   * metastore service is in the PROXY state, returning the service to the
+   * ACTIVE state. This enables rollback support when the customer wants to
+   * resume using DPMS after a successful migration.
+   */
+  public const STATE_ROLLED_BACK = 'ROLLED_BACK';
+  protected $biglakeMetastoreMigrationConfigType = BigLakeMetastoreMigrationConfig::class;
+  protected $biglakeMetastoreMigrationConfigDataType = '';
   /**
    * Output only. The time when the migration execution was started.
    *
@@ -119,25 +127,21 @@ class MigrationExecution extends \Google\Model
   public $stateMessage;
 
   /**
-   * Deprecated: Migrations to Dataproc Metastore are no longer supported. Use
-   * BigLake Metastore migration instead. Configuration information specific to
-   * migrating from self-managed hive metastore on Google Cloud using Cloud SQL
-   * as the backend database to Dataproc Metastore.
+   * Configuration information specific to migrating from Dataproc Metastore to
+   * BigLake Metastore.
    *
-   * @deprecated
-   * @param CloudSQLMigrationConfig $cloudSqlMigrationConfig
+   * @param BigLakeMetastoreMigrationConfig $biglakeMetastoreMigrationConfig
    */
-  public function setCloudSqlMigrationConfig(CloudSQLMigrationConfig $cloudSqlMigrationConfig)
+  public function setBiglakeMetastoreMigrationConfig(BigLakeMetastoreMigrationConfig $biglakeMetastoreMigrationConfig)
   {
-    $this->cloudSqlMigrationConfig = $cloudSqlMigrationConfig;
+    $this->biglakeMetastoreMigrationConfig = $biglakeMetastoreMigrationConfig;
   }
   /**
-   * @deprecated
-   * @return CloudSQLMigrationConfig
+   * @return BigLakeMetastoreMigrationConfig
    */
-  public function getCloudSqlMigrationConfig()
+  public function getBiglakeMetastoreMigrationConfig()
   {
-    return $this->cloudSqlMigrationConfig;
+    return $this->biglakeMetastoreMigrationConfig;
   }
   /**
    * Output only. The time when the migration execution was started.
@@ -215,7 +219,7 @@ class MigrationExecution extends \Google\Model
    * Output only. The current state of the migration execution.
    *
    * Accepted values: STATE_UNSPECIFIED, STARTING, RUNNING, CANCELLING,
-   * AWAITING_USER_ACTION, SUCCEEDED, FAILED, CANCELLED, DELETING
+   * AWAITING_USER_ACTION, SUCCEEDED, FAILED, CANCELLED, DELETING, ROLLED_BACK
    *
    * @param self::STATE_* $state
    */

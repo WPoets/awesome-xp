@@ -114,21 +114,31 @@ class GoogleCloudDiscoveryengineV1WidgetConfigUiSettings extends \Google\Collect
    * Output only. Feature config for the engine to opt in or opt out of
    * features. Supported keys: * `agent-gallery` * `no-code-agent-builder` *
    * `prompt-gallery` * `model-selector` * `notebook-lm` * `people-search` *
-   * `people-search-org-chart` * `bi-directional-audio` * `feedback` * `session-
-   * sharing` * `personalization-memory` * `personalization-suggested-
-   * highlights` * `mobile-app-access` * `disable-agent-sharing` * `disable-
-   * image-generation` * `disable-video-generation` * `disable-onedrive-upload`
-   * * `disable-talk-to-content` * `disable-google-drive-upload` * `disable-
-   * welcome-emails` * `disable-canvas` * `canvas-workspace` * `disable-skills`
-   * * `enable-end-user-sharing-with-groups` * `single-agent-orchestration` *
-   * `multi-agent-orchestration` * `cross-product-intelligence` * `deep-
-   * research`
+   * `people-search-org-chart` * `bi-directional-audio` * `speech-to-text` *
+   * `feedback` * `session-sharing` * `personalization-memory` *
+   * `personalization-suggested-highlights` * `mobile-app-access` * `disable-
+   * agent-sharing` * `disable-image-generation` * `disable-video-generation` *
+   * `disable-onedrive-upload` * `disable-talk-to-content` * `disable-google-
+   * drive-upload` * `disable-welcome-emails` * `disable-canvas` * `canvas-
+   * workspace` * `canvas-app-builder` * `skills` * `skill-sharing` * `skill-
+   * sharing-without-admin-approval` * `disable-projects` * `sobi` * `enable-
+   * end-user-sharing-with-groups` * `single-agent-orchestration` * `multi-
+   * agent-orchestration` * `cross-product-intelligence` * `workflow-agents` *
+   * `in-app-notifications` * `code-extraction`
    *
    * @var string[]
    */
   public $features;
   protected $generativeAnswerConfigType = GoogleCloudDiscoveryengineV1WidgetConfigUiSettingsGenerativeAnswerConfig::class;
   protected $generativeAnswerConfigDataType = '';
+  /**
+   * Output only. Whether the Google Drive file picker is available to end-
+   * users. Declared `optional` for the same field-presence reason as
+   * `onedrive_picker_enabled` above.
+   *
+   * @var bool
+   */
+  public $googleDrivePickerEnabled;
   /**
    * Describes widget (or web app) interaction type
    *
@@ -150,12 +160,35 @@ class GoogleCloudDiscoveryengineV1WidgetConfigUiSettings extends \Google\Collect
    */
   public $modelConfigs;
   /**
+   * Output only. Whether the OneDrive file picker is available to end-users.
+   * Computed by the backend from admin connector enablement (Business edition)
+   * or attached OneDrive connectors (Enterprise edition), combined with the
+   * existing `disable-onedrive-upload` admin feature. Declared `optional` so an
+   * explicitly-computed `false` is serialized with field presence. A plain
+   * proto3 `bool` drops a default `false` on the wire, which prevented clients
+   * from distinguishing "picker disabled" (`false`) from "field not populated"
+   * (unset).
+   *
+   * @var bool
+   */
+  public $onedrivePickerEnabled;
+  /**
    * Controls whether result extract is display and how (snippet or extractive
    * answer). Default to no result if unspecified.
    *
    * @var string
    */
   public $resultDescriptionType;
+  protected $searchAddonSpecType = GoogleCloudDiscoveryengineV1WidgetConfigUiSettingsSearchAddonSpec::class;
+  protected $searchAddonSpecDataType = '';
+  /**
+   * Optional. Whether to show the admin-configured display name for data
+   * connectors in the widget sources UI (instead of the connector kind). Opt-
+   * in; defaults to false.
+   *
+   * @var bool
+   */
+  public $sourceAdminDisplayNameEnabled;
 
   /**
    * Per data store configuration.
@@ -326,15 +359,17 @@ class GoogleCloudDiscoveryengineV1WidgetConfigUiSettings extends \Google\Collect
    * Output only. Feature config for the engine to opt in or opt out of
    * features. Supported keys: * `agent-gallery` * `no-code-agent-builder` *
    * `prompt-gallery` * `model-selector` * `notebook-lm` * `people-search` *
-   * `people-search-org-chart` * `bi-directional-audio` * `feedback` * `session-
-   * sharing` * `personalization-memory` * `personalization-suggested-
-   * highlights` * `mobile-app-access` * `disable-agent-sharing` * `disable-
-   * image-generation` * `disable-video-generation` * `disable-onedrive-upload`
-   * * `disable-talk-to-content` * `disable-google-drive-upload` * `disable-
-   * welcome-emails` * `disable-canvas` * `canvas-workspace` * `disable-skills`
-   * * `enable-end-user-sharing-with-groups` * `single-agent-orchestration` *
-   * `multi-agent-orchestration` * `cross-product-intelligence` * `deep-
-   * research`
+   * `people-search-org-chart` * `bi-directional-audio` * `speech-to-text` *
+   * `feedback` * `session-sharing` * `personalization-memory` *
+   * `personalization-suggested-highlights` * `mobile-app-access` * `disable-
+   * agent-sharing` * `disable-image-generation` * `disable-video-generation` *
+   * `disable-onedrive-upload` * `disable-talk-to-content` * `disable-google-
+   * drive-upload` * `disable-welcome-emails` * `disable-canvas` * `canvas-
+   * workspace` * `canvas-app-builder` * `skills` * `skill-sharing` * `skill-
+   * sharing-without-admin-approval` * `disable-projects` * `sobi` * `enable-
+   * end-user-sharing-with-groups` * `single-agent-orchestration` * `multi-
+   * agent-orchestration` * `cross-product-intelligence` * `workflow-agents` *
+   * `in-app-notifications` * `code-extraction`
    *
    * @param string[] $features
    */
@@ -364,6 +399,24 @@ class GoogleCloudDiscoveryengineV1WidgetConfigUiSettings extends \Google\Collect
   public function getGenerativeAnswerConfig()
   {
     return $this->generativeAnswerConfig;
+  }
+  /**
+   * Output only. Whether the Google Drive file picker is available to end-
+   * users. Declared `optional` for the same field-presence reason as
+   * `onedrive_picker_enabled` above.
+   *
+   * @param bool $googleDrivePickerEnabled
+   */
+  public function setGoogleDrivePickerEnabled($googleDrivePickerEnabled)
+  {
+    $this->googleDrivePickerEnabled = $googleDrivePickerEnabled;
+  }
+  /**
+   * @return bool
+   */
+  public function getGoogleDrivePickerEnabled()
+  {
+    return $this->googleDrivePickerEnabled;
   }
   /**
    * Describes widget (or web app) interaction type
@@ -429,6 +482,29 @@ class GoogleCloudDiscoveryengineV1WidgetConfigUiSettings extends \Google\Collect
     return $this->modelConfigs;
   }
   /**
+   * Output only. Whether the OneDrive file picker is available to end-users.
+   * Computed by the backend from admin connector enablement (Business edition)
+   * or attached OneDrive connectors (Enterprise edition), combined with the
+   * existing `disable-onedrive-upload` admin feature. Declared `optional` so an
+   * explicitly-computed `false` is serialized with field presence. A plain
+   * proto3 `bool` drops a default `false` on the wire, which prevented clients
+   * from distinguishing "picker disabled" (`false`) from "field not populated"
+   * (unset).
+   *
+   * @param bool $onedrivePickerEnabled
+   */
+  public function setOnedrivePickerEnabled($onedrivePickerEnabled)
+  {
+    $this->onedrivePickerEnabled = $onedrivePickerEnabled;
+  }
+  /**
+   * @return bool
+   */
+  public function getOnedrivePickerEnabled()
+  {
+    return $this->onedrivePickerEnabled;
+  }
+  /**
    * Controls whether result extract is display and how (snippet or extractive
    * answer). Default to no result if unspecified.
    *
@@ -447,6 +523,41 @@ class GoogleCloudDiscoveryengineV1WidgetConfigUiSettings extends \Google\Collect
   public function getResultDescriptionType()
   {
     return $this->resultDescriptionType;
+  }
+  /**
+   * Optional. SearchAddonSpec is used to disable add-ons for search. This field
+   * is only supported for search requests.
+   *
+   * @param GoogleCloudDiscoveryengineV1WidgetConfigUiSettingsSearchAddonSpec $searchAddonSpec
+   */
+  public function setSearchAddonSpec(GoogleCloudDiscoveryengineV1WidgetConfigUiSettingsSearchAddonSpec $searchAddonSpec)
+  {
+    $this->searchAddonSpec = $searchAddonSpec;
+  }
+  /**
+   * @return GoogleCloudDiscoveryengineV1WidgetConfigUiSettingsSearchAddonSpec
+   */
+  public function getSearchAddonSpec()
+  {
+    return $this->searchAddonSpec;
+  }
+  /**
+   * Optional. Whether to show the admin-configured display name for data
+   * connectors in the widget sources UI (instead of the connector kind). Opt-
+   * in; defaults to false.
+   *
+   * @param bool $sourceAdminDisplayNameEnabled
+   */
+  public function setSourceAdminDisplayNameEnabled($sourceAdminDisplayNameEnabled)
+  {
+    $this->sourceAdminDisplayNameEnabled = $sourceAdminDisplayNameEnabled;
+  }
+  /**
+   * @return bool
+   */
+  public function getSourceAdminDisplayNameEnabled()
+  {
+    return $this->sourceAdminDisplayNameEnabled;
   }
 }
 

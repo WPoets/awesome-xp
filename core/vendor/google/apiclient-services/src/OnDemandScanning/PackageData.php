@@ -99,13 +99,10 @@ class PackageData extends \Google\Collection
   protected $layerDetailsType = LayerDetails::class;
   protected $layerDetailsDataType = '';
   /**
-   * The list of licenses found that are related to a given package. Note that
-   * licenses may also be stored on the BinarySourceInfo. If there is no
-   * BinarySourceInfo (because there's no concept of source vs binary), then it
-   * will be stored here, while if there are BinarySourceInfos, it will be
-   * stored there, as one source can have multiple binaries with different
-   * licenses.
+   * Deprecated: Top-level licenses is not persisted in the legacy Packages
+   * table. Licenses are captured in BinarySourceInfo or PackagesV2.
    *
+   * @deprecated
    * @var string[]
    */
   public $licenses;
@@ -290,6 +287,10 @@ class PackageData extends \Google\Collection
     return $this->ingestionSources;
   }
   /**
+   * Deprecated: Layer details are captured per file location in
+   * FileLocation.layer_details. Top-level layer details is not persisted.
+   *
+   * @deprecated
    * @param LayerDetails $layerDetails
    */
   public function setLayerDetails(LayerDetails $layerDetails)
@@ -297,6 +298,7 @@ class PackageData extends \Google\Collection
     $this->layerDetails = $layerDetails;
   }
   /**
+   * @deprecated
    * @return LayerDetails
    */
   public function getLayerDetails()
@@ -304,13 +306,10 @@ class PackageData extends \Google\Collection
     return $this->layerDetails;
   }
   /**
-   * The list of licenses found that are related to a given package. Note that
-   * licenses may also be stored on the BinarySourceInfo. If there is no
-   * BinarySourceInfo (because there's no concept of source vs binary), then it
-   * will be stored here, while if there are BinarySourceInfos, it will be
-   * stored there, as one source can have multiple binaries with different
-   * licenses.
+   * Deprecated: Top-level licenses is not persisted in the legacy Packages
+   * table. Licenses are captured in BinarySourceInfo or PackagesV2.
    *
+   * @deprecated
    * @param string[] $licenses
    */
   public function setLicenses($licenses)
@@ -318,6 +317,7 @@ class PackageData extends \Google\Collection
     $this->licenses = $licenses;
   }
   /**
+   * @deprecated
    * @return string[]
    */
   public function getLicenses()

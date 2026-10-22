@@ -75,24 +75,34 @@ class DataPoint extends \Google\Model
   protected $hydrationLogDataType = '';
   protected $irregularRhythmNotificationType = IrregularRhythmNotification::class;
   protected $irregularRhythmNotificationDataType = '';
+  protected $menstrualPeriodType = MenstrualPeriod::class;
+  protected $menstrualPeriodDataType = '';
+  protected $moodsType = Moods::class;
+  protected $moodsDataType = '';
   /**
    * Identifier. Data point name, only supported for the subset of identifiable
    * data types. For the majority of the data types, individual data points do
    * not need to be identified and this field would be empty. Format:
-   * `users/{user}/dataTypes/{data_type}/dataPoints/{data_point}` Example: `user
-   * s/abcd1234/dataTypes/sleep/dataPoints/a1b2c3d4-e5f6-7890-1234-567890abcdef`
-   * The `{user}` ID is a system-generated identifier, as described in
-   * Identity.health_user_id. The `{data_type}` ID corresponds to the kebab-case
-   * version of the field names in the DataPoint data union field, e.g. `heart-
-   * rate` for the `heart_rate` field. The `{data_point}` ID can be client-
-   * provided or system-generated. If client-provided, it must be a string of
-   * 4-63 characters, containing only lowercase letters, numbers, and hyphens.
+   * `users/{user}/dataTypes/{data_type}/dataPoints/{data_point}` ## Examples:
+   * ##
+   * `users/me/dataTypes/sleep/dataPoints/a1b2c3d4-e5f6-7890-1234-567890abcdef`
+   * `users/1234567890/dataTypes/sleep/dataPoints/a1b2c3d4-e5f6-7890-1234-
+   * 567890abcdef` The `{user}` can be either the alias `me` or the
+   * authenticated user's numeric Health User ID, which can be retrieved by
+   * calling GetIdentity (see Identity.health_user_id). The `{data_type}` ID
+   * corresponds to the kebab-case version of the field names in the DataPoint
+   * data union field, e.g. `heart-rate` for the `heart_rate` field. The
+   * `{data_point}` ID can be client-provided or system-generated. If client-
+   * provided, it must be a string of 4-63 characters, containing only lowercase
+   * letters, numbers, and hyphens.
    *
    * @var string
    */
   public $name;
   protected $nutritionLogType = NutritionLog::class;
   protected $nutritionLogDataType = '';
+  protected $ovulationTestType = OvulationTest::class;
+  protected $ovulationTestDataType = '';
   protected $oxygenSaturationType = OxygenSaturation::class;
   protected $oxygenSaturationDataType = '';
   protected $respiratoryRateSleepSummaryType = RespiratoryRateSleepSummary::class;
@@ -107,6 +117,8 @@ class DataPoint extends \Google\Model
   protected $stepsDataType = '';
   protected $swimLengthsDataType = SwimLengthsData::class;
   protected $swimLengthsDataDataType = '';
+  protected $symptomsType = Symptoms::class;
+  protected $symptomsDataType = '';
   protected $timeInHeartRateZoneType = TimeInHeartRateZone::class;
   protected $timeInHeartRateZoneDataType = '';
   protected $vo2MaxType = VO2Max::class;
@@ -581,17 +593,54 @@ class DataPoint extends \Google\Model
     return $this->irregularRhythmNotification;
   }
   /**
+   * Optional. Data for points in the `menstrual-period` interval data type
+   * collection.
+   *
+   * @param MenstrualPeriod $menstrualPeriod
+   */
+  public function setMenstrualPeriod(MenstrualPeriod $menstrualPeriod)
+  {
+    $this->menstrualPeriod = $menstrualPeriod;
+  }
+  /**
+   * @return MenstrualPeriod
+   */
+  public function getMenstrualPeriod()
+  {
+    return $this->menstrualPeriod;
+  }
+  /**
+   * Optional. Data for points in the `moods` sample data type collection.
+   *
+   * @param Moods $moods
+   */
+  public function setMoods(Moods $moods)
+  {
+    $this->moods = $moods;
+  }
+  /**
+   * @return Moods
+   */
+  public function getMoods()
+  {
+    return $this->moods;
+  }
+  /**
    * Identifier. Data point name, only supported for the subset of identifiable
    * data types. For the majority of the data types, individual data points do
    * not need to be identified and this field would be empty. Format:
-   * `users/{user}/dataTypes/{data_type}/dataPoints/{data_point}` Example: `user
-   * s/abcd1234/dataTypes/sleep/dataPoints/a1b2c3d4-e5f6-7890-1234-567890abcdef`
-   * The `{user}` ID is a system-generated identifier, as described in
-   * Identity.health_user_id. The `{data_type}` ID corresponds to the kebab-case
-   * version of the field names in the DataPoint data union field, e.g. `heart-
-   * rate` for the `heart_rate` field. The `{data_point}` ID can be client-
-   * provided or system-generated. If client-provided, it must be a string of
-   * 4-63 characters, containing only lowercase letters, numbers, and hyphens.
+   * `users/{user}/dataTypes/{data_type}/dataPoints/{data_point}` ## Examples:
+   * ##
+   * `users/me/dataTypes/sleep/dataPoints/a1b2c3d4-e5f6-7890-1234-567890abcdef`
+   * `users/1234567890/dataTypes/sleep/dataPoints/a1b2c3d4-e5f6-7890-1234-
+   * 567890abcdef` The `{user}` can be either the alias `me` or the
+   * authenticated user's numeric Health User ID, which can be retrieved by
+   * calling GetIdentity (see Identity.health_user_id). The `{data_type}` ID
+   * corresponds to the kebab-case version of the field names in the DataPoint
+   * data union field, e.g. `heart-rate` for the `heart_rate` field. The
+   * `{data_point}` ID can be client-provided or system-generated. If client-
+   * provided, it must be a string of 4-63 characters, containing only lowercase
+   * letters, numbers, and hyphens.
    *
    * @param string $name
    */
@@ -622,6 +671,23 @@ class DataPoint extends \Google\Model
   public function getNutritionLog()
   {
     return $this->nutritionLog;
+  }
+  /**
+   * Optional. Data for points in the `ovulation-test` sample data type
+   * collection.
+   *
+   * @param OvulationTest $ovulationTest
+   */
+  public function setOvulationTest(OvulationTest $ovulationTest)
+  {
+    $this->ovulationTest = $ovulationTest;
+  }
+  /**
+   * @return OvulationTest
+   */
+  public function getOvulationTest()
+  {
+    return $this->ovulationTest;
   }
   /**
    * Optional. Data for points in the `oxygen-saturation` sample data type
@@ -738,6 +804,22 @@ class DataPoint extends \Google\Model
   public function getSwimLengthsData()
   {
     return $this->swimLengthsData;
+  }
+  /**
+   * Optional. Data for points in the `symptoms` sample data type collection.
+   *
+   * @param Symptoms $symptoms
+   */
+  public function setSymptoms(Symptoms $symptoms)
+  {
+    $this->symptoms = $symptoms;
+  }
+  /**
+   * @return Symptoms
+   */
+  public function getSymptoms()
+  {
+    return $this->symptoms;
   }
   /**
    * Optional. Data for points in the `time-in-heart-rate-zone` interval data

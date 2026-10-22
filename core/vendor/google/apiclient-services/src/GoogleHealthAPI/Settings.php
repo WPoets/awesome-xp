@@ -152,7 +152,6 @@ class Settings extends \Google\Model
   public $autoStrideEnabled;
   /**
    * Optional. The measurement unit defined in the user's account settings.
-   * Updates to this field are currently not supported.
    *
    * @var string
    */
@@ -192,7 +191,7 @@ class Settings extends \Google\Model
    * `users/me/settings` The {user} ID is a system-generated Google Health API
    * user ID, a string of 1-63 characters consisting of lowercase and uppercase
    * letters, numbers, and hyphens. The literal `me` can also be used to refer
-   * to the authenticated user.
+   * to the authenticated user. This field is read-only.
    *
    * @var string
    */
@@ -270,7 +269,6 @@ class Settings extends \Google\Model
   }
   /**
    * Optional. The measurement unit defined in the user's account settings.
-   * Updates to this field are currently not supported.
    *
    * Accepted values: DISTANCE_UNIT_UNSPECIFIED, DISTANCE_UNIT_MILES,
    * DISTANCE_UNIT_KILOMETERS
@@ -369,7 +367,7 @@ class Settings extends \Google\Model
    * `users/me/settings` The {user} ID is a system-generated Google Health API
    * user ID, a string of 1-63 characters consisting of lowercase and uppercase
    * letters, numbers, and hyphens. The literal `me` can also be used to refer
-   * to the authenticated user.
+   * to the authenticated user. This field is read-only.
    *
    * @param string $name
    */

@@ -21,19 +21,21 @@ class GoogleCloudAiplatformV1OnlineEvaluatorCloudObservability extends \Google\M
 {
   /**
    * Optional. Optional log view that will be used to query logs. If empty, the
-   * `_Default` view will be used.
+   * project's default view (`projects/{project_id}`) will be used.
    *
    * @var string
    */
   public $logView;
   protected $openTelemetryType = GoogleCloudAiplatformV1OnlineEvaluatorCloudObservabilityOpenTelemetry::class;
   protected $openTelemetryDataType = '';
+  protected $sessionScopeType = GoogleCloudAiplatformV1OnlineEvaluatorCloudObservabilitySessionScope::class;
+  protected $sessionScopeDataType = '';
   protected $traceScopeType = GoogleCloudAiplatformV1OnlineEvaluatorCloudObservabilityTraceScope::class;
   protected $traceScopeDataType = '';
   /**
    * Optional. Optional trace view that will be used to query traces. If empty,
-   * the `_Default` view will be used. NOTE: This field is not supported yet and
-   * will be ignored if set.
+   * the `_AllSpans` view from `_Trace` US bucket will be used, i.e. `projects/{
+   * project_id}/locations/us/buckets/_Trace/datasets/Spans/views/_AllSpans`.
    *
    * @var string
    */
@@ -41,7 +43,7 @@ class GoogleCloudAiplatformV1OnlineEvaluatorCloudObservability extends \Google\M
 
   /**
    * Optional. Optional log view that will be used to query logs. If empty, the
-   * `_Default` view will be used.
+   * project's default view (`projects/{project_id}`) will be used.
    *
    * @param string $logView
    */
@@ -73,6 +75,23 @@ class GoogleCloudAiplatformV1OnlineEvaluatorCloudObservability extends \Google\M
     return $this->openTelemetry;
   }
   /**
+   * Scope online evaluation to OTel sessions (i.e. group of traces with the
+   * same conversation ID).
+   *
+   * @param GoogleCloudAiplatformV1OnlineEvaluatorCloudObservabilitySessionScope $sessionScope
+   */
+  public function setSessionScope(GoogleCloudAiplatformV1OnlineEvaluatorCloudObservabilitySessionScope $sessionScope)
+  {
+    $this->sessionScope = $sessionScope;
+  }
+  /**
+   * @return GoogleCloudAiplatformV1OnlineEvaluatorCloudObservabilitySessionScope
+   */
+  public function getSessionScope()
+  {
+    return $this->sessionScope;
+  }
+  /**
    * Scope online evaluation to single traces.
    *
    * @param GoogleCloudAiplatformV1OnlineEvaluatorCloudObservabilityTraceScope $traceScope
@@ -90,8 +109,8 @@ class GoogleCloudAiplatformV1OnlineEvaluatorCloudObservability extends \Google\M
   }
   /**
    * Optional. Optional trace view that will be used to query traces. If empty,
-   * the `_Default` view will be used. NOTE: This field is not supported yet and
-   * will be ignored if set.
+   * the `_AllSpans` view from `_Trace` US bucket will be used, i.e. `projects/{
+   * project_id}/locations/us/buckets/_Trace/datasets/Spans/views/_AllSpans`.
    *
    * @param string $traceView
    */

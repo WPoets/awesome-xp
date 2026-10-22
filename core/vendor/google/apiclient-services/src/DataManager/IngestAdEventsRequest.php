@@ -25,15 +25,12 @@ class IngestAdEventsRequest extends \Google\Collection
   protected $encryptionInfoType = EncryptionInfo::class;
   protected $encryptionInfoDataType = '';
   /**
-   * Optional. If true, the request is validated, but not executed.
-   *
+   * @deprecated
    * @var bool
    */
   public $validateOnly;
 
   /**
-   * Required. Required (at least 1). A list of ad events.
-   *
    * @param AdEvent[] $adEvents
    */
   public function setAdEvents($adEvents)
@@ -48,9 +45,6 @@ class IngestAdEventsRequest extends \Google\Collection
     return $this->adEvents;
   }
   /**
-   * Optional. Information about encryption keys which are used to encrypt the
-   * data.
-   *
    * @param EncryptionInfo $encryptionInfo
    */
   public function setEncryptionInfo(EncryptionInfo $encryptionInfo)
@@ -65,8 +59,7 @@ class IngestAdEventsRequest extends \Google\Collection
     return $this->encryptionInfo;
   }
   /**
-   * Optional. If true, the request is validated, but not executed.
-   *
+   * @deprecated
    * @param bool $validateOnly
    */
   public function setValidateOnly($validateOnly)
@@ -74,6 +67,7 @@ class IngestAdEventsRequest extends \Google\Collection
     $this->validateOnly = $validateOnly;
   }
   /**
+   * @deprecated
    * @return bool
    */
   public function getValidateOnly()

@@ -59,9 +59,18 @@ class GoogleHealthAPI extends \Google\Service
   /** See exercise GPS location data in Google Health. */
   const GOOGLEHEALTH_LOCATION_READONLY =
       "https://www.googleapis.com/auth/googlehealth.location.readonly";
-  /** Add exercise GPS location data to Google Health, and edit or delete the data it adds.. */
-  const GOOGLEHEALTH_LOCATION_WRITEONLY =
-      "https://www.googleapis.com/auth/googlehealth.location.writeonly";
+  /** See your Google Health logged symptoms data. */
+  const GOOGLEHEALTH_LOGGED_SYMPTOMS_READONLY =
+      "https://www.googleapis.com/auth/googlehealth.logged_symptoms.readonly";
+  /** Add logged symptoms data to Google Health, and edit or delete the data it adds. */
+  const GOOGLEHEALTH_LOGGED_SYMPTOMS_WRITEONLY =
+      "https://www.googleapis.com/auth/googlehealth.logged_symptoms.writeonly";
+  /** See your Google Health mindfulness data. */
+  const GOOGLEHEALTH_MINDFULNESS_READONLY =
+      "https://www.googleapis.com/auth/googlehealth.mindfulness.readonly";
+  /** Add mindfulness data to Google Health, and edit or delete the data it adds. */
+  const GOOGLEHEALTH_MINDFULNESS_WRITEONLY =
+      "https://www.googleapis.com/auth/googlehealth.mindfulness.writeonly";
   /** Add nutrition data to Google Health, and edit or delete the data it adds.. */
   const GOOGLEHEALTH_NUTRITION_WRITEONLY =
       "https://www.googleapis.com/auth/googlehealth.nutrition.writeonly";
@@ -71,6 +80,12 @@ class GoogleHealthAPI extends \Google\Service
   /** Add profile data to Google Health, and edit or delete the data it adds.. */
   const GOOGLEHEALTH_PROFILE_WRITEONLY =
       "https://www.googleapis.com/auth/googlehealth.profile.writeonly";
+  /** See your Google Health reproductive health data. */
+  const GOOGLEHEALTH_REPRODUCTIVE_HEALTH_READONLY =
+      "https://www.googleapis.com/auth/googlehealth.reproductive_health.readonly";
+  /** Add reproductive health data to Google Health, and edit or delete the data it adds. */
+  const GOOGLEHEALTH_REPRODUCTIVE_HEALTH_WRITEONLY =
+      "https://www.googleapis.com/auth/googlehealth.reproductive_health.writeonly";
   /** See your Google Health settings. */
   const GOOGLEHEALTH_SETTINGS_READONLY =
       "https://www.googleapis.com/auth/googlehealth.settings.readonly";
@@ -86,6 +101,8 @@ class GoogleHealthAPI extends \Google\Service
 
   public $projects_subscribers;
   public $projects_subscribers_subscriptions;
+  public $shl_m;
+  public $shl_r;
   public $users;
   public $users_dataTypes_dataPoints;
   public $users_pairedDevices;
@@ -248,6 +265,51 @@ class GoogleHealthAPI extends \Google\Service
           ]
         ]
     );
+    $this->shl_m = new GoogleHealthAPI\Resource\ShlM(
+        $this,
+        $this->serviceName,
+        'm',
+        [
+          'methods' => [
+            'getShlManifest' => [
+              'path' => 'v4/shl/m/{externalShlId}',
+              'httpMethod' => 'POST',
+              'parameters' => [
+                'externalShlId' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+              ],
+            ],
+          ]
+        ]
+    );
+    $this->shl_r = new GoogleHealthAPI\Resource\ShlR(
+        $this,
+        $this->serviceName,
+        'r',
+        [
+          'methods' => [
+            'get' => [
+              'path' => 'v4/shl/r/{externalShlId}/{resourceToken}',
+              'httpMethod' => 'GET',
+              'parameters' => [
+                'externalShlId' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'resourceToken' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+              ],
+            ],
+          ]
+        ]
+    );
     $this->users = new GoogleHealthAPI\Resource\Users(
         $this,
         $this->serviceName,
@@ -394,6 +456,10 @@ class GoogleHealthAPI extends \Google\Service
                   'location' => 'path',
                   'type' => 'string',
                   'required' => true,
+                ],
+                'dataSourceFamily' => [
+                  'location' => 'query',
+                  'type' => 'string',
                 ],
                 'filter' => [
                   'location' => 'query',

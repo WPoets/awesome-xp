@@ -19,6 +19,8 @@ namespace Google\Service\DiscoveryEngine;
 
 class GoogleCloudDiscoveryengineV1WidgetConfigUiSettingsModelConfigInfoResolvedModel extends \Google\Model
 {
+  protected $adminViewType = GoogleCloudDiscoveryengineV1WidgetConfigUiSettingsModelConfigInfoResolvedModelAdminView::class;
+  protected $adminViewDataType = '';
   /**
    * Output only. Localized description text (e.g. `State-of-the-art
    * reasoning`). Localized using the same locale as `display_name`.
@@ -35,6 +37,15 @@ class GoogleCloudDiscoveryengineV1WidgetConfigUiSettingsModelConfigInfoResolvedM
    */
   public $displayName;
   /**
+   * Output only. Groups models that render together in the selector. Models
+   * sharing a value form one group; empty means the model belongs to no group.
+   * Compared for equality only -- never parsed, and never shown to a user, so
+   * it is not localized.
+   *
+   * @var string
+   */
+  public $family;
+  /**
    * Output only. GM3-compatible icon token associated with the model (e.g.
    * `rocket_launch`, `bolt`, `graph_5`).
    *
@@ -42,12 +53,30 @@ class GoogleCloudDiscoveryengineV1WidgetConfigUiSettingsModelConfigInfoResolvedM
    */
   public $icon;
   /**
+   * Output only. Absolute URL of a brand mark to render instead of `icon`, for
+   * models whose vendor logo is not a GM3 glyph. `icon` stays populated as the
+   * fallback, so a client that does not render images, or that fails to fetch
+   * this one, shows the glyph instead of nothing.
+   *
+   * @var string
+   */
+  public $iconUrl;
+  /**
    * Output only. Whether the model is currently in preview. Clients should
    * surface this via a "Preview" badge in the selector UI.
    *
    * @var bool
    */
   public $isPreview;
+  /**
+   * Output only. Short label shown in the compact selector bar chip (e.g. `3.x
+   * Flash`) as opposed to the full `display_name` (`Gemini 3.x Flash`). Falls
+   * back to `display_name` when the backend registry does not specify a
+   * distinct short label.
+   *
+   * @var string
+   */
+  public $label;
   /**
    * Output only. Unique identifier of the model (e.g. `gemini-2.5-flash`,
    * `gemini-3.1-pro-preview`). This is the same identifier that clients pass
@@ -58,7 +87,31 @@ class GoogleCloudDiscoveryengineV1WidgetConfigUiSettingsModelConfigInfoResolvedM
    * @var string
    */
   public $modelId;
+  /**
+   * Output only. Whether this model should be promoted in the GE chat homepage
+   * banner.
+   *
+   * @var bool
+   */
+  public $promoted;
 
+  /**
+   * Output only. Admin-surface metadata; populated only for the Console admin
+   * Feature Control page (see `AdminView`). Unset for end-user surfaces.
+   *
+   * @param GoogleCloudDiscoveryengineV1WidgetConfigUiSettingsModelConfigInfoResolvedModelAdminView $adminView
+   */
+  public function setAdminView(GoogleCloudDiscoveryengineV1WidgetConfigUiSettingsModelConfigInfoResolvedModelAdminView $adminView)
+  {
+    $this->adminView = $adminView;
+  }
+  /**
+   * @return GoogleCloudDiscoveryengineV1WidgetConfigUiSettingsModelConfigInfoResolvedModelAdminView
+   */
+  public function getAdminView()
+  {
+    return $this->adminView;
+  }
   /**
    * Output only. Localized description text (e.g. `State-of-the-art
    * reasoning`). Localized using the same locale as `display_name`.
@@ -95,6 +148,25 @@ class GoogleCloudDiscoveryengineV1WidgetConfigUiSettingsModelConfigInfoResolvedM
     return $this->displayName;
   }
   /**
+   * Output only. Groups models that render together in the selector. Models
+   * sharing a value form one group; empty means the model belongs to no group.
+   * Compared for equality only -- never parsed, and never shown to a user, so
+   * it is not localized.
+   *
+   * @param string $family
+   */
+  public function setFamily($family)
+  {
+    $this->family = $family;
+  }
+  /**
+   * @return string
+   */
+  public function getFamily()
+  {
+    return $this->family;
+  }
+  /**
    * Output only. GM3-compatible icon token associated with the model (e.g.
    * `rocket_launch`, `bolt`, `graph_5`).
    *
@@ -112,6 +184,25 @@ class GoogleCloudDiscoveryengineV1WidgetConfigUiSettingsModelConfigInfoResolvedM
     return $this->icon;
   }
   /**
+   * Output only. Absolute URL of a brand mark to render instead of `icon`, for
+   * models whose vendor logo is not a GM3 glyph. `icon` stays populated as the
+   * fallback, so a client that does not render images, or that fails to fetch
+   * this one, shows the glyph instead of nothing.
+   *
+   * @param string $iconUrl
+   */
+  public function setIconUrl($iconUrl)
+  {
+    $this->iconUrl = $iconUrl;
+  }
+  /**
+   * @return string
+   */
+  public function getIconUrl()
+  {
+    return $this->iconUrl;
+  }
+  /**
    * Output only. Whether the model is currently in preview. Clients should
    * surface this via a "Preview" badge in the selector UI.
    *
@@ -127,6 +218,25 @@ class GoogleCloudDiscoveryengineV1WidgetConfigUiSettingsModelConfigInfoResolvedM
   public function getIsPreview()
   {
     return $this->isPreview;
+  }
+  /**
+   * Output only. Short label shown in the compact selector bar chip (e.g. `3.x
+   * Flash`) as opposed to the full `display_name` (`Gemini 3.x Flash`). Falls
+   * back to `display_name` when the backend registry does not specify a
+   * distinct short label.
+   *
+   * @param string $label
+   */
+  public function setLabel($label)
+  {
+    $this->label = $label;
+  }
+  /**
+   * @return string
+   */
+  public function getLabel()
+  {
+    return $this->label;
   }
   /**
    * Output only. Unique identifier of the model (e.g. `gemini-2.5-flash`,
@@ -147,6 +257,23 @@ class GoogleCloudDiscoveryengineV1WidgetConfigUiSettingsModelConfigInfoResolvedM
   public function getModelId()
   {
     return $this->modelId;
+  }
+  /**
+   * Output only. Whether this model should be promoted in the GE chat homepage
+   * banner.
+   *
+   * @param bool $promoted
+   */
+  public function setPromoted($promoted)
+  {
+    $this->promoted = $promoted;
+  }
+  /**
+   * @return bool
+   */
+  public function getPromoted()
+  {
+    return $this->promoted;
   }
 }
 

@@ -27,6 +27,8 @@ class PlannableTargeting extends \Google\Collection
    * @var string[]
    */
   public $ageRanges;
+  protected $defaultYoutubeSelectLineupType = YouTubeSelectLineUp::class;
+  protected $defaultYoutubeSelectLineupDataType = '';
   /**
    * Output only. Targetable devices for the ad product.
    *
@@ -66,6 +68,23 @@ class PlannableTargeting extends \Google\Collection
   public function getAgeRanges()
   {
     return $this->ageRanges;
+  }
+  /**
+   * Output only. The default YouTube Select Lineup for this product, if
+   * applicable.
+   *
+   * @param YouTubeSelectLineUp $defaultYoutubeSelectLineup
+   */
+  public function setDefaultYoutubeSelectLineup(YouTubeSelectLineUp $defaultYoutubeSelectLineup)
+  {
+    $this->defaultYoutubeSelectLineup = $defaultYoutubeSelectLineup;
+  }
+  /**
+   * @return YouTubeSelectLineUp
+   */
+  public function getDefaultYoutubeSelectLineup()
+  {
+    return $this->defaultYoutubeSelectLineup;
   }
   /**
    * Output only. Targetable devices for the ad product.

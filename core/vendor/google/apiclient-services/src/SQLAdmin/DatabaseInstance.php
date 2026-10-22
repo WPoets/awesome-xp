@@ -38,6 +38,19 @@ class DatabaseInstance extends \Google\Collection
    */
   public const BACKEND_TYPE_EXTERNAL = 'EXTERNAL';
   /**
+   * Default value. The integration state is unspecified. When unspecified,
+   * Database Center integration is enabled by default.
+   */
+  public const DATABASE_CENTER_INTEGRATION_DATABASE_CENTER_INTEGRATION_UNSPECIFIED = 'DATABASE_CENTER_INTEGRATION_UNSPECIFIED';
+  /**
+   * Database Center integration is enabled.
+   */
+  public const DATABASE_CENTER_INTEGRATION_ENABLED = 'ENABLED';
+  /**
+   * Database Center integration is disabled.
+   */
+  public const DATABASE_CENTER_INTEGRATION_DISABLED = 'DISABLED';
+  /**
    * This is an unknown database version.
    */
   public const DATABASE_VERSION_SQL_DATABASE_VERSION_UNSPECIFIED = 'SQL_DATABASE_VERSION_UNSPECIFIED';
@@ -289,6 +302,11 @@ class DatabaseInstance extends \Google\Collection
    * A Cloud SQL read pool.
    */
   public const INSTANCE_TYPE_READ_POOL_INSTANCE = 'READ_POOL_INSTANCE';
+  /**
+   * A Cloud SQL instance acting as a Blue-Green deployment target primary.
+   * (MySQL only)
+   */
+  public const INSTANCE_TYPE_GREEN_INSTANCE = 'GREEN_INSTANCE';
   public const SQL_NETWORK_ARCHITECTURE_SQL_NETWORK_ARCHITECTURE_UNSPECIFIED = 'SQL_NETWORK_ARCHITECTURE_UNSPECIFIED';
   /**
    * The instance uses the new network architecture.
@@ -380,6 +398,20 @@ class DatabaseInstance extends \Google\Collection
    */
   public $currentDiskSize;
   /**
+   * Optional. State of the Database Center integration for this instance. When
+   * unspecified, Database Center integration is enabled by default.
+   *
+   * @var string
+   */
+  public $databaseCenterIntegration;
+  /**
+   * Optional. If true, instance metadata is sent to the Database Center. If
+   * false, instance metadata is not sent to the Database Center.
+   *
+   * @var bool
+   */
+  public $databaseCenterIntegrationEnabled;
+  /**
    * Output only. Stores the current database version running on the instance
    * including minor version such as `MYSQL_8_0_18`.
    *
@@ -393,6 +425,8 @@ class DatabaseInstance extends \Google\Collection
    * @var string
    */
   public $databaseVersion;
+  protected $deploymentInfoType = BlueGreenDeploymentInfo::class;
+  protected $deploymentInfoDataType = '';
   protected $diskEncryptionConfigurationType = DiskEncryptionConfiguration::class;
   protected $diskEncryptionConfigurationDataType = '';
   protected $diskEncryptionStatusType = DiskEncryptionStatus::class;
@@ -582,6 +616,13 @@ class DatabaseInstance extends \Google\Collection
   protected $settingsType = Settings::class;
   protected $settingsDataType = '';
   /**
+   * Optional. Input only. Determines whether the precheck step is skipped
+   * during a major version upgrade.
+   *
+   * @var bool
+   */
+  public $skipPrecheck;
+  /**
    * @var string
    */
   public $sqlNetworkArchitecture;
@@ -719,6 +760,42 @@ class DatabaseInstance extends \Google\Collection
     return $this->currentDiskSize;
   }
   /**
+   * Optional. State of the Database Center integration for this instance. When
+   * unspecified, Database Center integration is enabled by default.
+   *
+   * Accepted values: DATABASE_CENTER_INTEGRATION_UNSPECIFIED, ENABLED, DISABLED
+   *
+   * @param self::DATABASE_CENTER_INTEGRATION_* $databaseCenterIntegration
+   */
+  public function setDatabaseCenterIntegration($databaseCenterIntegration)
+  {
+    $this->databaseCenterIntegration = $databaseCenterIntegration;
+  }
+  /**
+   * @return self::DATABASE_CENTER_INTEGRATION_*
+   */
+  public function getDatabaseCenterIntegration()
+  {
+    return $this->databaseCenterIntegration;
+  }
+  /**
+   * Optional. If true, instance metadata is sent to the Database Center. If
+   * false, instance metadata is not sent to the Database Center.
+   *
+   * @param bool $databaseCenterIntegrationEnabled
+   */
+  public function setDatabaseCenterIntegrationEnabled($databaseCenterIntegrationEnabled)
+  {
+    $this->databaseCenterIntegrationEnabled = $databaseCenterIntegrationEnabled;
+  }
+  /**
+   * @return bool
+   */
+  public function getDatabaseCenterIntegrationEnabled()
+  {
+    return $this->databaseCenterIntegrationEnabled;
+  }
+  /**
    * Output only. Stores the current database version running on the instance
    * including minor version such as `MYSQL_8_0_18`.
    *
@@ -766,6 +843,23 @@ class DatabaseInstance extends \Google\Collection
   public function getDatabaseVersion()
   {
     return $this->databaseVersion;
+  }
+  /**
+   * Output only. Deployment info for the instance. This is set if the instance
+   * is currently part of any blue-green setup.
+   *
+   * @param BlueGreenDeploymentInfo $deploymentInfo
+   */
+  public function setDeploymentInfo(BlueGreenDeploymentInfo $deploymentInfo)
+  {
+    $this->deploymentInfo = $deploymentInfo;
+  }
+  /**
+   * @return BlueGreenDeploymentInfo
+   */
+  public function getDeploymentInfo()
+  {
+    return $this->deploymentInfo;
   }
   /**
    * Disk encryption configuration specific to an instance.
@@ -921,7 +1015,8 @@ class DatabaseInstance extends \Google\Collection
    * The instance type.
    *
    * Accepted values: SQL_INSTANCE_TYPE_UNSPECIFIED, CLOUD_SQL_INSTANCE,
-   * ON_PREMISES_INSTANCE, READ_REPLICA_INSTANCE, READ_POOL_INSTANCE
+   * ON_PREMISES_INSTANCE, READ_REPLICA_INSTANCE, READ_POOL_INSTANCE,
+   * GREEN_INSTANCE
    *
    * @param self::INSTANCE_TYPE_* $instanceType
    */
@@ -1392,6 +1487,23 @@ class DatabaseInstance extends \Google\Collection
   public function getSettings()
   {
     return $this->settings;
+  }
+  /**
+   * Optional. Input only. Determines whether the precheck step is skipped
+   * during a major version upgrade.
+   *
+   * @param bool $skipPrecheck
+   */
+  public function setSkipPrecheck($skipPrecheck)
+  {
+    $this->skipPrecheck = $skipPrecheck;
+  }
+  /**
+   * @return bool
+   */
+  public function getSkipPrecheck()
+  {
+    return $this->skipPrecheck;
   }
   /**
    * @param self::SQL_NETWORK_ARCHITECTURE_* $sqlNetworkArchitecture

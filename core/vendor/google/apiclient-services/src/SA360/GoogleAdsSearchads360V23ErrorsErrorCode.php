@@ -2368,6 +2368,20 @@ class GoogleAdsSearchads360V23ErrorsErrorCode extends \Google\Model
    */
   public const AUTHORIZATION_ERROR_ACTION_NOT_PERMITTED_FOR_SUSPENDED_ACCOUNT = 'ACTION_NOT_PERMITTED_FOR_SUSPENDED_ACCOUNT';
   /**
+   * The user does not have permission to perform mutates on accounts that are
+   * not owned by Search Ads 360.
+   */
+  public const AUTHORIZATION_ERROR_SEARCH_ADS360_OTHER_ENGINE_MUTATE_DENIED = 'SEARCH_ADS360_OTHER_ENGINE_MUTATE_DENIED';
+  /**
+   * This account does not have permission to perform mutates using the Search
+   * Ads 360 API.
+   */
+  public const AUTHORIZATION_ERROR_SEARCH_ADS360_MUTATE_ALLOWLIST_DENIED = 'SEARCH_ADS360_MUTATE_ALLOWLIST_DENIED';
+  /**
+   * This field is not allowed for mutates.
+   */
+  public const AUTHORIZATION_ERROR_SEARCH_ADS360_MUTATE_FIELD_DENIED = 'SEARCH_ADS360_MUTATE_FIELD_DENIED';
+  /**
    * Enum unspecified.
    */
   public const AUTOMATICALLY_CREATED_ASSET_REMOVAL_ERROR_UNSPECIFIED = 'UNSPECIFIED';
@@ -3665,6 +3679,26 @@ class GoogleAdsSearchads360V23ErrorsErrorCode extends \Google\Model
    * Customer must be allowlisted to use retention only goal.
    */
   public const CAMPAIGN_GOAL_CONFIG_ERROR_CUSTOMER_NOT_ALLOWLISTED_FOR_RETENTION_ONLY = 'CUSTOMER_NOT_ALLOWLISTED_FOR_RETENTION_ONLY';
+  /**
+   * New customer acquisition customer lifecycle optimization goal targeting
+   * only new customers should not have campaign override values set.
+   */
+  public const CAMPAIGN_GOAL_CONFIG_ERROR_CAMPAIGN_OVERRIDE_VALUES_SET_FOR_NEW_CUSTOMER_ACQUISITION_TARGET_SPECIFIC_OPTION = 'CAMPAIGN_OVERRIDE_VALUES_SET_FOR_NEW_CUSTOMER_ACQUISITION_TARGET_SPECIFIC_OPTION';
+  /**
+   * New customer acquisition customer lifecycle optimization goal campaign
+   * override high lifetime values should only be set for supported campaign
+   * type.
+   */
+  public const CAMPAIGN_GOAL_CONFIG_ERROR_CAMPAIGN_OVERRIDE_HIGH_LIFETIME_VALUE_NOT_SUPPORTED_FOR_CAMPAIGN_TYPE = 'CAMPAIGN_OVERRIDE_HIGH_LIFETIME_VALUE_NOT_SUPPORTED_FOR_CAMPAIGN_TYPE';
+  /**
+   * Error when the campaign is attempting to combine incompatible CLO goals.
+   */
+  public const CAMPAIGN_GOAL_CONFIG_ERROR_CANNOT_USE_INCOMPATIBLE_CLO_GOALS = 'CANNOT_USE_INCOMPATIBLE_CLO_GOALS';
+  /**
+   * At least one mode (either enabling bid adjustments or showing benefits in
+   * PLA) must be enabled for loyalty retention goal.
+   */
+  public const CAMPAIGN_GOAL_CONFIG_ERROR_LOYALTY_RETENTION_GOAL_INVALID_MODE = 'LOYALTY_RETENTION_GOAL_INVALID_MODE';
   /**
    * Enum unspecified.
    */
@@ -5824,6 +5858,12 @@ class GoogleAdsSearchads360V23ErrorsErrorCode extends \Google\Model
    * Trying to change start date on a resource that has started.
    */
   public const DATE_RANGE_ERROR_CANNOT_MODIFY_START_DATE_IF_ALREADY_STARTED = 'CANNOT_MODIFY_START_DATE_IF_ALREADY_STARTED';
+  /**
+   * The requested time granularity is not supported for the date range in the
+   * query. Metrics with daily, hourly, or weekly segmentation are only
+   * available for the last 37 months.
+   */
+  public const DATE_RANGE_ERROR_REQUESTED_DATE_GRANULARITY_NOT_SUPPORTED = 'REQUESTED_DATE_GRANULARITY_NOT_SUPPORTED';
   /**
    * Enum unspecified.
    */
@@ -12463,7 +12503,9 @@ class GoogleAdsSearchads360V23ErrorsErrorCode extends \Google\Model
    * INVALID_LOGIN_CUSTOMER_ID_SERVING_CUSTOMER_ID_COMBINATION,
    * SERVICE_ACCESS_DENIED, ACCESS_DENIED_FOR_ACCOUNT_TYPE,
    * METRIC_ACCESS_DENIED, CLOUD_PROJECT_NOT_UNDER_ORGANIZATION,
-   * ACTION_NOT_PERMITTED_FOR_SUSPENDED_ACCOUNT
+   * ACTION_NOT_PERMITTED_FOR_SUSPENDED_ACCOUNT,
+   * SEARCH_ADS360_OTHER_ENGINE_MUTATE_DENIED,
+   * SEARCH_ADS360_MUTATE_ALLOWLIST_DENIED, SEARCH_ADS360_MUTATE_FIELD_DENIED
    *
    * @param self::AUTHORIZATION_ERROR_* $authorizationError
    */
@@ -12934,7 +12976,10 @@ class GoogleAdsSearchads360V23ErrorsErrorCode extends \Google\Model
    * HIGH_LIFETIME_VALUE_PRESENT_BUT_VALUE_ABSENT,
    * HIGH_LIFETIME_VALUE_LESS_THAN_OR_EQUAL_TO_VALUE,
    * CUSTOMER_LIFECYCLE_OPTIMIZATION_CAMPAIGN_TYPE_NOT_SUPPORTED,
-   * CUSTOMER_NOT_ALLOWLISTED_FOR_RETENTION_ONLY
+   * CUSTOMER_NOT_ALLOWLISTED_FOR_RETENTION_ONLY, CAMPAIGN_OVERRIDE_VALUES_SET_F
+   * OR_NEW_CUSTOMER_ACQUISITION_TARGET_SPECIFIC_OPTION,
+   * CAMPAIGN_OVERRIDE_HIGH_LIFETIME_VALUE_NOT_SUPPORTED_FOR_CAMPAIGN_TYPE,
+   * CANNOT_USE_INCOMPATIBLE_CLO_GOALS, LOYALTY_RETENTION_GOAL_INVALID_MODE
    *
    * @param self::CAMPAIGN_GOAL_CONFIG_ERROR_* $campaignGoalConfigError
    */
@@ -13809,7 +13854,8 @@ class GoogleAdsSearchads360V23ErrorsErrorCode extends \Google\Model
    *
    * Accepted values: UNSPECIFIED, UNKNOWN, INVALID_DATE,
    * START_DATE_AFTER_END_DATE, CANNOT_SET_DATE_TO_PAST,
-   * AFTER_MAXIMUM_ALLOWABLE_DATE, CANNOT_MODIFY_START_DATE_IF_ALREADY_STARTED
+   * AFTER_MAXIMUM_ALLOWABLE_DATE, CANNOT_MODIFY_START_DATE_IF_ALREADY_STARTED,
+   * REQUESTED_DATE_GRANULARITY_NOT_SUPPORTED
    *
    * @param self::DATE_RANGE_ERROR_* $dateRangeError
    */

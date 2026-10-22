@@ -42,10 +42,10 @@ class GoogleCloudDiscoveryengineV1betaLicenseConfig extends \Google\Model
    */
   public const STATE_WITHDRAWN = 'WITHDRAWN';
   /**
-   * The license config is terminated earlier than the expiration date and it is
-   * deactivating. The customer will still have access in this state. It will be
-   * converted to EXPIRED after the deactivating period ends (14 days) or when
-   * the end date is reached, whichever comes first.
+   * The license config is in a grace period. Its subscription has ended, either
+   * through early termination or by reaching its end date, but the customer
+   * keeps access for a limited time. It becomes EXPIRED when the grace period
+   * ends.
    */
   public const STATE_DEACTIVATING = 'DEACTIVATING';
   /**
@@ -132,6 +132,10 @@ class GoogleCloudDiscoveryengineV1betaLicenseConfig extends \Google\Model
    */
   public const SUBSCRIPTION_TIER_SUBSCRIPTION_TIER_CONSUMPTION_ONLY = 'SUBSCRIPTION_TIER_CONSUMPTION_ONLY';
   /**
+   * Gemini Enterprise EDU tier for government in emerging markets.
+   */
+  public const SUBSCRIPTION_TIER_SUBSCRIPTION_TIER_EDU_GOV_EMERGING = 'SUBSCRIPTION_TIER_EDU_GOV_EMERGING';
+  /**
    * Optional. Whether the license config should be auto renewed when it reaches
    * the end date.
    *
@@ -162,6 +166,16 @@ class GoogleCloudDiscoveryengineV1betaLicenseConfig extends \Google\Model
    * @var bool
    */
   public $geminiBundle;
+  /**
+   * Optional. Timestamp of the most recent user-initiated update (seat count
+   * change or subscription term change). Unlike `update_time`, this field is
+   * only stamped when a customer explicitly updates the license (e.g. via the
+   * UI), and is not touched by system-driven writes (subscription pipeline,
+   * BALC propagation, etc.).
+   *
+   * @var string
+   */
+  public $lastUserUpdateTime;
   /**
    * Required. Number of licenses purchased.
    *
@@ -298,6 +312,26 @@ class GoogleCloudDiscoveryengineV1betaLicenseConfig extends \Google\Model
     return $this->geminiBundle;
   }
   /**
+   * Optional. Timestamp of the most recent user-initiated update (seat count
+   * change or subscription term change). Unlike `update_time`, this field is
+   * only stamped when a customer explicitly updates the license (e.g. via the
+   * UI), and is not touched by system-driven writes (subscription pipeline,
+   * BALC propagation, etc.).
+   *
+   * @param string $lastUserUpdateTime
+   */
+  public function setLastUserUpdateTime($lastUserUpdateTime)
+  {
+    $this->lastUserUpdateTime = $lastUserUpdateTime;
+  }
+  /**
+   * @return string
+   */
+  public function getLastUserUpdateTime()
+  {
+    return $this->lastUserUpdateTime;
+  }
+  /**
    * Required. Number of licenses purchased.
    *
    * @param string $licenseCount
@@ -396,7 +430,7 @@ class GoogleCloudDiscoveryengineV1betaLicenseConfig extends \Google\Model
    * SUBSCRIPTION_TIER_ENTERPRISE_EMERGING, SUBSCRIPTION_TIER_EDU,
    * SUBSCRIPTION_TIER_EDU_PRO, SUBSCRIPTION_TIER_EDU_EMERGING,
    * SUBSCRIPTION_TIER_EDU_PRO_EMERGING, SUBSCRIPTION_TIER_FRONTLINE_STARTER,
-   * SUBSCRIPTION_TIER_CONSUMPTION_ONLY
+   * SUBSCRIPTION_TIER_CONSUMPTION_ONLY, SUBSCRIPTION_TIER_EDU_GOV_EMERGING
    *
    * @param self::SUBSCRIPTION_TIER_* $subscriptionTier
    */

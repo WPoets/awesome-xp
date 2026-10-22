@@ -316,6 +316,8 @@ class GoogleCloudDiscoveryengineV1SearchRequest extends \Google\Collection
    * @var string
    */
   public $rankingExpressionBackend;
+  protected $relevanceFilterSpecType = GoogleCloudDiscoveryengineV1SearchRequestRelevanceFilterSpec::class;
+  protected $relevanceFilterSpecDataType = '';
   protected $relevanceScoreSpecType = GoogleCloudDiscoveryengineV1SearchRequestRelevanceScoreSpec::class;
   protected $relevanceScoreSpecDataType = '';
   /**
@@ -335,6 +337,8 @@ class GoogleCloudDiscoveryengineV1SearchRequest extends \Google\Collection
    * @var bool
    */
   public $safeSearch;
+  protected $searchAddonSpecType = GoogleCloudDiscoveryengineV1SearchRequestSearchAddonSpec::class;
+  protected $searchAddonSpecDataType = '';
   protected $searchAsYouTypeSpecType = GoogleCloudDiscoveryengineV1SearchRequestSearchAsYouTypeSpec::class;
   protected $searchAsYouTypeSpecDataType = '';
   /**
@@ -510,7 +514,12 @@ class GoogleCloudDiscoveryengineV1SearchRequest extends \Google\Collection
    * Specifications that define the specific DataStores to be searched, along
    * with configurations for those data stores. This is only considered for
    * Engines with multiple data stores. For engines with a single data store,
-   * the specs directly under SearchRequest should be used.
+   * the specs directly under SearchRequest should be used. On an engine with
+   * multiple data stores, this field is optional. If it's empty, all of the
+   * engine's data stores are searched (blended search). Unless it specifies
+   * exactly one data store, some request fields, such as `order_by` and
+   * `query_expansion_spec`, aren't supported and return an `INVALID_ARGUMENT`
+   * error.
    *
    * @param GoogleCloudDiscoveryengineV1SearchRequestDataStoreSpec[] $dataStoreSpecs
    */
@@ -963,6 +972,26 @@ class GoogleCloudDiscoveryengineV1SearchRequest extends \Google\Collection
     return $this->rankingExpressionBackend;
   }
   /**
+   * Optional. The granular relevance filtering specification. If not specified,
+   * the global `relevance_threshold` will be used for all sub-searches. If
+   * specified, this overrides the global `relevance_threshold` to use
+   * thresholds on a per sub-search basis. This feature is currently supported
+   * only for custom and site search.
+   *
+   * @param GoogleCloudDiscoveryengineV1SearchRequestRelevanceFilterSpec $relevanceFilterSpec
+   */
+  public function setRelevanceFilterSpec(GoogleCloudDiscoveryengineV1SearchRequestRelevanceFilterSpec $relevanceFilterSpec)
+  {
+    $this->relevanceFilterSpec = $relevanceFilterSpec;
+  }
+  /**
+   * @return GoogleCloudDiscoveryengineV1SearchRequestRelevanceFilterSpec
+   */
+  public function getRelevanceFilterSpec()
+  {
+    return $this->relevanceFilterSpec;
+  }
+  /**
    * Optional. The specification for returning the relevance score.
    *
    * @param GoogleCloudDiscoveryengineV1SearchRequestRelevanceScoreSpec $relevanceScoreSpec
@@ -1016,6 +1045,23 @@ class GoogleCloudDiscoveryengineV1SearchRequest extends \Google\Collection
   public function getSafeSearch()
   {
     return $this->safeSearch;
+  }
+  /**
+   * Optional. SearchAddonSpec is used to disable add-ons for search as per new
+   * repricing model. This field is only supported for search requests.
+   *
+   * @param GoogleCloudDiscoveryengineV1SearchRequestSearchAddonSpec $searchAddonSpec
+   */
+  public function setSearchAddonSpec(GoogleCloudDiscoveryengineV1SearchRequestSearchAddonSpec $searchAddonSpec)
+  {
+    $this->searchAddonSpec = $searchAddonSpec;
+  }
+  /**
+   * @return GoogleCloudDiscoveryengineV1SearchRequestSearchAddonSpec
+   */
+  public function getSearchAddonSpec()
+  {
+    return $this->searchAddonSpec;
   }
   /**
    * Search as you type configuration. Only supported for the

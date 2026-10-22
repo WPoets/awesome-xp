@@ -53,7 +53,6 @@ class Storage extends \Google\Service
   public $anywhereCaches;
   public $bucketAccessControls;
   public $buckets;
-  public $channels;
   public $defaultObjectAccessControls;
   public $folders;
   public $managedFolders;
@@ -63,6 +62,7 @@ class Storage extends \Google\Service
   public $operations;
   public $projects_hmacKeys;
   public $projects_serviceAccount;
+  public $rapidCaches;
   public $rootUrlTemplate;
 
   /**
@@ -629,20 +629,6 @@ class Storage extends \Google\Service
           ]
         ]
     );
-    $this->channels = new Storage\Resource\Channels(
-        $this,
-        $this->serviceName,
-        'channels',
-        [
-          'methods' => [
-            'stop' => [
-              'path' => 'channels/stop',
-              'httpMethod' => 'POST',
-              'parameters' => [],
-            ],
-          ]
-        ]
-    );
     $this->defaultObjectAccessControls = new Storage\Resource\DefaultObjectAccessControls(
         $this,
         $this->serviceName,
@@ -1071,6 +1057,29 @@ class Storage extends \Google\Service
                   'required' => true,
                 ],
                 'userProject' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+              ],
+            ],'update' => [
+              'path' => 'b/{bucket}/managedFolders/{managedFolder}',
+              'httpMethod' => 'PATCH',
+              'parameters' => [
+                'bucket' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'managedFolder' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'ifMetagenerationMatch' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+                'ifMetagenerationNotMatch' => [
                   'location' => 'query',
                   'type' => 'string',
                 ],
@@ -2041,6 +2050,34 @@ class Storage extends \Google\Service
                   'type' => 'string',
                 ],
               ],
+            ],'viewFullContext' => [
+              'path' => 'b/{bucket}/o/{object}/viewFullContext',
+              'httpMethod' => 'GET',
+              'parameters' => [
+                'bucket' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'object' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'contextKey' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'generation' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+                'userProject' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+              ],
             ],
           ]
         ]
@@ -2256,6 +2293,89 @@ class Storage extends \Google\Service
                 'userProject' => [
                   'location' => 'query',
                   'type' => 'string',
+                ],
+              ],
+            ],
+          ]
+        ]
+    );
+    $this->rapidCaches = new Storage\Resource\RapidCaches(
+        $this,
+        $this->serviceName,
+        'rapidCaches',
+        [
+          'methods' => [
+            'disable' => [
+              'path' => 'b/{bucket}/rapidCaches/{rapidCacheId}/disable',
+              'httpMethod' => 'POST',
+              'parameters' => [
+                'bucket' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'rapidCacheId' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+              ],
+            ],'get' => [
+              'path' => 'b/{bucket}/rapidCaches/{rapidCacheId}',
+              'httpMethod' => 'GET',
+              'parameters' => [
+                'bucket' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'rapidCacheId' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+              ],
+            ],'insert' => [
+              'path' => 'b/{bucket}/rapidCaches',
+              'httpMethod' => 'POST',
+              'parameters' => [
+                'bucket' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+              ],
+            ],'list' => [
+              'path' => 'b/{bucket}/rapidCaches',
+              'httpMethod' => 'GET',
+              'parameters' => [
+                'bucket' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'pageSize' => [
+                  'location' => 'query',
+                  'type' => 'integer',
+                ],
+                'pageToken' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+              ],
+            ],'update' => [
+              'path' => 'b/{bucket}/rapidCaches/{rapidCacheId}',
+              'httpMethod' => 'PATCH',
+              'parameters' => [
+                'bucket' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'rapidCacheId' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
                 ],
               ],
             ],

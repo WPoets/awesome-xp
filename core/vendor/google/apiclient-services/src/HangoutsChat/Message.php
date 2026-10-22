@@ -19,6 +19,23 @@ namespace Google\Service\HangoutsChat;
 
 class Message extends \Google\Collection
 {
+  /**
+   * Represents the unspecified value.
+   */
+  public const MARKUP_SYNTAX_MARKUP_SYNTAX_UNSPECIFIED = 'MARKUP_SYNTAX_UNSPECIFIED';
+  /**
+   * Uses Google Chat's markup syntax. See
+   * https://developers.google.com/workspace/chat/format-messages#format-texts
+   * for more information.
+   */
+  public const MARKUP_SYNTAX_MARKUP_SYNTAX_CHAT = 'MARKUP_SYNTAX_CHAT';
+  /**
+   * Uses Markdown syntax. This syntax is based on the
+   * [CommonMark](https://commonmark.org/help/) specification, with additional
+   * extensions. See https://developers.google.com/workspace/chat/format-
+   * messages#format-texts for more information.
+   */
+  public const MARKUP_SYNTAX_MARKUP_SYNTAX_MARKDOWN = 'MARKUP_SYNTAX_MARKDOWN';
   protected $collection_key = 'emojiReactionSummaries';
   protected $accessoryWidgetsType = AccessoryWidget::class;
   protected $accessoryWidgetsDataType = 'array';
@@ -109,6 +126,13 @@ class Message extends \Google\Collection
    * @var string
    */
   public $lastUpdateTime;
+  /**
+   * Optional. Specifies how the server interprets the message `text` field
+   * content.
+   *
+   * @var string
+   */
+  public $markupSyntax;
   protected $matchedUrlType = MatchedUrl::class;
   protected $matchedUrlDataType = '';
   /**
@@ -484,6 +508,26 @@ class Message extends \Google\Collection
     return $this->lastUpdateTime;
   }
   /**
+   * Optional. Specifies how the server interprets the message `text` field
+   * content.
+   *
+   * Accepted values: MARKUP_SYNTAX_UNSPECIFIED, MARKUP_SYNTAX_CHAT,
+   * MARKUP_SYNTAX_MARKDOWN
+   *
+   * @param self::MARKUP_SYNTAX_* $markupSyntax
+   */
+  public function setMarkupSyntax($markupSyntax)
+  {
+    $this->markupSyntax = $markupSyntax;
+  }
+  /**
+   * @return self::MARKUP_SYNTAX_*
+   */
+  public function getMarkupSyntax()
+  {
+    return $this->markupSyntax;
+  }
+  /**
    * Output only. A URL in the Chat message `text` field that matches a link
    * preview pattern. For more information, see [Preview
    * links](https://developers.google.com/workspace/chat/preview-links).
@@ -579,8 +623,11 @@ class Message extends \Google\Collection
    * Output only. The user who created the message. If your Chat app
    * [authenticates as a
    * user](https://developers.google.com/workspace/chat/authenticate-authorize-
-   * chat-user), the output populates the [user](https://developers.google.com/w
-   * orkspace/chat/api/reference/rest/v1/User) `name` and `type`.
+   * chat-user), the output only populates the [user](https://developers.google.
+   * com/workspace/chat/api/reference/rest/v1/User) `name` and `type` fields for
+   * both internal and external users, unless they are members of the space or
+   * have a prior affinity, like a direct message (DM) conversation, with the
+   * calling user.
    *
    * @param User $sender
    */

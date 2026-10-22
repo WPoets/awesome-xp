@@ -20,6 +20,18 @@ namespace Google\Service\BackupforGKE;
 class BDRBackupRestoreJobLog extends \Google\Model
 {
   /**
+   * The auto-protection policy that created the backup.
+   *
+   * @var string
+   */
+  public $autoProtectionPolicy;
+  /**
+   * The auto-protection policy binding that created the backup.
+   *
+   * @var string
+   */
+  public $autoProtectionPolicyBinding;
+  /**
    * Backup consistency time.
    *
    * @var string
@@ -162,12 +174,50 @@ class BDRBackupRestoreJobLog extends \Google\Model
    */
   public $startTime;
   /**
+   * The storage tier associated with the backup.
+   *
+   * @var string
+   */
+  public $storageTier;
+  /**
    * The target resource type for restore jobs.
    *
    * @var string
    */
   public $targetResourceType;
 
+  /**
+   * The auto-protection policy that created the backup.
+   *
+   * @param string $autoProtectionPolicy
+   */
+  public function setAutoProtectionPolicy($autoProtectionPolicy)
+  {
+    $this->autoProtectionPolicy = $autoProtectionPolicy;
+  }
+  /**
+   * @return string
+   */
+  public function getAutoProtectionPolicy()
+  {
+    return $this->autoProtectionPolicy;
+  }
+  /**
+   * The auto-protection policy binding that created the backup.
+   *
+   * @param string $autoProtectionPolicyBinding
+   */
+  public function setAutoProtectionPolicyBinding($autoProtectionPolicyBinding)
+  {
+    $this->autoProtectionPolicyBinding = $autoProtectionPolicyBinding;
+  }
+  /**
+   * @return string
+   */
+  public function getAutoProtectionPolicyBinding()
+  {
+    return $this->autoProtectionPolicyBinding;
+  }
   /**
    * Backup consistency time.
    *
@@ -531,6 +581,22 @@ class BDRBackupRestoreJobLog extends \Google\Model
   public function getStartTime()
   {
     return $this->startTime;
+  }
+  /**
+   * The storage tier associated with the backup.
+   *
+   * @param string $storageTier
+   */
+  public function setStorageTier($storageTier)
+  {
+    $this->storageTier = $storageTier;
+  }
+  /**
+   * @return string
+   */
+  public function getStorageTier()
+  {
+    return $this->storageTier;
   }
   /**
    * The target resource type for restore jobs.

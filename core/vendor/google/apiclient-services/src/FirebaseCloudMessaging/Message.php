@@ -21,6 +21,8 @@ class Message extends \Google\Model
 {
   protected $androidType = AndroidConfig::class;
   protected $androidDataType = '';
+  protected $androidV2Type = AndroidConfigV2::class;
+  protected $androidV2DataType = '';
   protected $apnsType = ApnsConfig::class;
   protected $apnsDataType = '';
   /**
@@ -43,7 +45,8 @@ class Message extends \Google\Model
   protected $fcmOptionsType = FcmOptions::class;
   protected $fcmOptionsDataType = '';
   /**
-   * Firebase Installation ID to send a message to.
+   * [Firebase Installation ID (FID)](/docs/cloud-messaging/android/get-
+   * started#access-firebase-installation-id) to send a message to.
    *
    * @var string
    */
@@ -58,9 +61,9 @@ class Message extends \Google\Model
   protected $notificationType = Notification::class;
   protected $notificationDataType = '';
   /**
-   * Deprecated: Use `fid` instead. Registration token to send a message to.
-   * During the transition period, this field also accepts a Firebase
-   * Installation ID (FID).
+   * Deprecated: Use `fid` instead. During the transition period, this field
+   * also accepts a Firebase Installation ID (FID). Registration token to send a
+   * message to.
    *
    * @deprecated
    * @var string
@@ -92,6 +95,24 @@ class Message extends \Google\Model
   public function getAndroid()
   {
     return $this->android;
+  }
+  /**
+   * Optional. Input only. Android specific V2 options for messages sent through
+   * FCM connection server. Mutually exclusive with `android`. Requests with
+   * both `AndroidConfig` and `AndroidConfigV2` will be rejected.
+   *
+   * @param AndroidConfigV2 $androidV2
+   */
+  public function setAndroidV2(AndroidConfigV2 $androidV2)
+  {
+    $this->androidV2 = $androidV2;
+  }
+  /**
+   * @return AndroidConfigV2
+   */
+  public function getAndroidV2()
+  {
+    return $this->androidV2;
   }
   /**
    * Input only. [Apple Push Notification Service](https://goo.gl/MXRTPa)
@@ -165,7 +186,8 @@ class Message extends \Google\Model
     return $this->fcmOptions;
   }
   /**
-   * Firebase Installation ID to send a message to.
+   * [Firebase Installation ID (FID)](/docs/cloud-messaging/android/get-
+   * started#access-firebase-installation-id) to send a message to.
    *
    * @param string $fid
    */
@@ -214,9 +236,9 @@ class Message extends \Google\Model
     return $this->notification;
   }
   /**
-   * Deprecated: Use `fid` instead. Registration token to send a message to.
-   * During the transition period, this field also accepts a Firebase
-   * Installation ID (FID).
+   * Deprecated: Use `fid` instead. During the transition period, this field
+   * also accepts a Firebase Installation ID (FID). Registration token to send a
+   * message to.
    *
    * @deprecated
    * @param string $token

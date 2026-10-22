@@ -33,12 +33,20 @@ class SessionOutput extends \Google\Model
   protected $endSessionDataType = '';
   protected $googleSearchSuggestionsType = GoogleSearchSuggestions::class;
   protected $googleSearchSuggestionsDataType = '';
+  protected $imageType = Image::class;
+  protected $imageDataType = '';
   /**
    * Custom payload with structured output from the CES agent.
    *
    * @var array[]
    */
   public $payload;
+  /**
+   * Intermediate progress update from the CES agent.
+   *
+   * @var string
+   */
+  public $progress;
   /**
    * Output text from the CES agent.
    *
@@ -147,6 +155,22 @@ class SessionOutput extends \Google\Model
     return $this->googleSearchSuggestions;
   }
   /**
+   * Output image from the CES agent.
+   *
+   * @param Image $image
+   */
+  public function setImage(Image $image)
+  {
+    $this->image = $image;
+  }
+  /**
+   * @return Image
+   */
+  public function getImage()
+  {
+    return $this->image;
+  }
+  /**
    * Custom payload with structured output from the CES agent.
    *
    * @param array[] $payload
@@ -161,6 +185,22 @@ class SessionOutput extends \Google\Model
   public function getPayload()
   {
     return $this->payload;
+  }
+  /**
+   * Intermediate progress update from the CES agent.
+   *
+   * @param string $progress
+   */
+  public function setProgress($progress)
+  {
+    $this->progress = $progress;
+  }
+  /**
+   * @return string
+   */
+  public function getProgress()
+  {
+    return $this->progress;
   }
   /**
    * Output text from the CES agent.

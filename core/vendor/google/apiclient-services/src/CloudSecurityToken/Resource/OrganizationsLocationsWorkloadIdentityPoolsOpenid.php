@@ -31,11 +31,17 @@ class OrganizationsLocationsWorkloadIdentityPoolsOpenid extends \Google\Service\
 {
   /**
    * Fetches the signing keys for an agentic or managed workload identity pool and
-   * returns them in JWKs format, defined in [RFC
+   * returns them in JWK Set format, defined in [RFC
    * 7517](https://tools.ietf.org/html/rfc7517). For now, only agentic system
-   * pools are supported. (openid.getJwks)
+   * pools are supported. **Preview** This feature is subject to the "Pre-GA
+   * Offerings Terms" in the General Service Terms section of the [Service
+   * Specific Terms](https://cloud.google.com/terms/service-terms#1). Pre-GA
+   * features are available "as is" and might have limited support. For more
+   * information, see the [launch stage
+   * descriptions](https://cloud.google.com/products#product-launch-stages).
+   * (openid.getJwks)
    *
-   * @param string $name Required. The name of the pool whose JWKS needs to be
+   * @param string $name Required. The name of the pool whose JWKs need to be
    * retrieved. Format: 'organizations/{ORGANIZATION_NUMBER}/locations/global/work
    * loadIdentityPools/{POOL_ID}'
    * 'projects/{PROJECT_NUMBER}/locations/global/workloadIdentityPools/{POOL_ID}'

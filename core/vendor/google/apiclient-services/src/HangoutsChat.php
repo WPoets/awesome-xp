@@ -50,6 +50,15 @@ class HangoutsChat extends \Google\Service
   /** View display name, description, and other metadata for all Google Chat conversations owned by your organization. */
   const CHAT_ADMIN_SPACES_READONLY =
       "https://www.googleapis.com/auth/chat.admin.spaces.readonly";
+  /** On their own behalf, apps in Google Chat can see all members in Google Chat spaces and conversations throughout your Workspace organization, even when the Chat app isn't a member. */
+  const CHAT_APP_ALL_MEMBERSHIPS_READONLY =
+      "https://www.googleapis.com/auth/chat.app.all.memberships.readonly";
+  /** On their own behalf, apps in Google Chat can see all messages and reactions throughout your Workspace organization, even when the Chat app isn't a member of a space or conversation. */
+  const CHAT_APP_ALL_MESSAGES_READONLY =
+      "https://www.googleapis.com/auth/chat.app.all.messages.readonly";
+  /** On their own behalf, apps in Google Chat can see metadata about all spaces and conversations in Google Chat throughout your Workspace organization, even when the Chat app isn't a member. */
+  const CHAT_APP_ALL_SPACES_READONLY =
+      "https://www.googleapis.com/auth/chat.app.all.spaces.readonly";
   /** On their own behalf, apps in Google Chat can delete conversations and spaces and remove access to associated files. */
   const CHAT_APP_DELETE =
       "https://www.googleapis.com/auth/chat.app.delete";
@@ -95,10 +104,10 @@ class HangoutsChat extends \Google\Service
   /** View members in Google Chat conversations.. */
   const CHAT_MEMBERSHIPS_READONLY =
       "https://www.googleapis.com/auth/chat.memberships.readonly";
-  /** See, compose, send, update, and delete messages as well as their message content; add, see, and delete reactions to messages.. */
+  /** See, compose, send, update, and delete messages, their content, and attached cards; add, see, and delete reactions to messages.. */
   const CHAT_MESSAGES =
       "https://www.googleapis.com/auth/chat.messages";
-  /** Compose and send messages in Google Chat. */
+  /** Compose and send messages and attach cards. */
   const CHAT_MESSAGES_CREATE =
       "https://www.googleapis.com/auth/chat.messages.create";
   /** See, add, and delete reactions as well as their reaction content to messages in Google Chat. */
@@ -119,6 +128,12 @@ class HangoutsChat extends \Google\Service
   /** Create new conversations and spaces in Google Chat. */
   const CHAT_SPACES_CREATE =
       "https://www.googleapis.com/auth/chat.spaces.create";
+  /** See, add, and remove pins in your Google Chat spaces. */
+  const CHAT_SPACES_PINS =
+      "https://www.googleapis.com/auth/chat.spaces.pins";
+  /** See pins in your Google Chat spaces. */
+  const CHAT_SPACES_PINS_READONLY =
+      "https://www.googleapis.com/auth/chat.spaces.pins.readonly";
   /** View chat and spaces in Google Chat. */
   const CHAT_SPACES_READONLY =
       "https://www.googleapis.com/auth/chat.spaces.readonly";
@@ -148,6 +163,7 @@ class HangoutsChat extends \Google\Service
   public $media;
   public $spaces;
   public $spaces_members;
+  public $spaces_messagePins;
   public $spaces_messages;
   public $spaces_messages_attachments;
   public $spaces_messages_reactions;
@@ -514,6 +530,54 @@ class HangoutsChat extends \Google\Service
           ]
         ]
     );
+    $this->spaces_messagePins = new HangoutsChat\Resource\SpacesMessagePins(
+        $this,
+        $this->serviceName,
+        'messagePins',
+        [
+          'methods' => [
+            'create' => [
+              'path' => 'v1/{+parent}/messagePins',
+              'httpMethod' => 'POST',
+              'parameters' => [
+                'parent' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+              ],
+            ],'delete' => [
+              'path' => 'v1/{+name}',
+              'httpMethod' => 'DELETE',
+              'parameters' => [
+                'name' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+              ],
+            ],'list' => [
+              'path' => 'v1/{+parent}/messagePins',
+              'httpMethod' => 'GET',
+              'parameters' => [
+                'parent' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'pageSize' => [
+                  'location' => 'query',
+                  'type' => 'integer',
+                ],
+                'pageToken' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+              ],
+            ],
+          ]
+        ]
+    );
     $this->spaces_messages = new HangoutsChat\Resource\SpacesMessages(
         $this,
         $this->serviceName,
@@ -573,6 +637,10 @@ class HangoutsChat extends \Google\Service
                   'type' => 'string',
                   'required' => true,
                 ],
+                'markupSyntax' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
               ],
             ],'list' => [
               'path' => 'v1/{+parent}/messages',
@@ -584,6 +652,10 @@ class HangoutsChat extends \Google\Service
                   'required' => true,
                 ],
                 'filter' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+                'markupSyntax' => [
                   'location' => 'query',
                   'type' => 'string',
                 ],
@@ -620,6 +692,16 @@ class HangoutsChat extends \Google\Service
                 'updateMask' => [
                   'location' => 'query',
                   'type' => 'string',
+                ],
+              ],
+            ],'search' => [
+              'path' => 'v1/{+parent}/messages:search',
+              'httpMethod' => 'POST',
+              'parameters' => [
+                'parent' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
                 ],
               ],
             ],'update' => [
@@ -764,7 +846,7 @@ class HangoutsChat extends \Google\Service
         'availability',
         [
           'methods' => [
-            'getAvailability' => [
+            'get' => [
               'path' => 'v1/{+name}',
               'httpMethod' => 'GET',
               'parameters' => [
@@ -804,7 +886,7 @@ class HangoutsChat extends \Google\Service
                   'required' => true,
                 ],
               ],
-            ],'updateAvailability' => [
+            ],'patch' => [
               'path' => 'v1/{+name}',
               'httpMethod' => 'PATCH',
               'parameters' => [

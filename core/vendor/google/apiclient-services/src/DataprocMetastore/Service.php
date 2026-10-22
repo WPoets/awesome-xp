@@ -90,6 +90,11 @@ class Service extends \Google\Model
    */
   public const STATE_MIGRATING = 'MIGRATING';
   /**
+   * The metastore service has completed managed migration and is now proxying
+   * requests to the Lakehouse runtime catalog.
+   */
+  public const STATE_PROXY = 'PROXY';
+  /**
    * The tier is not set.
    */
   public const TIER_TIER_UNSPECIFIED = 'TIER_UNSPECIFIED';
@@ -145,6 +150,8 @@ class Service extends \Google\Model
    * @var string[]
    */
   public $labels;
+  protected $lakehouseProxyConfigType = LakehouseProxyConfig::class;
+  protected $lakehouseProxyConfigDataType = '';
   protected $maintenanceWindowType = MaintenanceWindow::class;
   protected $maintenanceWindowDataType = '';
   protected $metadataIntegrationType = MetadataIntegration::class;
@@ -365,6 +372,23 @@ class Service extends \Google\Model
     return $this->labels;
   }
   /**
+   * Output only. The Lakehouse proxy routing configuration for the metastore
+   * service.
+   *
+   * @param LakehouseProxyConfig $lakehouseProxyConfig
+   */
+  public function setLakehouseProxyConfig(LakehouseProxyConfig $lakehouseProxyConfig)
+  {
+    $this->lakehouseProxyConfig = $lakehouseProxyConfig;
+  }
+  /**
+   * @return LakehouseProxyConfig
+   */
+  public function getLakehouseProxyConfig()
+  {
+    return $this->lakehouseProxyConfig;
+  }
+  /**
    * Optional. The one hour maintenance window of the metastore service. This
    * specifies when the service can be restarted for maintenance purposes in UTC
    * time. Maintenance window is not needed for services with the SPANNER
@@ -541,7 +565,7 @@ class Service extends \Google\Model
    * Output only. The current state of the metastore service.
    *
    * Accepted values: STATE_UNSPECIFIED, CREATING, ACTIVE, SUSPENDING,
-   * SUSPENDED, UPDATING, DELETING, ERROR, AUTOSCALING, MIGRATING
+   * SUSPENDED, UPDATING, DELETING, ERROR, AUTOSCALING, MIGRATING, PROXY
    *
    * @param self::STATE_* $state
    */
