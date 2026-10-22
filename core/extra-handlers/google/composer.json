@@ -26,7 +26,11 @@
     },
     "config": {
 		"process-timeout": 600,
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "composer/installers": true,
+            "oomphinc/composer-installers-extender": true
+        }
     },
 	"prefer-stable": true
 }

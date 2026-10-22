@@ -4125,17 +4125,17 @@
         },
         {
             "name": "wpoets/excel-handler",
-            "version": "1.0.4.2",
-            "version_normalized": "1.0.4.2",
+            "version": "1.0.4.3",
+            "version_normalized": "1.0.4.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/WPoets/excel-handler.git",
-                "reference": "1fcd011ce3c4c9d667f5d1d3b5326f193a7d7f12"
+                "reference": "4bf9e3e28966a34c47f6753649b474ab86187544"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/WPoets/excel-handler/zipball/1fcd011ce3c4c9d667f5d1d3b5326f193a7d7f12",
-                "reference": "1fcd011ce3c4c9d667f5d1d3b5326f193a7d7f12",
+                "url": "https://api.github.com/repos/WPoets/excel-handler/zipball/4bf9e3e28966a34c47f6753649b474ab86187544",
+                "reference": "4bf9e3e28966a34c47f6753649b474ab86187544",
                 "shasum": ""
             },
             "require": {
@@ -4144,7 +4144,7 @@
                 "php": ">=8.1",
                 "phpoffice/phpspreadsheet": "^2.1 || ^3.0 || ^5.0"
             },
-            "time": "2026-07-02T10:13:54+00:00",
+            "time": "2026-10-22T08:06:08+00:00",
             "type": "awesome-handler",
             "extra": {
                 "installer-name": "excel"
@@ -4172,23 +4172,23 @@
             "support": {
                 "docs": "https://www.getawesomestudio.com/enterprise-tutorial/",
                 "issues": "https://github.com/WPoets/excel-handler/issues",
-                "source": "https://github.com/WPoets/excel-handler/tree/1.0.4.2"
+                "source": "https://github.com/WPoets/excel-handler/tree/1.0.4.3"
             },
             "install-path": "../../extra-handlers/excel"
         },
         {
             "name": "wpoets/google-handler",
-            "version": "1.1.1.3",
-            "version_normalized": "1.1.1.3",
+            "version": "1.1.1.4",
+            "version_normalized": "1.1.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/WPoets/google-handler.git",
-                "reference": "2921406ea2e559a272cb5cf404fed2277a3fc6ad"
+                "reference": "25da96879644904133c20210bffc045d632f62d2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/WPoets/google-handler/zipball/2921406ea2e559a272cb5cf404fed2277a3fc6ad",
-                "reference": "2921406ea2e559a272cb5cf404fed2277a3fc6ad",
+                "url": "https://api.github.com/repos/WPoets/google-handler/zipball/25da96879644904133c20210bffc045d632f62d2",
+                "reference": "25da96879644904133c20210bffc045d632f62d2",
                 "shasum": ""
             },
             "require": {
@@ -4197,7 +4197,7 @@
                 "oomphinc/composer-installers-extender": "^2.0",
                 "php": ">=7.0"
             },
-            "time": "2026-06-27T02:43:58+00:00",
+            "time": "2026-10-22T08:08:38+00:00",
             "type": "awesome-handler",
             "extra": {
                 "installer-name": "google"
@@ -4225,7 +4225,7 @@
             "support": {
                 "docs": "https://www.getawesomestudio.com/enterprise-tutorial/",
                 "issues": "https://github.com/WPoets/google-handler/issues",
-                "source": "https://github.com/WPoets/google-handler/tree/1.1.1.3"
+                "source": "https://github.com/WPoets/google-handler/tree/1.1.1.4"
             },
             "install-path": "../../extra-handlers/google"
         },
