@@ -2,7 +2,7 @@
 Contributors: wpoets, thecancerus
 Tags: shortcodes, shortcode, site-builder, website builder, low-code platform, no-code platform
 Requires at least: 7.0
-Tested up to: 7.0
+Tested up to: 7.1
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -14,7 +14,7 @@ Awesome XP is a high-performance, low-code logic engine for WordPress. Designed 
 
 Whether you are building custom internal tools, automating multi-step data processing, or extending the Awesome Enterprise Platform, Awesome Flow Builder gives you the "logic rails" to move faster and stay organized.
 
-Interested in knowing more about our platform? [Get started with Awesome XP](https://awxdocs.com/tutorials/learning-awesome-enterprise/ "Learning Awesome Enterprise")
+Want to learn more about our platform? [Get started with Awesome XP](https://awxdocs.com/tutorials/learning-awesome-enterprise/ "Learning Awesome Enterprise")
 
 More details about the platform & documentation can be found on https://awxdocs.com
 
