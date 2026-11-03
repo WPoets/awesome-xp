@@ -1,7 +1,8 @@
 <?php
 namespace aw2\gutenberg_blocks;
+
 if (!defined('DGB_VERSION')) {
-	\define('DGB_VERSION', '1.0.0');
+	\define('DGB_VERSION', '1.1.0');
 }
 if (!defined('DGB_PLUGIN_DIR')) {
 	\define('DGB_PLUGIN_DIR', \plugin_dir_path(__FILE__));
@@ -13,16 +14,31 @@ if (!defined('DGB_ASSETS_URL')) {
 	\define('DGB_ASSETS_URL', DGB_PLUGIN_URL . 'assets/');
 }
 
+// 1. Post Type & Service Registration
+\add_action('init', 'aw2\gutenberg_blocks\register_gt_post_type', 0);
 
-\add_action( 'init', 'aw2\gutenberg_blocks\register_gt_post_type', 0 );
-\add_action('init','aw2\gutenberg_blocks\setup_blocks',1);
+// 2. Library Initialization
 \add_action('plugins_loaded', 'aw2\gutenberg_blocks\dgb_init');
+
+// 3. Editor Asset Enqueueing
 \add_action('enqueue_block_editor_assets', 'aw2\gutenberg_blocks\enqueue_editor_assets');
 
+// 4. Cache Invalidation Hooks on aw_gb_blocks Mutations
+\add_action('save_post_aw_gb_blocks', 'aw2\gutenberg_blocks\invalidate_block_registry', 10, 2);
+\add_action('trashed_post', 'aw2\gutenberg_blocks\on_block_post_deleted', 10, 1);
+\add_action('deleted_post', 'aw2\gutenberg_blocks\on_block_post_deleted', 10, 1);
+
 /**
- * Registers the Custom Post Type for storing Elementor widget JSON.
+ * Registers the Custom Post Type for storing Gutenberg block configurations.
  */
 function register_gt_post_type() {
+    global $wpdb, $table_prefix;
+
+    // Expose database prefix into AWX environment for portable SQL queries ([env.get db.prefix /])
+    if (class_exists('\aw2_library') && method_exists('\aw2_library', 'set')) {
+        $prefix = isset($wpdb->prefix) ? $wpdb->prefix : (isset($table_prefix) ? $table_prefix : 'wp_');
+        \aw2_library::set('db.prefix', $prefix);
+    }
 
     $labels = [
         'name'                  => _x( 'Awesome Gutenberg Blocks', 'Post Type General Name', 'text_domain' ),
@@ -55,15 +71,14 @@ function register_gt_post_type() {
     ];
 
     $capabilities = array(
-        "edit_post"=>"develop_for_awesomeui",
-        "read_post"=>"develop_for_awesomeui",
-        "delete_post"=>"develop_for_awesomeui",
-        "edit_posts"=>"develop_for_awesomeui",
-        "edit_others_posts"=>"develop_for_awesomeui",
-        "publish_posts"=>"develop_for_awesomeui",
-        "read_private_posts"=>"develop_for_awesomeui",
-        "delete_posts"=>"develop_for_awesomeui"
-        
+        "edit_post"          => "develop_for_awesomeui",
+        "read_post"          => "develop_for_awesomeui",
+        "delete_post"        => "develop_for_awesomeui",
+        "edit_posts"         => "develop_for_awesomeui",
+        "edit_others_posts"  => "develop_for_awesomeui",
+        "publish_posts"      => "develop_for_awesomeui",
+        "read_private_posts" => "develop_for_awesomeui",
+        "delete_posts"       => "develop_for_awesomeui"
     );
 
     $args = [
@@ -72,10 +87,10 @@ function register_gt_post_type() {
         'labels'              => $labels,
         'supports'            => [ 'title', 'editor', 'revisions'],
         'hierarchical'        => false,
-        'public'              => false,  // This is key: not publicly accessible
-        'show_ui'             => true,   // But we want to see it in the admin dashboard
+        'public'              => false,  // Not publicly accessible as URL endpoints
+        'show_ui'             => true,   // Accessible in admin dashboard
         'show_in_menu'        => true,
-        'menu_position'       => 20,     // Position below "Pages"
+        'menu_position'       => 20,
         'menu_icon'           => 'dashicons-slides',
         'show_in_admin_bar'   => true,
         'show_in_nav_menus'   => false,
@@ -87,13 +102,12 @@ function register_gt_post_type() {
         'capabilities'        => $capabilities,
         'rewrite'             => false,
         'delete_with_user'    => false,
-        'show_in_rest'        => false, // Important for Gutenberg or REST API access if needed later
+        'show_in_rest'        => false,
     ];
 
     register_post_type( 'aw_gb_blocks', $args );
   
     \aw2_library::add_service('gb_blocks','gb_blocks service refers to aw_gb_blocks posts for rendering etc.',['post_type'=>'aw_gb_blocks']);
-
 }
 
 /**
@@ -101,18 +115,14 @@ function register_gt_post_type() {
  */
 function dgb_init() {
     require_once __DIR__ . '/lib/class-block-library.php';
-    // Initialize the library with blocks directory
-    \aw2\gutenberg_blocks\dgb()->init(
-        DGB_ASSETS_URL
-    );
+    dgb()->init(DGB_ASSETS_URL);
 }
 
 /**
  * Enqueue editor assets
  */
 function enqueue_editor_assets() {
-    // Enqueue the main editor script
-   \wp_enqueue_script(
+    \wp_enqueue_script(
         'dgb-blocks-editor',
         DGB_PLUGIN_URL . 'assets/js/blocks.js',
         array('wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-i18n', 'wp-data', 'wp-server-side-render'),
@@ -120,7 +130,6 @@ function enqueue_editor_assets() {
         false
     );
     
-    // Enqueue editor styles
     \wp_enqueue_style(
         'dgb-blocks-editor-style',
         DGB_PLUGIN_URL . 'assets/css/editor.css',
@@ -130,14 +139,53 @@ function enqueue_editor_assets() {
 }
 
 /**
- * Collect all the blocks
+ * Invalidate the block registry cache on post save/update
+ * 
+ * @param int $post_id Post ID
+ * @param \WP_Post|null $post Post object
  */
-function setup_blocks(){
-	//loop through the module and run the main module.
-    $block_posts= \aw2_library::get_collection(["post_type"=>'aw_gb_blocks']);
-	foreach($block_posts as $block_post){
-        // run the post main service?
-        \aw2_library::service_run('gb_blocks.'.$block_post['module'].'.register',null,null,'service');
+function invalidate_block_registry($post_id = 0, $post = null) {
+    if (function_exists('aw2\gutenberg_blocks\dgb')) {
+        dgb()->invalidate_registry();
     }
-   
 }
+
+/**
+ * Invalidate the block registry cache on post deletion or trash
+ * 
+ * @param int $post_id Post ID
+ */
+function on_block_post_deleted($post_id) {
+    if (function_exists('get_post_type') && get_post_type($post_id) === 'aw_gb_blocks') {
+        invalidate_block_registry();
+    }
+}
+
+/**
+ * Backward compatibility helper for manually executing register services.
+ * Note: Dynamic block registration is now handled on-demand by build_registry().
+ */
+function setup_blocks() {
+    if (function_exists('aw2\gutenberg_blocks\dgb')) {
+        dgb()->invalidate_registry();
+        dgb()->build_registry();
+    }
+}
+
+/**
+ * Load the cached block registry
+ * 
+ * @param bool $for_editor Whether to return full editor metadata or slim frontend metadata
+ * @return array
+ */
+function awx_load_block_registry($for_editor = false) {
+    return dgb()->load_registry($for_editor);
+}
+
+/**
+ * Invalidate the cached block registry
+ */
+function awx_invalidate_block_registry() {
+    dgb()->invalidate_registry();
+}
+
