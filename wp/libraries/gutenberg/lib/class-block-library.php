@@ -673,6 +673,7 @@ class BlockLibrary
                     'keywords'       => isset($config['keywords']) ? $config['keywords'] : array(),
                     'tabs'           => $tabs,
                     'fields'         => isset($config['fields']) ? $config['fields'] : array(),
+                    'sidebar_tabs'   => isset($config['sidebar_tabs']) ? $config['sidebar_tabs'] : (isset($config_data['sidebar_tabs']) ? $config_data['sidebar_tabs'] : array()),
                     'editor_script'  => 'dgb-blocks-editor',
                     'editor_style'   => 'dgb-blocks-editor-style',
                 ));

@@ -1,20 +1,31 @@
 (function (blocks, element, blockEditor, components, data, apiFetch) {
 
-    var el              = element.createElement;
-    var useBlockProps   = blockEditor.useBlockProps;
-    var TextControl     = components.TextControl;
-    var TextareaControl = components.TextareaControl;
-    var SelectControl   = components.SelectControl;
-    var ToggleControl   = components.ToggleControl;
-    var Button          = components.Button;
-    var Spinner         = components.Spinner;
-    var InnerBlocks     = blockEditor.InnerBlocks;
-    var MediaUpload     = blockEditor.MediaUpload;
-    var useState        = element.useState;
-    var useEffect       = element.useEffect;
-    var useRef          = element.useRef;
-    var useMemo         = element.useMemo;
-    var createPortal    = element.createPortal;
+    var el                = element.createElement;
+    var useBlockProps     = blockEditor.useBlockProps;
+    var BlockControls     = blockEditor.BlockControls;
+    var InspectorControls = blockEditor.InspectorControls;
+    var InnerBlocks       = blockEditor.InnerBlocks;
+    var MediaUpload       = blockEditor.MediaUpload;
+
+    var TextControl       = components.TextControl;
+    var TextareaControl   = components.TextareaControl;
+    var SelectControl     = components.SelectControl;
+    var ToggleControl     = components.ToggleControl;
+    var Button            = components.Button;
+    var Spinner           = components.Spinner;
+    var ToolbarGroup      = components.ToolbarGroup;
+    var ToolbarButton     = components.ToolbarButton;
+    var PanelBody         = components.PanelBody;
+    var PanelRow          = components.PanelRow;
+    var Modal             = components.Modal;
+
+    var ServerSideRender  = (window.wp && window.wp.serverSideRender) ? window.wp.serverSideRender : (components && components.ServerSideRender);
+
+    var useState          = element.useState;
+    var useEffect         = element.useEffect;
+    var useRef            = element.useRef;
+    var useMemo           = element.useMemo;
+    var createPortal      = element.createPortal;
 
     /* ================================================================
        DEFERRED VALUE HOOK
@@ -117,6 +128,90 @@
             ),
             document.body
         );
+    }
+
+    /* ================================================================
+       ATTRIBUTE BINDING HELPERS
+    ================================================================ */
+    function getFieldValue(attrs, field) {
+        var attrName = field.attr_name || field.name;
+        if (!attrName) {
+            return field.default !== undefined ? field.default : '';
+        }
+
+        // 1. Direct flat attribute (e.g. 'content.author')
+        if (attrs && attrs[attrName] !== undefined && attrs[attrName] !== null) {
+            return attrs[attrName];
+        }
+
+        // 2. Dot-nested attribute (e.g. attrs.content.author)
+        if (attrName.indexOf('.') !== -1 && attrs) {
+            var parts = attrName.split('.');
+            var cur = attrs;
+            var found = true;
+            for (var i = 0; i < parts.length; i++) {
+                if (cur && cur[parts[i]] !== undefined && cur[parts[i]] !== null) {
+                    cur = cur[parts[i]];
+                } else {
+                    found = false;
+                    break;
+                }
+            }
+            if (found) {
+                return cur;
+            }
+        }
+
+        // 3. Fallback to legacy _data snapshot
+        if (attrs && attrs._data && typeof attrs._data === 'object') {
+            if (attrs._data[attrName] !== undefined && attrs._data[attrName] !== null) {
+                return attrs._data[attrName];
+            }
+            if (field.name && attrs._data[field.name] !== undefined && attrs._data[field.name] !== null) {
+                return attrs._data[field.name];
+            }
+        }
+
+        // 4. Fallback to field default
+        if (field.default !== undefined && field.default !== null) {
+            return field.default;
+        }
+
+        var ft = FIELD_TYPES[field.type];
+        return ft && ft.getDefault ? ft.getDefault(field) : '';
+    }
+
+    function setFieldValue(setAttributes, currentAttrs, field, value) {
+        var attrName = field.attr_name || field.name;
+        if (!attrName) {
+            return;
+        }
+
+        var newAttrs = {};
+
+        // 1. Set the flat synthesized key (e.g. 'content.author': value)
+        newAttrs[attrName] = value;
+
+        // 2. If attrName contains dot notation (e.g. 'content.author'), also mirror into nested object
+        if (attrName.indexOf('.') !== -1) {
+            var parts = attrName.split('.');
+            var top = parts[0];
+            var sub = parts.slice(1).join('.');
+
+            var currentTop = (currentAttrs && currentAttrs[top]) ? Object.assign({}, currentAttrs[top]) : {};
+            currentTop[sub] = value;
+            newAttrs[top] = currentTop;
+        }
+
+        // 3. Maintain legacy _data snapshot for backward compatibility
+        var dataSnapshot = (currentAttrs && currentAttrs._data) ? Object.assign({}, currentAttrs._data) : {};
+        dataSnapshot[attrName] = value;
+        if (field.name) {
+            dataSnapshot[field.name] = value;
+        }
+        newAttrs._data = dataSnapshot;
+
+        setAttributes(newAttrs);
     }
 
     /* ================================================================
@@ -276,6 +371,10 @@
             var expanded      = expandedState[0];
             var setExpanded   = expandedState[1];
 
+            var modalState = useState(false);
+            var isModalOpen = modalState[0];
+            var setModalOpen = modalState[1];
+
             function toggleExpanded(index) {
                 var next = Object.assign({}, expanded);
                 next[index] = !next[index];
@@ -404,11 +503,35 @@
                 );
             }
 
+            var modalElement = (isModalOpen && Modal) ? el(Modal, {
+                title: 'Table Editor \u2014 ' + (p.label || 'Repeater'),
+                className: 'dgb-modal-repeater',
+                onRequestClose: function () { setModalOpen(false); }
+            },
+                el('div', { className: 'dgb-modal-repeater-inner' },
+                    renderTable(),
+                    el('div', { className: 'dgb-modal-footer', style: { marginTop: '16px', display: 'flex', justifyContent: 'flex-end' } },
+                        el(Button, { variant: 'primary', onClick: function () { setModalOpen(false); } }, 'Done')
+                    )
+                )
+            ) : null;
+
             return el('div', { className: 'dgb-row-repeater dgb-row-repeater-' + layout },
-                el('h4', {}, p.label),
+                el('div', { className: 'dgb-repeater-header-bar', style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' } },
+                    el('h4', { style: { margin: 0 } }, p.label),
+                    el(Button, {
+                        variant: 'secondary',
+                        size: 'small',
+                        onClick: function () { setModalOpen(true); }
+                    },
+                        el('span', { className: 'dashicons dashicons-editor-table', style: { marginRight: '4px' } }),
+                        'Wide Table Editor'
+                    )
+                ),
                 layout === 'table'          ? renderTable()         : null,
                 layout === 'card'           ? renderCard()          : null,
-                layout === 'card-collapsed' ? renderCardCollapsed() : null
+                layout === 'card-collapsed' ? renderCardCollapsed() : null,
+                modalElement
             );
         },
         getDefault: function () { return []; }
@@ -474,7 +597,44 @@
     FIELD_TYPES['awesome_code'] = {
         component: function CodeField(p) {
             var d = useDeferredValue(p.value || '', p.onChange);
-            return el(TextareaControl, { label: p.label, value: d[0], onChange: d[1], onBlur: d[2], rows: 8, className: 'dgb-code-field' });
+            var modalState = useState(false);
+            var isModalOpen = modalState[0];
+            var setModalOpen = modalState[1];
+
+            var modalElement = (isModalOpen && Modal) ? el(Modal, {
+                title: 'Code Editor \u2014 ' + (p.label || 'Code'),
+                className: 'dgb-modal-code',
+                onRequestClose: function () { setModalOpen(false); }
+            },
+                el('div', { className: 'dgb-modal-code-inner' },
+                    el(TextareaControl, {
+                        value: d[0],
+                        onChange: d[1],
+                        onBlur: d[2],
+                        rows: 22,
+                        className: 'dgb-code-field-modal'
+                    }),
+                    el('div', { className: 'dgb-modal-footer', style: { marginTop: '16px', display: 'flex', justifyContent: 'flex-end' } },
+                        el(Button, { variant: 'primary', onClick: function () { setModalOpen(false); } }, 'Done')
+                    )
+                )
+            ) : null;
+
+            return el('div', { className: 'dgb-code-field-wrapper' },
+                el('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' } },
+                    el('label', { className: 'components-base-control__label', style: { marginBottom: 0 } }, p.label),
+                    el(Button, {
+                        variant: 'tertiary',
+                        size: 'small',
+                        onClick: function () { setModalOpen(true); }
+                    },
+                        el('span', { className: 'dashicons dashicons-fullscreen-alt', style: { marginRight: '4px' } }),
+                        'Expand Editor'
+                    )
+                ),
+                el(TextareaControl, { value: d[0], onChange: d[1], onBlur: d[2], rows: 8, className: 'dgb-code-field' }),
+                modalElement
+            );
         },
         getDefault: function () { return ''; }
     };
@@ -1008,6 +1168,46 @@
     };
 
     /* ================================================================
+       ICON RENDERER & SVG FALLBACKS
+    ================================================================ */
+    var SVG_ICONS = {
+        'edit': el('svg', { width: 16, height: 16, viewBox: '0 0 24 24', fill: 'currentColor' },
+            el('path', { d: 'M19.7 5.3c-.4-.4-1-.4-1.4 0L16 7.6 18.4 10l2.3-2.3c.4-.4.4-1 0-1.4l-1-1zm-4.8 3.4L6 17.6V20h2.4L17.3 11.1 14.9 8.7z' })
+        ),
+        'admin-settings': el('svg', { width: 16, height: 16, viewBox: '0 0 24 24', fill: 'currentColor' },
+            el('path', { d: 'M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z' })
+        ),
+        'format-quote': el('svg', { width: 16, height: 16, viewBox: '0 0 24 24', fill: 'currentColor' },
+            el('path', { d: 'M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z' })
+        ),
+        'admin-generic': el('svg', { width: 16, height: 16, viewBox: '0 0 24 24', fill: 'currentColor' },
+            el('path', { d: 'M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z' })
+        ),
+        'format-image': el('svg', { width: 16, height: 16, viewBox: '0 0 24 24', fill: 'currentColor' },
+            el('path', { d: 'M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z' })
+        ),
+        'admin-appearance': el('svg', { width: 16, height: 16, viewBox: '0 0 24 24', fill: 'currentColor' },
+            el('path', { d: 'M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19.4c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.9-1.9C9.28 19.57 10.59 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 15c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z' })
+        )
+    };
+
+    function renderTabIcon(iconName) {
+        if (!iconName) {
+            return null;
+        }
+
+        var clean = String(iconName).trim().replace(/^dashicons-/, '');
+
+        // 1. Direct SVG map match (highest reliability across iframes and themes)
+        if (SVG_ICONS[clean]) {
+            return el('span', { className: 'dgb-tab-icon dgb-tab-svg-icon' }, SVG_ICONS[clean]);
+        }
+
+        // 2. Dashicon font icon (with dashicons class)
+        return el('span', { className: 'dashicons dashicons-' + clean + ' dgb-tab-icon' });
+    }
+
+    /* ================================================================
        TAB BUTTONS
     ================================================================ */
     function TabButtons(p) {
@@ -1019,7 +1219,7 @@
                     onClick: function () { p.onTabChange(tab.name); }
                 },
                     el('span', { className: 'dgb-tab-button-content' },
-                        el('span', { className: 'dashicons dashicons-' + tab.icon }),
+                        renderTabIcon(tab.icon),
                         ' ', tab.title
                     )
                 );
@@ -1028,117 +1228,7 @@
     }
 
     /* ================================================================
-       FIELD BLOCK
-    ================================================================ */
-    var fieldParents = Object.keys(window.dgbBlockConfigs.blocks).map(function (name) { return 'dgb/' + name; });
-
-    blocks.registerBlockType('dgb/field', {
-        title:  'DGB Field',
-        parent: fieldParents,
-        attributes: {
-            name:            { type: 'string',  default: ''      },
-            type:            { type: 'string'                     },
-            label:           { type: 'string',  default: ''      },
-            value:           { type: ['string', 'array', 'boolean', 'number', 'object'], default: '' },
-            tab:             { type: 'string',  default: ''      },
-            attr_name:       { type: 'string',  default: ''      },
-            options:         { type: 'array',   default: []      },
-            validation:      { type: 'object',  default: {}      },
-            repeater_fields: { type: 'array',   default: []      },
-            checkboxLabel:   { type: 'string',  default: ''      },
-            allowed_types:   { type: 'array',   default: []      },
-            post_type:       { type: 'string',  default: ''      },
-            taxonomy:        { type: 'string',  default: ''      },
-            rest_base:       { type: 'string',  default: ''      },
-            filters:         { type: 'array',   default: []      },
-            multiple:        { type: 'boolean', default: false   },
-            layout:          { type: 'string',  default: 'table' },
-            summary_field:   { type: 'string',  default: ''      },
-            activeTab:       { type: 'string',  default: ''      }
-        },
-
-        edit: function (ep) {
-            var a  = ep.attributes;
-            var sa = ep.setAttributes;
-            var fc = FIELD_TYPES[a.type];
-            if (!fc) { return null; }
-
-            var cls = 'dgb-field dgb-field-' + a.tab + (a.tab === a.activeTab ? ' dgb-field-active' : '');
-
-            if (a.type === 'innerblocks') {
-                return el('div', { className: cls }, el(fc.component, { label: a.label }));
-            }
-
-            var fv = a.value;
-            if      (a.type === 'small-number' || a.type === 'number') { fv = a.value !== '' ? Number(a.value) : ''; }
-            else if (a.type === 'toggle')                               { fv = Boolean(a.value); }
-
-            var fp = Object.assign({}, a.validation || {}, {
-                label:    a.label,
-                value:    fv,
-                onChange: function (v) { sa({ value: v }); }
-            });
-
-            if (a.type === 'select' || a.type === 'radio' || a.type === 'checkbox') { fp.options = a.options; }
-            if (a.type === 'single-checkbox')     { fp.checkboxLabel   = a.checkboxLabel; }
-            if (a.type === 'file')                { fp.allowed_types   = a.allowed_types;  fp.multiple = a.multiple; }
-            if (a.type === 'post-select')         { fp.post_type = a.post_type; fp.rest_base = a.rest_base; fp.multiple = a.multiple; }
-            if (a.type === 'taxonomy-select')     { fp.taxonomy  = a.taxonomy;  fp.rest_base = a.rest_base; fp.multiple = a.multiple; }
-            if (a.type === 'filtered-post-select'){ fp.post_type = a.post_type; fp.rest_base = a.rest_base; fp.multiple = a.multiple; fp.filters = a.filters; }
-            if (a.type === 'row_repeater')        { fp.repeater_fields = a.repeater_fields; fp.layout = a.layout; fp.summary_field = a.summary_field; }
-
-            return el('div', { className: cls }, el(fc.component, fp));
-        },
-
-        save: function () { return el(InnerBlocks.Content); }
-    });
-
-    /* ================================================================
-       BUILD INNERBLOCKS TEMPLATE
-    ================================================================ */
-    function buildTemplate(config, activeTab) {
-        var template = [];
-
-        function pushField(field, tabName) {
-            var dv = field.default;
-            if      (field.type === 'attributes-repeater' || field.type === 'row_repeater' || field.type === 'checkbox' || field.type === 'taxonomy-select') { dv = field.default || []; }
-            else if (field.type === 'toggle' || field.type === 'single-checkbox')  { dv = Boolean(field.default); }
-            else if (field.type === 'small-number' || field.type === 'number')     { dv = field.default !== undefined ? Number(field.default) : 0; }
-            else if (field.type === 'image' || field.type === 'file')              { dv = field.multiple ? [] : null; }
-            else if (field.type === 'post-select')                                 { dv = field.multiple ? [] : null; }
-            else if (field.type === 'filtered-post-select')                        { dv = { post: null, posts: [], filters: {} }; }
-
-            var entry = ['dgb/field', {
-                name: field.name, type: field.type, label: field.label, attr_name: field.attr_name,
-                tab: tabName, activeTab: activeTab,
-                options:         field.options         || [],
-                validation:      field.validation      || {},
-                repeater_fields: field.repeater_fields || [],
-                checkboxLabel:   field.checkboxLabel   || '',
-                allowed_types:   field.allowed_types   || [],
-                post_type:       field.post_type       || '',
-                taxonomy:        field.taxonomy        || '',
-                rest_base:       field.rest_base       || '',
-                filters:         field.filters         || [],
-                multiple:        field.multiple        || false,
-                layout:          field.layout          || 'table',
-                summary_field:   field.summary_field   || '',
-                value: dv
-            }];
-            template.push(entry);
-        }
-
-        if (config.tabs && config.tabs.length > 0) {
-            config.tabs.forEach(function (tab) { (tab.fields || []).forEach(function (f) { pushField(f, tab.name); }); });
-        }
-        if (config.fields && config.fields.length > 0) {
-            config.fields.forEach(function (f) { pushField(f, ''); });
-        }
-        return template;
-    }
-
-    /* ================================================================
-       REGISTER DYNAMIC BLOCKS
+       REGISTER DYNAMIC BLOCKS (MODERNIZED HYBRID ARCHITECTURE)
     ================================================================ */
     if (window.dgbBlockConfigs && window.dgbBlockConfigs.blocks) {
         Object.keys(window.dgbBlockConfigs.blocks).forEach(function (name) {
@@ -1150,43 +1240,304 @@
                 icon:        config.icon        || 'admin-generic',
                 category:    config.category    || 'widgets',
                 keywords:    config.keywords    || [],
+                attributes:  config.attributes  || {},
+                supports:    config.supports    || { html: false, align: true, className: true },
 
                 edit: function (props) {
-                    var blockProps = useBlockProps();
+                    var blockProps = useBlockProps({
+                        className: 'dgb-block-wrapper dgb-block-' + name
+                    });
 
-                    var tabS       = useState(config.tabs && config.tabs.length > 0 ? config.tabs[0].name : '');
-                    var activeTab  = tabS[0];
-                    var setActiveTab = tabS[1];
+                    // Initial view mode: 'edit' for new unconfigured blocks, 'preview' for existing blocks with data
+                    var isNewBlock = useMemo(function () {
+                        var attrs = props.attributes || {};
+                        var keys = Object.keys(attrs);
+                        for (var i = 0; i < keys.length; i++) {
+                            var k = keys[i];
+                            if (k !== '_data' && k !== 'className' && k !== 'align' && attrs[k] !== undefined && attrs[k] !== '' && attrs[k] !== null) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    }, []);
 
-                    function setFieldsActiveTab(tab) {
-                        setActiveTab(tab);
-                        var inner = data.select('core/block-editor').getBlocks(props.clientId);
-                        inner.forEach(function (block) {
-                            if (block.name === 'dgb/field') {
-                                data.dispatch('core/block-editor').updateBlockAttributes(block.clientId, { activeTab: tab });
+                    var modeState = useState(isNewBlock ? 'edit' : 'preview');
+                    var mode      = modeState[0];
+                    var setMode   = modeState[1];
+
+                    var tabs         = config.tabs || [];
+                    var tabState     = useState(tabs.length > 0 ? tabs[0].name : '');
+                    var activeTab    = tabState[0];
+                    var setActiveTab = tabState[1];
+
+                    // Find fields for active tab
+                    var currentTab = null;
+                    if (tabs.length > 0) {
+                        for (var t = 0; t < tabs.length; t++) {
+                            if (tabs[t].name === activeTab) {
+                                currentTab = tabs[t];
+                                break;
+                            }
+                        }
+                        if (!currentTab) {
+                            currentTab = tabs[0];
+                        }
+                    }
+                    var activeFields = currentTab ? (currentTab.fields || []) : (config.fields || []);
+
+                    // Determine which sections and fields appear in the Sidebar Inspector
+                    var sidebarPanels = useMemo(function () {
+                        var panels = [];
+                        var configSidebarTabs = config.sidebar_tabs || [];
+                        if (typeof configSidebarTabs === 'string') {
+                            configSidebarTabs = configSidebarTabs.split(',').map(function (s) { return s.trim(); });
+                        }
+
+                        // Helper: Check if tab explicitly requests sidebar placement
+                        function tabWantsSidebar(tab) {
+                            if (!tab) { return false; }
+                            if (tab.sidebar === true || tab.sidebar === 'true' || tab.sidebar === 'yes' || tab.sidebar === 1) { return true; }
+                            if (tab.show_in_sidebar === true || tab.show_in_sidebar === 'true' || tab.show_in_sidebar === 'yes' || tab.show_in_sidebar === 1) { return true; }
+                            if (tab.placement === 'sidebar' || tab.placement === 'both') { return true; }
+                            if (configSidebarTabs.indexOf(tab.name) !== -1) { return true; }
+                            return false;
+                        }
+
+                        // Helper: Check if an individual field explicitly requests sidebar placement
+                        function fieldWantsSidebar(field) {
+                            if (!field) { return false; }
+                            if (field.sidebar === true || field.sidebar === 'true' || field.sidebar === 'yes' || field.sidebar === 1) { return true; }
+                            if (field.show_in_sidebar === true || field.show_in_sidebar === 'true' || field.show_in_sidebar === 'yes' || field.show_in_sidebar === 1) { return true; }
+                            if (field.placement === 'sidebar' || field.placement === 'both') { return true; }
+                            return false;
+                        }
+
+                        // 1. Check user-specified configuration
+                        tabs.forEach(function (tab) {
+                            var tabFields = tab.fields || [];
+                            if (tabWantsSidebar(tab)) {
+                                if (tabFields.length > 0) {
+                                    panels.push({
+                                        id:     tab.name,
+                                        title:  tab.title || tab.name,
+                                        fields: tabFields
+                                    });
+                                }
+                            } else {
+                                var specificFields = tabFields.filter(fieldWantsSidebar);
+                                if (specificFields.length > 0) {
+                                    panels.push({
+                                        id:     tab.name,
+                                        title:  tab.title || tab.name,
+                                        fields: specificFields
+                                    });
+                                }
                             }
                         });
+
+                        // 2. Backward compatibility fallback: only if user has NOT configured any sidebar tabs/fields
+                        if (panels.length === 0) {
+                            tabs.forEach(function (tab) {
+                                var fallbackFields = (tab.fields || []).filter(function (f) {
+                                    var an = f.attr_name || '';
+                                    return an.indexOf('style.') === 0;
+                                });
+                                if (fallbackFields.length > 0) {
+                                    panels.push({
+                                        id:     tab.name,
+                                        title:  tab.title || 'Style Settings',
+                                        fields: fallbackFields
+                                    });
+                                }
+                            });
+                        }
+
+                        return panels;
+                    }, [tabs, config.sidebar_tabs]);
+
+                    // Helper to render an individual field
+                    function renderField(field, keyPrefix) {
+                        var ft = FIELD_TYPES[field.type];
+                        if (!ft) { return null; }
+
+                        var val = getFieldValue(props.attributes, field);
+
+                        var fp = Object.assign({}, field.validation || {}, {
+                            label:       field.label,
+                            placeholder: field.placeholder,
+                            help:        field.help,
+                            value:       val,
+                            onChange:    function (newVal) {
+                                setFieldValue(props.setAttributes, props.attributes, field, newVal);
+                            }
+                        });
+
+                        if (field.type === 'select' || field.type === 'radio' || field.type === 'checkbox') {
+                            fp.options = field.options;
+                        }
+                        if (field.type === 'single-checkbox') {
+                            fp.checkboxLabel = field.checkboxLabel;
+                        }
+                        if (field.type === 'file') {
+                            fp.allowed_types = field.allowed_types;
+                            fp.multiple      = field.multiple;
+                        }
+                        if (field.type === 'post-select') {
+                            fp.post_type = field.post_type;
+                            fp.rest_base = field.rest_base;
+                            fp.multiple  = field.multiple;
+                        }
+                        if (field.type === 'taxonomy-select') {
+                            fp.taxonomy  = field.taxonomy;
+                            fp.rest_base = field.rest_base;
+                            fp.multiple  = field.multiple;
+                        }
+                        if (field.type === 'filtered-post-select') {
+                            fp.post_type = field.post_type;
+                            fp.rest_base = field.rest_base;
+                            fp.multiple  = field.multiple;
+                            fp.filters   = field.filters;
+                        }
+                        if (field.type === 'row_repeater') {
+                            fp.repeater_fields = field.repeater_fields;
+                            fp.layout          = field.layout;
+                            fp.summary_field   = field.summary_field;
+                        }
+
+                        return el('div', {
+                            key: (keyPrefix || '') + (field.attr_name || field.name),
+                            className: 'dgb-field dgb-field-' + field.type
+                        },
+                            el(ft.component, fp)
+                        );
                     }
 
-                    var template = useMemo(function () { return buildTemplate(config, activeTab); }, []);
-
-                    var content = [];
-                    if (config.tabs && config.tabs.length > 0) {
-                        content.push(el(TabButtons, { key: 'tabs', tabs: config.tabs, activeTab: activeTab, onTabChange: setFieldsActiveTab }));
-                    }
-                    content.push(
-                        el('div', { key: 'fields', className: 'dgb-tab-content' },
-                            el(InnerBlocks, { template: template, templateLock: 'all', allowedBlocks: ['dgb/field'], renderAppender: false })
+                    // 1. Toolbar Controls (BlockControls)
+                    var toolbar = el(BlockControls, { group: 'block' },
+                        el(ToolbarGroup, {},
+                            el(ToolbarButton, {
+                                icon: mode === 'edit' ? 'visibility' : 'edit',
+                                label: mode === 'edit' ? 'Switch to Preview' : 'Edit Block Form',
+                                isPressed: mode === 'edit',
+                                onClick: function () {
+                                    setMode(mode === 'edit' ? 'preview' : 'edit');
+                                }
+                            })
                         )
                     );
 
-                    return el('div', Object.assign({}, blockProps, { 'data-active-tab': activeTab }), content);
+                    // 2. Sidebar Inspector Controls (InspectorControls)
+                    var sidebar = el(InspectorControls, {},
+                        el(PanelBody, { title: 'Block Mode & Actions', initialOpen: true },
+                            el('div', { style: { marginBottom: '12px' } },
+                                el(Button, {
+                                    variant: mode === 'edit' ? 'primary' : 'secondary',
+                                    style: { width: '100%', justifyContent: 'center' },
+                                    onClick: function () {
+                                        setMode(mode === 'edit' ? 'preview' : 'edit');
+                                    }
+                                },
+                                    mode === 'edit' ? '\ud83d\udc41\ufe0f View Live Preview' : '\u270f\ufe0f Open Canvas Form View'
+                                )
+                            )
+                        ),
+                        sidebarPanels.map(function (panel) {
+                            return el(PanelBody, {
+                                key: 'sidebar-panel-' + panel.id,
+                                title: panel.title,
+                                initialOpen: true
+                            },
+                                panel.fields.map(function (f) {
+                                    return renderField(f, 'sidebar-' + panel.id + '-');
+                                })
+                            );
+                        })
+                    );
+
+                    // 3. Canvas Content (Spacious Form View vs Live WYSIWYG Preview)
+                    var canvas;
+                    if (mode === 'edit') {
+                        // Spacious Canvas Form View
+                        canvas = el('div', { className: 'dgb-canvas-form' },
+                            el('div', { className: 'dgb-form-header' },
+                                el('div', { className: 'dgb-form-title-group' },
+                                    renderTabIcon(config.icon || 'admin-generic'),
+                                    el('span', { className: 'dgb-form-title' }, config.title || name),
+                                    el('span', { className: 'dgb-form-badge' }, 'Edit Form')
+                                ),
+                                el(Button, {
+                                    variant: 'primary',
+                                    size: 'small',
+                                    onClick: function () { setMode('preview'); }
+                                }, 'Done (Preview \ud83d\udc41\ufe0f)')
+                            ),
+                            tabs.length > 1 ? el(TabButtons, {
+                                tabs: tabs,
+                                activeTab: activeTab,
+                                onTabChange: setActiveTab
+                            }) : null,
+                            el('div', { className: 'dgb-tab-content' },
+                                activeFields.length > 0
+                                    ? activeFields.map(function (f) { return renderField(f, 'form-'); })
+                                    : el('p', { className: 'dgb-empty-notice' }, 'No fields defined for this section.')
+                            )
+                        );
+                    } else {
+                        // Live WYSIWYG Preview View
+                        var ssr = ServerSideRender ? el(ServerSideRender, {
+                            block: 'dgb/' + name,
+                            attributes: props.attributes,
+                            httpMethod: 'POST'
+                        }) : el('div', { className: 'dgb-no-ssr' }, 'ServerSideRender component is loading\u2026');
+
+                        var innerBlocks = config.has_innerblocks ? el('div', { className: 'dgb-preview-innerblocks' },
+                            el('div', { className: 'dgb-innerblocks-label' }, 'Nested Blocks (Drag / Insert blocks here):'),
+                            el(InnerBlocks, {
+                                templateLock: false,
+                                renderAppender: InnerBlocks.ButtonBlockAppender
+                            })
+                        ) : null;
+
+                        canvas = el('div', { className: 'dgb-canvas-preview' },
+                            ssr,
+                            innerBlocks
+                        );
+                    }
+
+                    return el('div', blockProps,
+                        toolbar,
+                        sidebar,
+                        canvas
+                    );
                 },
 
-                save: function () { return el(InnerBlocks.Content); }
+                save: function () {
+                    return config.has_innerblocks ? el(InnerBlocks.Content) : null;
+                }
             });
         });
     }
+
+    /* ================================================================
+       BACKWARD COMPATIBILITY: DGB FIELD BLOCK
+    ================================================================ */
+    blocks.registerBlockType('dgb/field', {
+        title: 'DGB Field',
+        supports: {
+            inserter: false,
+            reusable: false,
+            html: false
+        },
+        attributes: {
+            name:      { type: 'string',  default: '' },
+            type:      { type: 'string',  default: '' },
+            label:     { type: 'string',  default: '' },
+            value:     { type: ['string', 'array', 'boolean', 'number', 'object'], default: '' },
+            attr_name: { type: 'string',  default: '' }
+        },
+        edit: function () { return null; },
+        save: function () { return null; }
+    });
 
 }(
     window.wp.blocks,

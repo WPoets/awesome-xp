@@ -140,7 +140,7 @@ function enqueue_editor_assets() {
     \wp_enqueue_style(
         'dgb-blocks-editor-style',
         DGB_PLUGIN_URL . 'assets/css/editor.css',
-        array('wp-edit-blocks'),
+        array('wp-edit-blocks', 'dashicons'),
         DGB_VERSION
     );
 }
