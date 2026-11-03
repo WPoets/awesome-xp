@@ -463,6 +463,10 @@ class BlockLibrary
             'env_path'             => 'string',
             'purpose'              => 'string',
             'query'                => 'string',
+            'url'                  => 'string',
+            'email'                => 'string',
+            'dropdown'             => 'string',
+            'hidden'               => 'string',
             'number'               => 'number',
             'small-number'         => 'number',
             'range'                => 'number',
@@ -478,6 +482,8 @@ class BlockLibrary
             'taxonomy-select'      => 'array',
             'attributes-repeater'  => 'array',
             'row_repeater'         => 'array',
+            'repeater'             => 'array',
+            'custom-repeater'      => 'array',
         );
 
         $attr_type = isset($type_map[$type]) ? $type_map[$type] : 'string';
@@ -569,28 +575,42 @@ class BlockLibrary
 
             $config = $this->blocks[$block_name];
 
-            // 1. Resolve field values
+            // 1. Resolve field values across legacy and native sources
+            $field_values = array();
+
+            // A. Check legacy _data snapshot
             if (!empty($attributes['_data']) && is_array($attributes['_data'])) {
                 $field_values = $attributes['_data'];
-                // Ensure flat dot-notation keys are also mapped to nested paths
-                foreach ($field_values as $k => $v) {
-                    if (strpos($k, '.') !== false) {
-                        $this->set_nested_value($field_values, $k, $v);
-                    }
-                }
-            } else {
-                $field_values = $this->extract_field_values($block);
             }
 
-            // Merge with attributes (field values take precedence over default attributes)
-            $data = array_merge($attributes, $field_values);
+            // B. Extract from legacy child pseudo-blocks (dgb/field)
+            $extracted_inner = $this->extract_field_values($block);
+            if (!empty($extracted_inner)) {
+                $field_values = array_merge($field_values, $extracted_inner);
+            }
+
+            // C. Merge field values with block attributes
+            $data = is_array($attributes) ? $attributes : array();
             unset($data['_data']);
 
-            // 2. Map dot-notated field values into nested structures for template consumption
-            // E.g. $data['content.title'] -> $data['content']['title'], $data['style.layout'] -> $data['style']['layout']
+            foreach ($field_values as $key => $val) {
+                $data[$key] = $val;
+            }
+
+            // 2. Bidirectional Attribute Bridge (Flattening & Nesting)
+            // Ensure both dot-notated ($data['content.title']) and nested ($data['content']['title']) exist
+            // so templates can use [template.get content.title /] or [template.get style.layout /] reliably.
             foreach ($data as $key => $value) {
                 if (strpos($key, '.') !== false) {
                     $this->set_nested_value($data, $key, $value);
+                } elseif (is_array($value) && in_array($key, array('content', 'style'), true)) {
+                    // Flatten nested object keys to dot-notation (e.g. $data['content']['author'] -> $data['content.author'])
+                    foreach ($value as $sub_k => $sub_v) {
+                        $flat_k = $key . '.' . $sub_k;
+                        if (!isset($data[$flat_k]) || $data[$flat_k] === '') {
+                            $data[$flat_k] = $sub_v;
+                        }
+                    }
                 }
             }
 
@@ -601,6 +621,7 @@ class BlockLibrary
                 if ($clean_content !== '' || strpos($content, '<') !== false) {
                     $target_attr = !empty($config['innerblocks_attr']) ? $config['innerblocks_attr'] : 'content.innerblocks';
                     $this->set_nested_value($data, $target_attr, $content);
+                    $data[$target_attr] = $content;
                 }
             }
 
@@ -610,7 +631,9 @@ class BlockLibrary
                     $data['wp'] = array();
                 }
                 if (empty($data['wp']['wrapper_attributes'])) {
-                    $data['wp']['wrapper_attributes'] = get_block_wrapper_attributes();
+                    $wrapper_attrs = get_block_wrapper_attributes();
+                    $data['wp']['wrapper_attributes'] = $wrapper_attrs;
+                    $data['wp.wrapper_attributes']     = $wrapper_attrs;
                 }
             }
 
@@ -637,9 +660,11 @@ class BlockLibrary
                         }
                     }
 
-                    // Store rendered HTML at the dot-notation path
+                    // Store rendered HTML at both dot-notation and nested paths
                     $this->set_nested_value($data, $attrs['attr_name'], $html);
                     $this->set_nested_value($data, $attrs['attr_name'] . '_content', $html);
+                    $data[$attrs['attr_name']] = $html;
+                    $data[$attrs['attr_name'] . '_content'] = $html;
                 }
             }
 
@@ -660,13 +685,28 @@ class BlockLibrary
     {
         $values = array();
 
-        if (!isset($block->parsed_block['innerBlocks'])) {
+        $inner_blocks = array();
+        if (is_object($block) && isset($block->parsed_block['innerBlocks'])) {
+            $inner_blocks = $block->parsed_block['innerBlocks'];
+        } elseif (is_array($block) && isset($block['innerBlocks'])) {
+            $inner_blocks = $block['innerBlocks'];
+        } elseif (is_object($block) && isset($block->inner_blocks) && is_iterable($block->inner_blocks)) {
+            foreach ($block->inner_blocks as $ib) {
+                if (is_object($ib) && isset($ib->parsed_block)) {
+                    $inner_blocks[] = $ib->parsed_block;
+                } elseif (is_array($ib)) {
+                    $inner_blocks[] = $ib;
+                }
+            }
+        }
+
+        if (empty($inner_blocks)) {
             return $values;
         }
 
-        foreach ($block->parsed_block['innerBlocks'] as $inner_block) {
-            if ($inner_block['blockName'] === 'dgb/field') {
-                $attrs = $inner_block['attrs'];
+        foreach ($inner_blocks as $inner_block) {
+            if (isset($inner_block['blockName']) && $inner_block['blockName'] === 'dgb/field') {
+                $attrs = isset($inner_block['attrs']) ? $inner_block['attrs'] : array();
 
                 if (!empty($attrs['attr_name']) && isset($attrs['value'])) {
                     // Populate both flat key and nested array path

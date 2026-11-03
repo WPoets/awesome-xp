@@ -29,16 +29,21 @@ if (!defined('DGB_ASSETS_URL')) {
 \add_action('deleted_post', 'aw2\gutenberg_blocks\on_block_post_deleted', 10, 1);
 
 /**
- * Registers the Custom Post Type for storing Gutenberg block configurations.
+ * Expose database prefix into AWX environment for portable SQL queries ([env.get db.prefix /])
  */
-function register_gt_post_type() {
+function set_db_prefix() {
     global $wpdb, $table_prefix;
-
-    // Expose database prefix into AWX environment for portable SQL queries ([env.get db.prefix /])
     if (class_exists('\aw2_library') && method_exists('\aw2_library', 'set')) {
         $prefix = isset($wpdb->prefix) ? $wpdb->prefix : (isset($table_prefix) ? $table_prefix : 'wp_');
         \aw2_library::set('db.prefix', $prefix);
     }
+}
+
+/**
+ * Registers the Custom Post Type for storing Gutenberg block configurations.
+ */
+function register_gt_post_type() {
+    set_db_prefix();
 
     $labels = [
         'name'                  => _x( 'Awesome Gutenberg Blocks', 'Post Type General Name', 'text_domain' ),
@@ -114,6 +119,7 @@ function register_gt_post_type() {
  * Initialize the block library
  */
 function dgb_init() {
+    set_db_prefix();
     require_once __DIR__ . '/lib/class-block-library.php';
     dgb()->init(DGB_ASSETS_URL);
 }
