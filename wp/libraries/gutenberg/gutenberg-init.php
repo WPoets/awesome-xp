@@ -27,6 +27,7 @@ if (!defined('DGB_ASSETS_URL')) {
 \add_action('save_post_aw_gb_blocks', 'aw2\gutenberg_blocks\invalidate_block_registry', 10, 2);
 \add_action('trashed_post', 'aw2\gutenberg_blocks\on_block_post_deleted', 10, 1);
 \add_action('deleted_post', 'aw2\gutenberg_blocks\on_block_post_deleted', 10, 1);
+\add_action('untrashed_post', 'aw2\gutenberg_blocks\invalidate_block_registry', 10, 1);
 
 /**
  * Expose database prefix into AWX environment for portable SQL queries ([env.get db.prefix /])
@@ -151,18 +152,40 @@ function enqueue_editor_assets() {
  * @param \WP_Post|null $post Post object
  */
 function invalidate_block_registry($post_id = 0, $post = null) {
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+        return;
+    }
+    if ($post_id && function_exists('wp_is_post_revision') && wp_is_post_revision($post_id)) {
+        return;
+    }
+
     if (function_exists('aw2\gutenberg_blocks\dgb')) {
         dgb()->invalidate_registry();
+
+        // Synchronously recompile assets for the saved block if slug is resolved
+        if ($post_id && function_exists('get_post')) {
+            $p = get_post($post_id);
+            if ($p && !empty($p->post_name)) {
+                dgb()->recompile_single_block_assets($p->post_name);
+            }
+        }
     }
 }
 
 /**
- * Invalidate the block registry cache on post deletion or trash
+ * Invalidate the block registry cache on post deletion or trash and purge assets
  * 
  * @param int $post_id Post ID
  */
 function on_block_post_deleted($post_id) {
     if (function_exists('get_post_type') && get_post_type($post_id) === 'aw_gb_blocks') {
+        $post = function_exists('get_post') ? get_post($post_id) : null;
+        $slug = $post ? $post->post_name : '';
+
+        if (!empty($slug) && function_exists('aw2\gutenberg_blocks\dgb')) {
+            dgb()->delete_block_assets($slug);
+        }
+
         invalidate_block_registry();
     }
 }

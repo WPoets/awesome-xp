@@ -52,9 +52,357 @@ class BlockLibrary
     {
         $this->assets_url = $assets_url ? trailingslashit($assets_url) : plugins_url('assets/', __FILE__);
 
+        // Cascade Layer Hierarchy: Output @layer tokens, base, blocks, sections; before any stylesheet execution
+        add_action('enqueue_block_assets', array($this, 'enqueue_cascade_layers'), 1);
+        add_action('wp_enqueue_scripts', array($this, 'enqueue_cascade_layers'), 1);
+
         // Register block types on init priority 15
         add_action('init', array($this, 'register_blocks'), 15);
         add_action('enqueue_block_editor_assets', array($this, 'enqueue_editor_assets'));
+    }
+
+    /**
+     * Enqueue foundational cascade layer declaration before any stylesheet execution
+     */
+    public function enqueue_cascade_layers()
+    {
+        static $declared = false;
+        if ($declared) {
+            return;
+        }
+        $declared = true;
+
+        if (function_exists('wp_register_style') && function_exists('wp_enqueue_style')) {
+            wp_register_style('awx-cascade-layers', false);
+            wp_enqueue_style('awx-cascade-layers');
+            if (function_exists('wp_add_inline_style')) {
+                wp_add_inline_style('awx-cascade-layers', '@layer tokens, base, blocks, sections;');
+            }
+        }
+    }
+
+    /**
+     * Get base filesystem path for compiled CSS assets
+     * 
+     * @return string
+     */
+    public function get_css_dir()
+    {
+        $upload = function_exists('wp_upload_dir') ? wp_upload_dir() : array();
+        $basedir = !empty($upload['basedir']) ? $upload['basedir'] : (defined('WP_CONTENT_DIR') ? WP_CONTENT_DIR . '/uploads' : dirname(dirname(dirname(__DIR__))) . '/uploads');
+        $dir = trailingslashit($basedir) . 'awx-css/';
+        if (!file_exists($dir) && function_exists('wp_mkdir_p')) {
+            wp_mkdir_p($dir);
+        } elseif (!file_exists($dir)) {
+            @mkdir($dir, 0755, true);
+        }
+        return $dir;
+    }
+
+    /**
+     * Get base URL for compiled CSS assets
+     * 
+     * @return string
+     */
+    public function get_css_url()
+    {
+        $upload = function_exists('wp_upload_dir') ? wp_upload_dir() : array();
+        $baseurl = !empty($upload['baseurl']) ? $upload['baseurl'] : (function_exists('content_url') ? content_url('uploads') : '/wp-content/uploads');
+        return trailingslashit($baseurl) . 'awx-css/';
+    }
+
+    /**
+     * Get base filesystem path for compiled JS assets
+     * 
+     * @return string
+     */
+    public function get_js_dir()
+    {
+        $upload = function_exists('wp_upload_dir') ? wp_upload_dir() : array();
+        $basedir = !empty($upload['basedir']) ? $upload['basedir'] : (defined('WP_CONTENT_DIR') ? WP_CONTENT_DIR . '/uploads' : dirname(dirname(dirname(__DIR__))) . '/uploads');
+        $dir = trailingslashit($basedir) . 'awx-js/';
+        if (!file_exists($dir) && function_exists('wp_mkdir_p')) {
+            wp_mkdir_p($dir);
+        } elseif (!file_exists($dir)) {
+            @mkdir($dir, 0755, true);
+        }
+        return $dir;
+    }
+
+    /**
+     * Get base URL for compiled JS assets
+     * 
+     * @return string
+     */
+    public function get_js_url()
+    {
+        $upload = function_exists('wp_upload_dir') ? wp_upload_dir() : array();
+        $baseurl = !empty($upload['baseurl']) ? $upload['baseurl'] : (function_exists('content_url') ? content_url('uploads') : '/wp-content/uploads');
+        return trailingslashit($baseurl) . 'awx-js/';
+    }
+
+    /**
+     * Compile block styles into content-hashed CSS file scoped inside @layer blocks
+     * 
+     * @param string $slug Block slug
+     * @param string $styles_service Service tag to execute
+     * @param array $config Block config
+     * @return array|null Metadata array or null if no styles
+     */
+    public function compile_block_styles($slug, $styles_service = '', $config = array())
+    {
+        if (empty($slug)) {
+            return null;
+        }
+
+        $raw_css = '';
+        if (!empty($styles_service) && class_exists('\aw2_library') && method_exists('\aw2_library', 'service_run')) {
+            $result = \aw2_library::service_run($styles_service, null, null, 'service');
+            if (is_string($result) && strpos($result, 'Template not found') === false && strpos($result, 'Module not found') === false) {
+                $raw_css = trim($result);
+            }
+        } elseif (!empty($config['css_content']) && is_string($config['css_content'])) {
+            $raw_css = trim($config['css_content']);
+        }
+
+        if (empty($raw_css)) {
+            return null;
+        }
+
+        // Wrap in @layer blocks (or @layer sections) if not already scoped with @layer
+        $final_css = $raw_css;
+        if (!preg_match('/@layer\s+[a-zA-Z0-9_-]+\s*\{/', $raw_css)) {
+            $target_layer = (isset($config['category']) && $config['category'] === 'sections') || strpos($slug, 'section-') === 0 || strpos($raw_css, '.wp-section-') !== false
+                ? 'sections'
+                : 'blocks';
+
+            $final_css = "@layer {$target_layer} {\n" . $raw_css . "\n}";
+        }
+
+        $hash      = md5($final_css);
+        $file_name = "{$slug}-{$hash}.css";
+        $css_dir   = $this->get_css_dir();
+        $css_url   = $this->get_css_url();
+        $path      = $css_dir . $file_name;
+        $url       = $css_url . $file_name;
+
+        // Write file if missing
+        if (!file_exists($path)) {
+            $written = @file_put_contents($path, $final_css, LOCK_EX);
+            if ($written === false) {
+                error_log("DynamicGutenbergBlocks: Failed to write compiled CSS to {$path}");
+            }
+        }
+
+        // Garbage collection: clean up older superseded hash files for this slug
+        $this->cleanup_stale_assets($slug, 'css', $hash);
+
+        $style_deps = array('awx-cascade-layers');
+        if (function_exists('wp_style_is') && wp_style_is('awesome-css', 'registered')) {
+            $style_deps[] = 'awesome-css';
+        }
+        if (!empty($config['style_deps']) && is_array($config['style_deps'])) {
+            $style_deps = array_unique(array_merge($style_deps, $config['style_deps']));
+        }
+
+        return array(
+            'handle'       => "awx-block-{$slug}",
+            'path'         => $path,
+            'url'          => $url,
+            'hash'         => $hash,
+            'dependencies' => $style_deps,
+        );
+    }
+
+    /**
+     * Compile client-side block scripts into content-hashed JS file
+     * 
+     * @param string $slug Block slug
+     * @param string $scripts_service Service tag to execute
+     * @param array $config Block config
+     * @return array|null Metadata array or null if no scripts
+     */
+    public function compile_block_scripts($slug, $scripts_service = '', $config = array())
+    {
+        if (empty($slug)) {
+            return null;
+        }
+
+        $raw_js = '';
+        if (!empty($scripts_service) && class_exists('\aw2_library') && method_exists('\aw2_library', 'service_run')) {
+            $result = \aw2_library::service_run($scripts_service, null, null, 'service');
+            if (is_string($result) && strpos($result, 'Template not found') === false && strpos($result, 'Module not found') === false) {
+                $raw_js = trim($result);
+            }
+        } elseif (!empty($config['js_content']) && is_string($config['js_content'])) {
+            $raw_js = trim($config['js_content']);
+        }
+
+        if (empty($raw_js)) {
+            return null;
+        }
+
+        $hash      = md5($raw_js);
+        $file_name = "{$slug}-{$hash}.js";
+        $js_dir    = $this->get_js_dir();
+        $js_url    = $this->get_js_url();
+        $path      = $js_dir . $file_name;
+        $url       = $js_url . $file_name;
+
+        // Write file if missing
+        if (!file_exists($path)) {
+            $written = @file_put_contents($path, $raw_js, LOCK_EX);
+            if ($written === false) {
+                error_log("DynamicGutenbergBlocks: Failed to write compiled JS to {$path}");
+            }
+        }
+
+        // Garbage collection: clean up older superseded hash files for this slug
+        $this->cleanup_stale_assets($slug, 'js', $hash);
+
+        $js_deps = array();
+        if (!empty($config['script_deps']) && is_array($config['script_deps'])) {
+            $js_deps = $config['script_deps'];
+        }
+
+        return array(
+            'handle'       => "awx-script-{$slug}",
+            'path'         => $path,
+            'url'          => $url,
+            'hash'         => $hash,
+            'dependencies' => $js_deps,
+        );
+    }
+
+    /**
+     * Unlink older superseded content-hashed files for a given block
+     * 
+     * @param string $slug Block slug
+     * @param string $type 'css' or 'js'
+     * @param string $current_hash Current active hash to preserve
+     */
+    public function cleanup_stale_assets($slug, $type = 'css', $current_hash = '')
+    {
+        $dir = $type === 'js' ? $this->get_js_dir() : $this->get_css_dir();
+        $ext = $type === 'js' ? 'js' : 'css';
+
+        if (!is_dir($dir)) {
+            return;
+        }
+
+        $current_file = "{$slug}-{$current_hash}.{$ext}";
+        $pattern      = trailingslashit($dir) . "{$slug}-*.{$ext}";
+        $files        = glob($pattern);
+
+        if (is_array($files)) {
+            foreach ($files as $file) {
+                if (is_file($file) && basename($file) !== $current_file) {
+                    @unlink($file);
+                }
+            }
+        }
+    }
+
+    /**
+     * Permanently delete all compiled assets (.css and .js) for a block
+     * 
+     * @param string $slug Block slug
+     */
+    public function delete_block_assets($slug)
+    {
+        if (empty($slug)) {
+            return;
+        }
+
+        $css_dir = $this->get_css_dir();
+        $js_dir  = $this->get_js_dir();
+
+        if (is_dir($css_dir)) {
+            $css_files = glob(trailingslashit($css_dir) . "{$slug}-*.css");
+            if (is_array($css_files)) {
+                foreach ($css_files as $f) {
+                    if (is_file($f)) {
+                        @unlink($f);
+                    }
+                }
+            }
+        }
+
+        if (is_dir($js_dir)) {
+            $js_files = glob(trailingslashit($js_dir) . "{$slug}-*.js");
+            if (is_array($js_files)) {
+                foreach ($js_files as $f) {
+                    if (is_file($f)) {
+                        @unlink($f);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Synchronously recompile assets for a single block (Self-Healing on ephemeral nodes)
+     * 
+     * @param string $slug Block slug
+     * @return array ['css' => array|null, 'js' => array|null]
+     */
+    public function recompile_single_block_assets($slug)
+    {
+        if (empty($slug)) {
+            return array('css' => null, 'js' => null);
+        }
+
+        $config = isset($this->blocks[$slug]) ? $this->blocks[$slug] : array();
+
+        // If config is empty or missing services, attempt to detect from post definition
+        $styles_service  = !empty($config['styles_service']) ? $config['styles_service'] : '';
+        $scripts_service = !empty($config['scripts_service']) ? $config['scripts_service'] : '';
+
+        if (empty($styles_service) || empty($scripts_service)) {
+            if (function_exists('get_posts')) {
+                $posts = get_posts(array(
+                    'name'           => $slug,
+                    'post_type'      => 'aw_gb_blocks',
+                    'post_status'    => array('publish', 'draft'),
+                    'posts_per_page' => 1,
+                ));
+                if (!empty($posts)) {
+                    $post = $posts[0];
+                    if (strpos($post->post_content, 'templates.add styles') !== false) {
+                        $styles_service = "gb_blocks.{$slug}.styles";
+                    }
+                    if (strpos($post->post_content, 'templates.add scripts') !== false) {
+                        $scripts_service = "gb_blocks.{$slug}.scripts";
+                    }
+                }
+            }
+        }
+
+        // Fallback to convention if post was not found/inspected
+        if (empty($styles_service) && !isset($post)) {
+            $styles_service = "gb_blocks.{$slug}.styles";
+        }
+        if (empty($scripts_service) && !isset($post)) {
+            $scripts_service = "gb_blocks.{$slug}.scripts";
+        }
+
+        $css_meta = $this->compile_block_styles($slug, $styles_service, $config);
+        $js_meta  = $this->compile_block_scripts($slug, $scripts_service, $config);
+
+        if ($css_meta && isset($this->blocks[$slug])) {
+            $this->blocks[$slug]['css']   = $css_meta;
+            $this->blocks[$slug]['style'] = $css_meta['handle'];
+        }
+
+        if ($js_meta && isset($this->blocks[$slug])) {
+            $this->blocks[$slug]['js']          = $js_meta;
+            $this->blocks[$slug]['view_script'] = $js_meta['handle'];
+        }
+
+        return array(
+            'css' => $css_meta,
+            'js'  => $js_meta,
+        );
     }
 
     /**
@@ -267,6 +615,34 @@ class BlockLibrary
                     }
                 }
 
+                // Check for Styles Service
+                $styles_service = !empty($config_data['styles_service'])
+                    ? $config_data['styles_service']
+                    : (!empty($config['styles_service']) ? $config['styles_service'] : '');
+
+                $has_styles = !empty($styles_service)
+                    || (isset($block_posts[$slug]['post_content']) && strpos($block_posts[$slug]['post_content'], 'templates.add styles') !== false);
+
+                if (!$styles_service && $has_styles) {
+                    $styles_service = "gb_blocks.{$slug}.styles";
+                }
+
+                // Check for Scripts Service
+                $scripts_service = !empty($config_data['scripts_service'])
+                    ? $config_data['scripts_service']
+                    : (!empty($config['scripts_service']) ? $config['scripts_service'] : '');
+
+                $has_scripts = !empty($scripts_service)
+                    || (isset($block_posts[$slug]['post_content']) && strpos($block_posts[$slug]['post_content'], 'templates.add scripts') !== false);
+
+                if (!$scripts_service && $has_scripts) {
+                    $scripts_service = "gb_blocks.{$slug}.scripts";
+                }
+
+                // Compile Block Styles & Scripts
+                $css_meta = $has_styles ? $this->compile_block_styles($slug, $styles_service, $config) : null;
+                $js_meta  = $has_scripts ? $this->compile_block_scripts($slug, $scripts_service, $config) : null;
+
                 // 4. Partition Payloads
                 // Lightweight frontend definition (no tabs, no field schemas)
                 $frontend_blocks[$slug] = array(
@@ -274,12 +650,16 @@ class BlockLibrary
                     'render_service'   => $config['template'],
                     'template'         => $config['template'],
                     'template_file'    => isset($config['template_file']) ? $config['template_file'] : '',
+                    'styles_service'   => $styles_service,
+                    'scripts_service'  => $scripts_service,
+                    'css'              => $css_meta,
+                    'js'               => $js_meta,
                     'attributes'       => $attributes,
                     'supports'         => $supports,
                     'has_innerblocks'  => $has_innerblocks,
                     'innerblocks_attr' => $innerblocks_attr,
-                    'style'            => isset($config['style']) ? $config['style'] : null,
-                    'view_script'      => isset($config['view_script']) ? $config['view_script'] : null,
+                    'style'            => $css_meta ? $css_meta['handle'] : (isset($config['style']) ? $config['style'] : null),
+                    'view_script'      => $js_meta ? $js_meta['handle'] : (isset($config['view_script']) ? $config['view_script'] : null),
                     'enqueue_scripts'  => isset($config['enqueue_scripts']) ? $config['enqueue_scripts'] : array(),
                     'enqueue_styles'   => isset($config['enqueue_styles']) ? $config['enqueue_styles'] : array(),
                 );
@@ -352,10 +732,62 @@ class BlockLibrary
             if (!empty($config['editor_style'])) {
                 $args['editor_style'] = $config['editor_style'];
             }
-            if (!empty($config['style'])) {
+
+            // 1. Process Scoped Stylesheet & Self-Healing
+            if (!empty($config['css']) && is_array($config['css'])) {
+                $css_meta = $config['css'];
+                $handle   = !empty($css_meta['handle']) ? $css_meta['handle'] : "awx-block-{$slug}";
+                $deps     = !empty($css_meta['dependencies']) ? $css_meta['dependencies'] : array('awx-cascade-layers');
+
+                // Self-Healing: Verify file exists on local disk (critical for ephemeral nodes / containers)
+                if (!empty($css_meta['path']) && !file_exists($css_meta['path'])) {
+                    $healed = $this->recompile_single_block_assets($slug);
+                    if (!empty($healed['css'])) {
+                        $css_meta = $healed['css'];
+                    }
+                }
+
+                if (!empty($css_meta['url']) && function_exists('wp_register_style')) {
+                    wp_register_style($handle, $css_meta['url'], $deps, $css_meta['hash']);
+
+                    // Enable WP 5.8+ core auto-inlining for small stylesheets (skip for remote streams like s3://)
+                    if (!empty($css_meta['path']) && file_exists($css_meta['path']) && is_readable($css_meta['path'])) {
+                        $is_stream = function_exists('wp_is_stream') && wp_is_stream($css_meta['path']);
+                        if (!$is_stream && function_exists('wp_style_add_data')) {
+                            wp_style_add_data($handle, 'path', $css_meta['path']);
+                        }
+                    }
+                }
+
+                $args['style'] = isset($config['style']) && $config['style'] !== $handle
+                    ? array_unique(array_merge((array) $config['style'], array($handle)))
+                    : $handle;
+            } elseif (!empty($config['style'])) {
                 $args['style'] = $config['style'];
             }
-            if (!empty($config['view_script'])) {
+
+            // 2. Process Scoped Frontend Script (Interactivity) & Self-Healing
+            if (!empty($config['js']) && is_array($config['js'])) {
+                $js_meta   = $config['js'];
+                $js_handle = !empty($js_meta['handle']) ? $js_meta['handle'] : "awx-script-{$slug}";
+                $js_deps   = !empty($js_meta['dependencies']) ? $js_meta['dependencies'] : array();
+
+                // Self-Healing: Verify file exists on local disk
+                if (!empty($js_meta['path']) && !file_exists($js_meta['path'])) {
+                    $healed = $this->recompile_single_block_assets($slug);
+                    if (!empty($healed['js'])) {
+                        $js_meta = $healed['js'];
+                    }
+                }
+
+                if (!empty($js_meta['url']) && function_exists('wp_register_script')) {
+                    wp_register_script($js_handle, $js_meta['url'], $js_deps, $js_meta['hash'], true);
+                }
+
+                $args['view_script'] = isset($config['view_script']) && $config['view_script'] !== $js_handle
+                    ? array_unique(array_merge((array) $config['view_script'], array($js_handle)))
+                    : $js_handle;
+            } elseif (!empty($config['view_script'])) {
                 $args['view_script'] = $config['view_script'];
             }
 
