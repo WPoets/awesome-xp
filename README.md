@@ -15,6 +15,14 @@ Initial setup requires configuration in wp-config.php.
 
 ### Changelog 
 
+##### 1.0.7
+* Improved: Introduced 24 abilities through the WordPress Abilities API
+* Improved: Added support for hierarchical posts in apps
+* Improved: Updated support for ACF Blocks V3
+* Improved: Added support for hierarchical post types in sitemaps
+* Fixed: The relative file path was not working properly
+
+  
 ##### 1.0.6.1
 1. Fixed: innerblocks fields' content was not accessible server-side.
 
