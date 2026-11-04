@@ -127,8 +127,9 @@ Server-side HTML rendering template. Attributes are accessible via bidirectional
   [template.get content.heading default="" o.set="template.heading" /]
   [template.get style.columns default="3" o.set="template.cols" /]
 
-  <div class="wp-block-dgb-my-block cols-[template.get template.cols /]" [template.get wp.wrapper_attributes /]>
-    <h2 class="my-title">[template.get template.heading /]</h2>
+  <!-- Note: Variables set in template scope (e.g. o.set="template.cols") are retrieved using [template.get cols /] -->
+  <div class="wp-block-dgb-my-block cols-[template.get cols /]" [template.get wp.wrapper_attributes /]>
+    <h2 class="my-title">[template.get heading /]</h2>
     <div class="my-innerblocks">
       [template.get content.innerblocks /]
     </div>

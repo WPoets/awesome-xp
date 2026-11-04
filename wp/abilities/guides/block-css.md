@@ -83,12 +83,13 @@ Block CSS and JS are extracted, compiled, and content-hashed at registration tim
 
 ## 4. Render Template & Bidirectional Attribute Access
 
-In `[templates.add render]`, block attributes are accessible via dot notation or nested array keys:
+In `[templates.add render]`, block attributes and template variables are accessible:
 
-1. **Bidirectional Access**: Both `[template.get content.heading /]` and `[template.get content_heading /]` resolve to the same attribute value.
-2. **Root Wrapper Attributes**: Always include `[template.get wp.wrapper_attributes /]` on the root HTML element.
-3. **Repeater Loops**: Use `[loop.@iterator array_path]` to loop over repeater rows. Inside the loop, access item fields strictly via `[env.@iterator.item.field_name /]`.
-4. **Nested InnerBlocks**: Render nested WordPress blocks using `[template.get content.innerblocks /]`.
+1. **Direct Attribute Access**: Block attributes passed to the template can be retrieved directly via `[template.get content.heading /]` or `[template.get style.columns /]`.
+2. **Template Variable Syntax Rule**: Because `template.get` automatically targets the `template.*` scope (`_prefix = 'template'`), passing `[template.get template.foo /]` is invalid because it resolves to `template.template.foo`. Always write **`[template.get foo /]`** to retrieve the template variable `foo` (set via `o.set="template.foo"`).
+3. **Root Wrapper Attributes**: Always include `[template.get wp.wrapper_attributes /]` on the root HTML element.
+4. **Repeater Loops**: Use `[loop.@iterator array_path]` to loop over repeater rows. Inside the loop, access item fields strictly via `[env.@iterator.item.field_name /]`.
+5. **Nested InnerBlocks**: Render nested WordPress blocks using `[template.get content.innerblocks /]`.
 
 ---
 
@@ -257,13 +258,13 @@ In `[templates.add render]`, block attributes are accessible via dot notation or
   [template.get style.show_icons default="1" o.set="template.show_icons" /]
   [template.get content.features default="[]" o.set="template.features" /]
 
-  <div class="wp-block-dgb-awx-features-showcase has-cols-[template.get template.cols /]" [template.get wp.wrapper_attributes /]>
+  <div class="wp-block-dgb-awx-features-showcase has-cols-[template.get cols /]" [template.get wp.wrapper_attributes /]>
     <div class="awx-fs-header">
       [if.not_empty template.heading]
-        <h2 class="awx-fs-heading">[template.get template.heading /]</h2>
+        <h2 class="awx-fs-heading">[template.get heading /]</h2>
       [/if.not_empty]
       [if.not_empty template.subheading]
-        <p class="awx-fs-subheading">[template.get template.subheading /]</p>
+        <p class="awx-fs-subheading">[template.get subheading /]</p>
       [/if.not_empty]
     </div>
 

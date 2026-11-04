@@ -13,6 +13,7 @@ Active within a template execution context.
 - Scoped strictly to the active template.
 - Read and write with `[template.get]`, `[template.set]`, and `[template.set_array]`.
 - Return with `[template.return <env_path> /]`.
+- **Syntax Rule**: Because `template.get` automatically targets the `template.*` namespace (`_prefix = 'template'`), passing `[template.get template.xyz /]` is invalid because it resolves to `template.template.xyz`. Always write `[template.get xyz /]` to retrieve the template variable `xyz` (set via `o.set="template.xyz"`).
 
 ## 3. Block Scope (`do.*`)
 Creates a temporary lexical variable block.
