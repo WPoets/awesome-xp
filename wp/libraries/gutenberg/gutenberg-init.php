@@ -123,6 +123,8 @@ function register_gt_post_type() {
 function dgb_init() {
     set_db_prefix();
     require_once __DIR__ . '/lib/class-block-library.php';
+    require_once __DIR__ . '/lib/class-pattern-bridge.php';
+    require_once __DIR__ . '/lib/class-wal-engine.php';
     dgb()->init(DGB_ASSETS_URL);
 }
 
@@ -248,4 +250,8 @@ if (defined('WP_CLI') && WP_CLI) {
     \WP_CLI::add_command('awx blocks', 'aw2\gutenberg_blocks\Blocks_CLI_Command');
     \WP_CLI::add_command('aw2 blocks', 'aw2\gutenberg_blocks\Blocks_CLI_Command');
 }
+
+// 6. Pattern Bridge and WAL Engine Subsystems
+require_once __DIR__ . '/lib/class-pattern-bridge.php';
+require_once __DIR__ . '/lib/class-wal-engine.php';
 

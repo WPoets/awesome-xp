@@ -138,22 +138,20 @@ class Blocks_CLI_Command extends \WP_CLI_Command
      *
      * ## EXAMPLES
      *
+     *     # Recompile all blocks
+     *     $ wp awx blocks recompile
+     *
      *     # Recompile a single block
      *     $ wp awx blocks recompile awx-features-showcase
      *
-     *     # Recompile all blocks
+     *     # Recompile all blocks explicitly
      *     $ wp awx blocks recompile --all
      */
     public function recompile($args, $assoc_args)
     {
         $dgb = dgb();
         $slug = !empty($args[0]) ? sanitize_title(trim($args[0])) : '';
-        $all  = !empty($assoc_args['all']);
-
-        if (empty($slug) && !$all) {
-            \WP_CLI::error("Specify a block slug or use --all to recompile every block.");
-            return;
-        }
+        $all  = !empty($assoc_args['all']) || empty($slug);
 
         if (!empty($slug)) {
             $compiled = $dgb->recompile_single_block_assets($slug);
