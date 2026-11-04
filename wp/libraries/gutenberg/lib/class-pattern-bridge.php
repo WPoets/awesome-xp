@@ -71,7 +71,7 @@ final class AWX_Pattern_Bridge
                 continue;
             }
 
-            $slug  = sanitize_key($entry['slug']);
+            $slug  = preg_replace('/[^a-z0-9_\.\-]/i', '', strtolower(trim($entry['slug'])));
             $title = sanitize_text_field($entry['title'] ?? $slug);
 
             // Locate existing post by explicit metadata rather than post_name

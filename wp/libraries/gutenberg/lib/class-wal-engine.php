@@ -131,11 +131,13 @@ final class WAL_Transpiler
             ? AWX_Pattern_Bridge::META_SLUG
             : '_awx_pattern_slug';
 
+        $clean_slug = preg_replace('/[^a-z0-9_\.\-]/i', '', strtolower(trim($slug)));
+
         $query = new \WP_Query([
             'post_type'      => 'wp_block',
             'posts_per_page' => 1,
             'meta_query'     => [
-                ['key' => $meta_slug_key, 'value' => sanitize_key($slug)]
+                ['key' => $meta_slug_key, 'value' => $clean_slug]
             ],
         ]);
 

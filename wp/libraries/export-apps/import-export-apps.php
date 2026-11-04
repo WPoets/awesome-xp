@@ -13,6 +13,8 @@ add_action( 'wp_ajax_awesome_import_gt_code', 'awesome_import_export::awesome_im
 add_action( 'wp_ajax_awesome_import_single_block', 'awesome_import_export::awesome_import_single_block' );
 
 add_action( 'wp_ajax_awesome_import_zip_html', 'awesome_import_export::awesome_import_zip_html' );
+add_action( 'admin_post_awesome_export_patterns', 'awesome_import_export::awesome_export_patterns' );
+add_action( 'wp_ajax_awesome_export_patterns', 'awesome_import_export::awesome_export_patterns' );
 
 /**
  * Registers our command when cli get's initialized.
@@ -67,11 +69,17 @@ class awesome_import_export{
 	}
 	
 	static function import_gtblocks_dashboard(){
-		$page = sanitize_text_field($_REQUEST['page']);
-		$tab_url=menu_page_url( $page ,false );	
+		$page = sanitize_text_field($_REQUEST['page'] ?? '');
+		$tab_url = menu_page_url( $page ,false );	
 		
 		echo '<div class="wrap ">';        	
 		echo '<h2 class="hndle">Import Awesome GT Blocks</h2>';
+
+		// Handle pattern JSON pack upload
+		if (isset($_POST['awx_import_patterns_submit'])) {
+			self::handle_pattern_import_post();
+		}
+
 		//show the input fields for file upload
 		?>
 		<div class="narrow"><p>Howdy! Upload your Awesome GT Blocks collection xml file.</p><p>Choose a .xml file to upload, then click Upload file and import.</p><form enctype="multipart/form-data" id="gt-import-form" method="post" class="wp-upload-form">
@@ -82,6 +90,22 @@ class awesome_import_export{
 		<p class="submit"><input type="button" name="submit" id="submit" class="button ladda-button js-import-blocks button-primary" value="Upload file and import blocks" data-style="zoom-out"></p></form>
 		
 		<div class='js-status-response'></div>
+		</div>
+
+		<hr style="margin: 35px 0 25px; border: 0; border-top: 1px solid #ccd0d4;">
+		<h2 class="hndle">Import AWX Block Patterns (JSON)</h2>
+		<div class="narrow">
+			<p>Upload your AWX Block Patterns bundle (<code>.json</code>) to register or update managed block patterns.</p>
+			<form enctype="multipart/form-data" id="awx-pattern-import-form" method="post" class="wp-upload-form">
+				<?php wp_nonce_field('awx_import_patterns_action', 'awx_import_patterns_nonce'); ?>
+				<p>
+					<label for="upload-pattern-bundle">Choose a JSON pattern pack:</label> 
+					<input type="file" id="upload-pattern-bundle" name="awx_pattern_file" accept=".json,application/json" size="25" required>
+				</p>
+				<p class="submit">
+					<input type="submit" name="awx_import_patterns_submit" class="button button-primary" value="Upload & Import Patterns">
+				</p>
+			</form>
 		</div>
 		<?php 
 
@@ -245,6 +269,15 @@ class awesome_import_export{
 				<button type="submit" name="action" class="button button-primary ladda-button js-app-export-button" value="export-apps" data-style="zoom-out" data-action="apps" data-file-slug="selective-html" data-format="html">Export All Apps</button>
 			</p>';
 		echo'</form>';
+		echo '<hr style="margin: 25px 0; border: 0; border-top: 1px solid #ccd0d4;">';
+		echo '<h4>Export AWX Block Patterns <small>(JSON bundle for importing into other sites or environments)</small></h4>';
+		echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
+		echo '<input type="hidden" name="action" value="awesome_export_patterns">';
+		wp_nonce_field('awx_export_patterns_action', 'awx_export_patterns_nonce');
+		echo '<p class="awe-submit">';
+		echo '<button type="submit" class="button button-primary">Export All Managed Patterns (JSON)</button>';
+		echo '</p>';
+		echo '</form>';
 		echo '</div>';
 		echo'<div class="import postbox">
 				<div class="inside">
@@ -262,6 +295,77 @@ class awesome_import_export{
 				<div class="js-status-htmlzip-response"></div>
 				</div>';
 	   echo'</div>';	
+	}
+
+	/**
+	 * Handle pattern pack JSON upload and import from admin dashboard.
+	 */
+	static function handle_pattern_import_post() {
+		if (!current_user_can('develop_for_awesomeui') && !current_user_can('manage_options')) {
+			wp_die('Unauthorized user.');
+		}
+		check_admin_referer('awx_import_patterns_action', 'awx_import_patterns_nonce');
+
+		if (empty($_FILES['awx_pattern_file']['tmp_name'])) {
+			echo '<div class="notice notice-error"><p>No pattern file uploaded.</p></div>';
+			return;
+		}
+
+		$raw = file_get_contents($_FILES['awx_pattern_file']['tmp_name']);
+		$manifest = json_decode($raw, true);
+
+		if (json_last_error() !== JSON_ERROR_NONE || !is_array($manifest)) {
+			echo '<div class="notice notice-error"><p>Invalid JSON pattern manifest. Please upload a valid patterns.json file.</p></div>';
+			return;
+		}
+
+		if (!class_exists('AWX_Pattern_Bridge')) {
+			require_once dirname(__DIR__) . '/gutenberg/lib/class-pattern-bridge.php';
+		}
+
+		$res = \AWX_Pattern_Bridge::import_bundle($manifest);
+
+		$msg = sprintf(
+			'Pattern import complete: <strong>%d</strong> created, <strong>%d</strong> updated, <strong>%d</strong> error(s).',
+			$res['created'],
+			$res['updated'],
+			count($res['errors'])
+		);
+
+		if (!empty($res['errors'])) {
+			$msg .= '<br>' . implode('<br>', array_map('esc_html', $res['errors']));
+			echo '<div class="notice notice-warning"><p>' . $msg . '</p></div>';
+		} else {
+			echo '<div class="notice notice-success is-dismissible"><p>' . $msg . '</p></div>';
+		}
+	}
+
+	/**
+	 * Handle pattern export and trigger browser JSON file download.
+	 */
+	static function awesome_export_patterns() {
+		if (!current_user_can('develop_for_awesomeui') && !current_user_can('manage_options')) {
+			wp_die('Unauthorized user.');
+		}
+		check_admin_referer('awx_export_patterns_action', 'awx_export_patterns_nonce');
+
+		if (!class_exists('AWX_Pattern_Bridge')) {
+			require_once dirname(__DIR__) . '/gutenberg/lib/class-pattern-bridge.php';
+		}
+
+		$bundle = \AWX_Pattern_Bridge::export_bundle();
+		$sitename = sanitize_key(get_bloginfo('name')) ?: 'site';
+		$filename = sprintf('awx-patterns-%s-%s.json', $sitename, date('Ymd-His'));
+
+		header('Content-Description: File Transfer');
+		header('Content-Type: application/json; charset=utf-8');
+		header('Content-Disposition: attachment; filename="' . $filename . '"');
+		header('Expires: 0');
+		header('Cache-Control: must-revalidate');
+		header('Pragma: public');
+
+		echo json_encode($bundle, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+		exit;
 	}
 
 	static function awesome_export_code(){

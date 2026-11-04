@@ -270,8 +270,11 @@ function awx_invalidate_block_registry() {
 // 5. WP-CLI Command Registration
 if (defined('WP_CLI') && WP_CLI) {
     require_once __DIR__ . '/lib/class-blocks-cli.php';
+    require_once __DIR__ . '/lib/class-patterns-cli.php';
     \WP_CLI::add_command('awx blocks', 'aw2\gutenberg_blocks\Blocks_CLI_Command');
     \WP_CLI::add_command('aw2 blocks', 'aw2\gutenberg_blocks\Blocks_CLI_Command');
+    \WP_CLI::add_command('awx patterns', 'aw2\gutenberg_blocks\Patterns_CLI_Command');
+    \WP_CLI::add_command('aw2 patterns', 'aw2\gutenberg_blocks\Patterns_CLI_Command');
 }
 
 // 6. Pattern Bridge, WAL Engine, and Core Blocks Seeder Subsystems

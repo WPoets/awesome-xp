@@ -1,0 +1,26 @@
+[
+  {
+    "slug": "pricing.3_tier_standard",
+    "title": "3-Tier Standard Pricing Matrix",
+    "categories": ["pricing", "featured"],
+    "content": "<!-- wp:dgb/awx-pricing {\"content.items\":[{\"title\":\"Starter\",\"price\":\"$29/mo\",\"badge\":\"\",\"featured\":false,\"button_text\":\"Start Free Trial\",\"url\":\"/signup?plan=starter\",\"features\":[\"Up to 5 team members\",\"50GB cloud storage\",\"Community support\"]},{\"title\":\"Professional\",\"price\":\"$79/mo\",\"badge\":\"Most Popular\",\"featured\":true,\"button_text\":\"Get Started\",\"url\":\"/signup?plan=pro\",\"features\":[\"Up to 25 team members\",\"500GB cloud storage\",\"Priority SLA 24/7\",\"Advanced analytics\"]},{\"title\":\"Enterprise\",\"price\":\"Custom\",\"badge\":\"Dedicated\",\"featured\":false,\"button_text\":\"Contact Sales\",\"url\":\"/contact\",\"features\":[\"Unlimited team members\",\"Dedicated cloud cluster\",\"Custom integrations\",\"Dedicated account manager\"]}],\"style.columns\":\"3\"} /-->"
+  },
+  {
+    "slug": "hero.standard_conversion",
+    "title": "Standard Conversion Hero",
+    "categories": ["header", "featured"],
+    "content": "<!-- wp:dgb/awx-section {\"style.surface\":\"surface\",\"style.width\":\"default\",\"style.padding\":\"spacious\"} -->\n<!-- wp:dgb/awx-hero {\"content.badge\":\"Next-Gen Platform\",\"content.title\":\"Build Without Limits\",\"content.text\":\"Empower engineering teams with deterministic declarative infrastructure.\",\"style.align\":\"is-aligned-left\",\"style.level\":\"h1\"} -->\n<!-- wp:core/button {\"text\":\"Start Free Trial\",\"url\":\"/get-started\",\"className\":\"is-style-fill\"} /-->\n<!-- /wp:dgb/awx-hero -->\n<!-- /wp:dgb/awx-section -->"
+  },
+  {
+    "slug": "features.3_col_grid",
+    "title": "3-Column Feature Cards",
+    "categories": ["features", "featured"],
+    "content": "<!-- wp:dgb/awx-section {\"style.surface\":\"surface-sunken\",\"style.width\":\"default\",\"style.padding\":\"default\"} -->\n<!-- wp:dgb/awx-feature-grid {\"style.columns\":\"3\",\"style.layout\":\"standard\"} -->\n<!-- wp:core/paragraph {\"content\":\"Deterministic compilation from declarative models.\"} /-->\n<!-- wp:core/paragraph {\"content\":\"Zero-overhead cascade layered CSS with content hashing.\"} /-->\n<!-- wp:core/paragraph {\"content\":\"Bidirectional SSR data binding with live visual editing.\"} /-->\n<!-- /wp:dgb/awx-feature-grid -->\n<!-- /wp:dgb/awx-section -->"
+  },
+  {
+    "slug": "faq.accordion_standard",
+    "title": "Standard FAQ Accordion",
+    "categories": ["faq", "featured"],
+    "content": "<!-- wp:dgb/awx-section {\"style.surface\":\"surface\",\"style.width\":\"narrow\",\"style.padding\":\"default\"} -->\n<!-- wp:dgb/awx-accordion {\"content.items\":[{\"title\":\"How does Dynamic Gutenberg Blocks work?\",\"text\":\"DGB compiles Single-File Components stored in the aw_gb_blocks post type into cascade-layered blocks with zero specificity conflicts.\"},{\"title\":\"Can I edit blocks in the WordPress Site Editor?\",\"text\":\"Yes, blocks feature a hybrid toolbar allowing seamless toggle between Canvas Form editing and Live Preview with nested InnerBlocks.\"},{\"title\":\"Is custom JavaScript required for accordions?\",\"text\":\"No, the accordion block leverages semantic HTML5 details and summary elements for lightweight zero-JS interaction.\"}],\"style.columns\":\"1\"} /-->\n<!-- /wp:dgb/awx-section -->"
+  }
+]
