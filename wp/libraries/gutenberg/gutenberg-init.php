@@ -25,6 +25,7 @@ if (!defined('DGB_ASSETS_URL')) {
 
 // 4. Cache Invalidation Hooks on aw_gb_blocks Mutations
 \add_action('save_post_aw_gb_blocks', 'aw2\gutenberg_blocks\invalidate_block_registry', 10, 2);
+\add_action('wp_after_insert_post', 'aw2\gutenberg_blocks\on_block_post_saved', 10, 4);
 \add_action('trashed_post', 'aw2\gutenberg_blocks\on_block_post_deleted', 10, 1);
 \add_action('deleted_post', 'aw2\gutenberg_blocks\on_block_post_deleted', 10, 1);
 \add_action('untrashed_post', 'aw2\gutenberg_blocks\invalidate_block_registry', 10, 1);
@@ -152,11 +153,19 @@ function enqueue_editor_assets() {
  * @param \WP_Post|null $post Post object
  */
 function invalidate_block_registry($post_id = 0, $post = null) {
+    static $handled = array();
+
     if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
         return;
     }
     if ($post_id && function_exists('wp_is_post_revision') && wp_is_post_revision($post_id)) {
         return;
+    }
+    if ($post_id && isset($handled[$post_id])) {
+        return;
+    }
+    if ($post_id) {
+        $handled[$post_id] = true;
     }
 
     if (function_exists('aw2\gutenberg_blocks\dgb')) {
@@ -170,6 +179,21 @@ function invalidate_block_registry($post_id = 0, $post = null) {
             }
         }
     }
+}
+
+/**
+ * Handle post insert/update including REST API submissions
+ *
+ * @param int $post_id Post ID
+ * @param \WP_Post|null $post Post object
+ * @param bool $update Whether this is an existing post being updated
+ * @param \WP_Post|null $post_before Post object before update
+ */
+function on_block_post_saved($post_id, $post, $update, $post_before = null) {
+    if (!$post || $post->post_type !== 'aw_gb_blocks') {
+        return;
+    }
+    invalidate_block_registry($post_id, $post);
 }
 
 /**
@@ -216,5 +240,12 @@ function awx_load_block_registry($for_editor = false) {
  */
 function awx_invalidate_block_registry() {
     dgb()->invalidate_registry();
+}
+
+// 5. WP-CLI Command Registration
+if (defined('WP_CLI') && WP_CLI) {
+    require_once __DIR__ . '/lib/class-blocks-cli.php';
+    \WP_CLI::add_command('awx blocks', 'aw2\gutenberg_blocks\Blocks_CLI_Command');
+    \WP_CLI::add_command('aw2 blocks', 'aw2\gutenberg_blocks\Blocks_CLI_Command');
 }
 

@@ -71,6 +71,7 @@ require_once AWX_ABILITIES_PATH . 'operations/patterns/class-pattern-update.php'
 require_once AWX_ABILITIES_PATH . 'operations/lifecycle/class-version-list.php';
 require_once AWX_ABILITIES_PATH . 'operations/lifecycle/class-version-publish.php';
 require_once AWX_ABILITIES_PATH . 'operations/lifecycle/class-version-rollback.php';
+require_once AWX_ABILITIES_PATH . 'operations/lifecycle/class-blocks-flush.php';
 
 // Debug
 require_once AWX_ABILITIES_PATH . 'operations/debug/class-log-list.php';

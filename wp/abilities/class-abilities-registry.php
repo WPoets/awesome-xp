@@ -452,6 +452,26 @@ class Abilities_Registry
                     ]
                 ]
             ],
+            'awesome/blocks-flush' => [
+                'label'       => 'Blocks Flush',
+                'description' => 'Flushes the cached Gutenberg block registry and optionally triggers recompilation of all block CSS/JS assets.',
+                'category'    => 'awesome-lifecycle',
+                'tier'        => 'author',
+                'operation'   => \aw2\abilities\operations\lifecycle\Blocks_Flush::class,
+                'input_schema' => [
+                    'type'       => 'object',
+                    'properties' => [
+                        'recompile' => [
+                            'type'        => 'boolean',
+                            'description' => 'Whether to synchronously rebuild the registry and recompile all block assets after flushing cache. Default false.'
+                        ],
+                        'slug' => [
+                            'type'        => 'string',
+                            'description' => 'Optional single block slug identifier to target for asset recompilation.'
+                        ]
+                    ]
+                ]
+            ],
 
             // Debug
             'awesome/log-list' => [

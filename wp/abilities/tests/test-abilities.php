@@ -595,6 +595,44 @@ $res_logs = $registry->execute_ability('awesome/log-list', ['limit' => 10]);
 assert($res_logs['success'] === true, "log-list failed");
 echo "   [PASS] Diagnostic error log retrieved with PII redaction.\n\n";
 
+// Test 16: awesome/blocks-flush
+echo "17. Testing awesome/blocks-flush:\n";
+if (!function_exists('aw2\gutenberg_blocks\dgb')) {
+    eval('
+    namespace aw2\gutenberg_blocks;
+    class Mock_DGB {
+        public $invalidated = false;
+        public function invalidate_registry() { $this->invalidated = true; }
+        public function recompile_single_block_assets($slug) {
+            return ["css" => ["handle" => "mock-css"], "js" => null];
+        }
+        public function build_registry() {
+            return ["service-card" => ["title" => "Service Card"]];
+        }
+    }
+    function dgb() {
+        static $inst;
+        if (!$inst) $inst = new Mock_DGB();
+        return $inst;
+    }
+    ');
+}
+
+$res_flush = $registry->execute_ability('awesome/blocks-flush', []);
+assert($res_flush['success'] === true, "blocks-flush basic failed: " . json_encode($res_flush));
+assert($res_flush['data']['flushed'] === true, "flushed flag must be true");
+
+$res_flush_recompile = $registry->execute_ability('awesome/blocks-flush', ['recompile' => true]);
+assert($res_flush_recompile['success'] === true, "blocks-flush with recompile failed: " . json_encode($res_flush_recompile));
+assert($res_flush_recompile['data']['recompiled_count'] >= 1, "recompiled_count must be >= 1");
+
+$res_flush_single = $registry->execute_ability('awesome/blocks-flush', ['slug' => 'service-card']);
+assert($res_flush_single['success'] === true, "blocks-flush single slug failed: " . json_encode($res_flush_single));
+assert($res_flush_single['data']['targeted_slug'] === 'service-card', "targeted_slug mismatch");
+assert($res_flush_single['data']['recompiled'] === true, "recompiled flag mismatch");
+
+echo "   [PASS] blocks-flush successfully invalidated cache, triggered recompile, and targeted single slug.\n\n";
+
 echo "====================================================\n";
-echo "All 16 Test Suites Passed Successfully! (100% OK)\n";
+echo "All 17 Test Suites Passed Successfully! (100% OK)\n";
 echo "====================================================\n";
