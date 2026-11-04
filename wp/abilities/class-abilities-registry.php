@@ -56,6 +56,10 @@ class Abilities_Registry
                 'label'       => 'Awesome Patterns',
                 'description' => 'Block pattern composition from registered Awesome blocks'
             ],
+            'awesome-wal' => [
+                'label'       => 'Awesome WAL Engine',
+                'description' => 'Website Assembly Language (WAL) declarative compilation and decompilation'
+            ],
             'awesome-lifecycle' => [
                 'label'       => 'Awesome Lifecycle',
                 'description' => 'Version promotion and rollback'
@@ -400,6 +404,79 @@ class Abilities_Registry
                         'id'         => ['type' => 'integer', 'description' => 'Pattern post ID'],
                         'markup'     => ['type' => 'string', 'description' => 'Updated block markup'],
                         'if_version' => ['type' => 'integer', 'description' => 'Expected version for optimistic locking']
+                    ]
+                ]
+            ],
+            'awesome/pattern-export' => [
+                'label'       => 'Pattern Export',
+                'description' => 'Exports all AWX-managed block patterns into a portable JSON manifest bundle.',
+                'category'    => 'awesome-patterns',
+                'tier'        => 'read',
+                'operation'   => \aw2\abilities\operations\patterns\Pattern_Export::class,
+                'input_schema' => [
+                    'type'       => 'object',
+                    'properties' => [
+                        'path' => ['type' => 'string', 'description' => 'Optional file path to write exported patterns JSON bundle']
+                    ]
+                ]
+            ],
+            'awesome/pattern-import' => [
+                'label'       => 'Pattern Import',
+                'description' => 'Imports a pattern bundle manifest idempotently into wp_block posts with unsynced status.',
+                'category'    => 'awesome-patterns',
+                'tier'        => 'author',
+                'operation'   => \aw2\abilities\operations\patterns\Pattern_Import::class,
+                'input_schema' => [
+                    'type'       => 'object',
+                    'properties' => [
+                        'manifest' => ['type' => 'array', 'description' => 'Array of pattern definition objects with slug, title, content, categories'],
+                        'path'     => ['type' => 'string', 'description' => 'Optional file path to read pattern JSON manifest from']
+                    ]
+                ]
+            ],
+
+            // WAL Engine
+            'awesome/wal-compile' => [
+                'label'       => 'WAL Compile',
+                'description' => 'Compiles a declarative Website Assembly Language (WAL) document directly into a published WordPress Page with native Gutenberg block AST.',
+                'category'    => 'awesome-wal',
+                'tier'        => 'publish',
+                'operation'   => \aw2\abilities\operations\wal\WAL_Compile::class,
+                'input_schema' => [
+                    'type'       => 'object',
+                    'required'   => ['wal'],
+                    'properties' => [
+                        'wal' => [
+                            'type'        => 'object',
+                            'description' => 'Structured WAL document containing page title, slug, status, and sections',
+                            'required'    => ['page'],
+                            'properties'  => [
+                                'page' => [
+                                    'type'       => 'object',
+                                    'required'   => ['title', 'sections'],
+                                    'properties' => [
+                                        'title'    => ['type' => 'string', 'description' => 'Page title'],
+                                        'slug'     => ['type' => 'string', 'description' => 'Page URL slug'],
+                                        'status'   => ['type' => 'string', 'description' => 'Page status (publish, draft)', 'default' => 'draft'],
+                                        'sections' => ['type' => 'array', 'description' => 'Array of section/block/pattern definition nodes']
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ],
+            'awesome/wal-decompile' => [
+                'label'       => 'WAL Decompile',
+                'description' => 'Decompiles a published WordPress Page post_content into a clean, structured Website Assembly Language (WAL) document for agent editing.',
+                'category'    => 'awesome-wal',
+                'tier'        => 'read',
+                'operation'   => \aw2\abilities\operations\wal\WAL_Decompile::class,
+                'input_schema' => [
+                    'type'       => 'object',
+                    'required'   => ['post_id'],
+                    'properties' => [
+                        'post_id' => ['type' => 'integer', 'description' => 'WordPress post ID to decompile']
                     ]
                 ]
             ],

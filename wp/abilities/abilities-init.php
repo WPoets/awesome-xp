@@ -66,6 +66,12 @@ require_once AWX_ABILITIES_PATH . 'operations/patterns/class-pattern-list.php';
 require_once AWX_ABILITIES_PATH . 'operations/patterns/class-pattern-get.php';
 require_once AWX_ABILITIES_PATH . 'operations/patterns/class-pattern-create.php';
 require_once AWX_ABILITIES_PATH . 'operations/patterns/class-pattern-update.php';
+require_once AWX_ABILITIES_PATH . 'operations/patterns/class-pattern-export.php';
+require_once AWX_ABILITIES_PATH . 'operations/patterns/class-pattern-import.php';
+
+// WAL Engine
+require_once AWX_ABILITIES_PATH . 'operations/wal/class-wal-compile.php';
+require_once AWX_ABILITIES_PATH . 'operations/wal/class-wal-decompile.php';
 
 // Lifecycle
 require_once AWX_ABILITIES_PATH . 'operations/lifecycle/class-version-list.php';

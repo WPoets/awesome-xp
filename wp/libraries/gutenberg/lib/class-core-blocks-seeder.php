@@ -1588,6 +1588,9 @@ SFC;
                     if (is_wp_error($res)) {
                         $results['errors'][] = "Failed updating {$slug}: " . $res->get_error_message();
                     } else {
+                        if (function_exists('update_post_meta')) {
+                            update_post_meta($existing->ID, '_awx_core_block', 1);
+                        }
                         $results['updated']++;
                     }
                 } else {
@@ -1598,6 +1601,9 @@ SFC;
                 if (is_wp_error($res)) {
                     $results['errors'][] = "Failed inserting {$slug}: " . $res->get_error_message();
                 } else {
+                    if (function_exists('update_post_meta')) {
+                        update_post_meta($res, '_awx_core_block', 1);
+                    }
                     $results['seeded']++;
                 }
             }
