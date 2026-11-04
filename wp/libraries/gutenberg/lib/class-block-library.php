@@ -1064,7 +1064,40 @@ class BlockLibrary
                     $data['wp'] = array();
                 }
                 if (empty($data['wp']['wrapper_attributes'])) {
-                    $wrapper_attrs = get_block_wrapper_attributes();
+                    $extra_classes = array();
+
+                    // Generate modifier classes from style.* attributes (Section 1.5 specification)
+                    if (!empty($data['style.surface'])) {
+                        $extra_classes[] = 'has-surface-' . sanitize_html_class($data['style.surface']);
+                        $extra_classes[] = 'is-surface-' . sanitize_html_class($data['style.surface']);
+                    }
+                    if (!empty($data['style.width'])) {
+                        $extra_classes[] = 'has-width-' . sanitize_html_class($data['style.width']);
+                    }
+                    if (!empty($data['style.padding'])) {
+                        $extra_classes[] = 'has-padding-' . sanitize_html_class($data['style.padding']);
+                    }
+                    if (!empty($data['style.align'])) {
+                        $extra_classes[] = sanitize_html_class($data['style.align']);
+                    }
+                    if (!empty($data['style.columns'])) {
+                        $extra_classes[] = 'has-cols-' . sanitize_html_class($data['style.columns']);
+                    }
+                    if (!empty($data['style.layout'])) {
+                        $layout_val = sanitize_html_class($data['style.layout']);
+                        if ($layout_val === 'bento') {
+                            $extra_classes[] = 'is-bento';
+                        } else {
+                            $extra_classes[] = $layout_val;
+                        }
+                    }
+                    if (!empty($data['style.order'])) {
+                        $order_val = sanitize_html_class($data['style.order']);
+                        $extra_classes[] = strpos($order_val, 'is-order-') === 0 ? $order_val : 'is-order-' . $order_val;
+                    }
+
+                    $wrapper_args = !empty($extra_classes) ? array('class' => implode(' ', array_unique($extra_classes))) : array();
+                    $wrapper_attrs = get_block_wrapper_attributes($wrapper_args);
                     $data['wp']['wrapper_attributes'] = $wrapper_attrs;
                     $data['wp.wrapper_attributes']     = $wrapper_attrs;
                 }

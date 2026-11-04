@@ -170,4 +170,45 @@ class Blocks_CLI_Command extends \WP_CLI_Command
         $count  = is_array($blocks) ? count($blocks) : 0;
         \WP_CLI::success("Successfully recompiled assets for {$count} block(s).");
     }
+
+    /**
+     * Seed the Core 12 AWX Dynamic Gutenberg Blocks into the database.
+     *
+     * ## OPTIONS
+     *
+     * [--force]
+     * : Overwrite existing block posts with current specifications.
+     *
+     * ## EXAMPLES
+     *
+     *     # Seed missing core blocks
+     *     $ wp awx blocks seed
+     *
+     *     # Force update all 12 core blocks
+     *     $ wp awx blocks seed --force
+     */
+    public function seed($args, $assoc_args)
+    {
+        $force = !empty($assoc_args['force']);
+        \WP_CLI::line("Seeding Core 12 AWX blocks (force=" . ($force ? "true" : "false") . ")...");
+
+        if (!class_exists('aw2\gutenberg_blocks\AWX_Core_Blocks_Seeder')) {
+            require_once __DIR__ . '/class-core-blocks-seeder.php';
+        }
+
+        $res = AWX_Core_Blocks_Seeder::seed($force);
+
+        if (!empty($res['errors'])) {
+            foreach ($res['errors'] as $err) {
+                \WP_CLI::warning($err);
+            }
+        }
+
+        \WP_CLI::success(sprintf(
+            "Seeding complete: %d seeded, %d updated, %d skipped.",
+            $res['seeded'],
+            $res['updated'],
+            $res['skipped']
+        ));
+    }
 }

@@ -30,6 +30,28 @@ if (!defined('DGB_ASSETS_URL')) {
 \add_action('deleted_post', 'aw2\gutenberg_blocks\on_block_post_deleted', 10, 1);
 \add_action('untrashed_post', 'aw2\gutenberg_blocks\invalidate_block_registry', 10, 1);
 
+// 5. Automatic Core Blocks Seeder & Migration on First Enable / Update
+if (!defined('AWX_CORE_BLOCKS_VERSION')) {
+    \define('AWX_CORE_BLOCKS_VERSION', '1.0.0');
+}
+\add_action('init', 'aw2\gutenberg_blocks\maybe_auto_seed_core_blocks', 20);
+
+/**
+ * Automatically seeds the Core 12 blocks when the plugin is first enabled
+ * or when an update bumps AWX_CORE_BLOCKS_VERSION.
+ */
+function maybe_auto_seed_core_blocks() {
+    if (!function_exists('get_option') || !class_exists('aw2\gutenberg_blocks\AWX_Core_Blocks_Seeder')) {
+        return;
+    }
+    $installed_ver = get_option('awx_core_blocks_version', '0.0.0');
+    if (version_compare($installed_ver, AWX_CORE_BLOCKS_VERSION, '<')) {
+        $force = ($installed_ver !== '0.0.0');
+        AWX_Core_Blocks_Seeder::seed($force);
+        update_option('awx_core_blocks_version', AWX_CORE_BLOCKS_VERSION);
+    }
+}
+
 /**
  * Expose database prefix into AWX environment for portable SQL queries ([env.get db.prefix /])
  */
@@ -125,6 +147,7 @@ function dgb_init() {
     require_once __DIR__ . '/lib/class-block-library.php';
     require_once __DIR__ . '/lib/class-pattern-bridge.php';
     require_once __DIR__ . '/lib/class-wal-engine.php';
+    require_once __DIR__ . '/lib/class-core-blocks-seeder.php';
     dgb()->init(DGB_ASSETS_URL);
 }
 
@@ -251,7 +274,8 @@ if (defined('WP_CLI') && WP_CLI) {
     \WP_CLI::add_command('aw2 blocks', 'aw2\gutenberg_blocks\Blocks_CLI_Command');
 }
 
-// 6. Pattern Bridge and WAL Engine Subsystems
+// 6. Pattern Bridge, WAL Engine, and Core Blocks Seeder Subsystems
 require_once __DIR__ . '/lib/class-pattern-bridge.php';
 require_once __DIR__ . '/lib/class-wal-engine.php';
+require_once __DIR__ . '/lib/class-core-blocks-seeder.php';
 
