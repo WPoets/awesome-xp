@@ -162,6 +162,13 @@
             }
         }
 
+        // 2b. Fallback to un-prefixed field.name if attrName contains dot
+        if (field.name && field.name !== attrName && attrs) {
+            if (attrs[field.name] !== undefined && attrs[field.name] !== null) {
+                return attrs[field.name];
+            }
+        }
+
         // 3. Fallback to legacy _data snapshot
         if (attrs && attrs._data && typeof attrs._data === 'object') {
             if (attrs._data[attrName] !== undefined && attrs._data[attrName] !== null) {
@@ -278,8 +285,49 @@
     /* -- image ------------------------------------------------------- */
     FIELD_TYPES['image'] = {
         component: function ImageField(p) {
-            var value    = p.value;
+            var rawValue = p.value;
             var onChange = p.onChange;
+
+            // Self-heal: Normalize numeric ID or plain URL string into image object
+            var value = rawValue;
+            if (rawValue && typeof rawValue === 'object') {
+                value = rawValue;
+            } else if (typeof rawValue === 'number' || (typeof rawValue === 'string' && /^\d+$/.test(rawValue))) {
+                value = { id: parseInt(rawValue, 10), url: '', alt: '', title: '' };
+            } else if (typeof rawValue === 'string' && (rawValue.indexOf('http://') === 0 || rawValue.indexOf('https://') === 0 || rawValue.indexOf('/') === 0)) {
+                value = { id: 0, url: rawValue, alt: '', title: '' };
+            } else {
+                value = null;
+            }
+
+            // Self-heal: Fetch attachment details asynchronously if ID exists without URL
+            useEffect(function () {
+                if (value && value.id && !value.url) {
+                    if (window.wp && window.wp.media && window.wp.media.attachment) {
+                        var att = window.wp.media.attachment(value.id);
+                        att.fetch().then(function () {
+                            onChange({
+                                id: value.id,
+                                url: att.get('url') || '',
+                                alt: att.get('alt') || '',
+                                title: att.get('title') || ''
+                            });
+                        }).catch(function () {});
+                    } else if (apiFetch) {
+                        apiFetch({ path: '/wp/v2/media/' + value.id }).then(function (media) {
+                            if (media && media.source_url) {
+                                onChange({
+                                    id: value.id,
+                                    url: media.source_url,
+                                    alt: media.alt_text || '',
+                                    title: (media.title && media.title.rendered) ? media.title.rendered : ''
+                                });
+                            }
+                        }).catch(function () {});
+                    }
+                }
+            }, [value ? value.id : 0]);
+
             var altD   = useDeferredValue(value && value.alt   ? value.alt   : '', function (n) { onChange(Object.assign({}, value, { alt:   n })); });
             var titleD = useDeferredValue(value && value.title ? value.title : '', function (n) { onChange(Object.assign({}, value, { title: n })); });
 
@@ -1264,6 +1312,67 @@
                     var modeState = useState(isNewBlock ? 'edit' : 'preview');
                     var mode      = modeState[0];
                     var setMode   = modeState[1];
+
+                    // Self-healing: Auto-hydrate attributes from legacy inner dgb/field pseudo-blocks
+                    useEffect(function () {
+                        if (!props.clientId || !data || !data.select) { return; }
+                        var blockEditorSelect = data.select('core/block-editor');
+                        if (!blockEditorSelect || !blockEditorSelect.getBlocks) { return; }
+
+                        var inner = blockEditorSelect.getBlocks(props.clientId);
+                        if (!inner || inner.length === 0) { return; }
+
+                        var legacyFields = inner.filter(function (b) { return b && b.name === 'dgb/field'; });
+                        if (legacyFields.length === 0) { return; }
+
+                        var allConfigFields = (config.fields || []).slice();
+                        (config.tabs || []).forEach(function (tab) {
+                            if (tab.fields && Array.isArray(tab.fields)) {
+                                allConfigFields = allConfigFields.concat(tab.fields);
+                            }
+                        });
+
+                        var nameToAttr = {};
+                        allConfigFields.forEach(function (f) {
+                            if (f.name) {
+                                nameToAttr[f.name] = f.attr_name || f.name;
+                            }
+                            if (f.attr_name) {
+                                nameToAttr[f.attr_name] = f.attr_name;
+                            }
+                        });
+
+                        var currentAttrs = props.attributes || {};
+                        var updates = {};
+                        var hasUpdates = false;
+
+                        legacyFields.forEach(function (fb) {
+                            var fa = fb.attributes || {};
+                            var rawKey = fa.attr_name || fa.name;
+                            var attrKey = nameToAttr[rawKey] || rawKey;
+                            var val = fa.value;
+
+                            if (attrKey && val !== undefined && val !== null && val !== '') {
+                                if (currentAttrs[attrKey] === undefined || currentAttrs[attrKey] === '' || currentAttrs[attrKey] === null) {
+                                    updates[attrKey] = val;
+                                    hasUpdates = true;
+
+                                    if (attrKey.indexOf('.') !== -1) {
+                                        var parts = attrKey.split('.');
+                                        var top = parts[0];
+                                        var sub = parts.slice(1).join('.');
+                                        var topObj = Object.assign({}, updates[top] || currentAttrs[top] || {});
+                                        topObj[sub] = val;
+                                        updates[top] = topObj;
+                                    }
+                                }
+                            }
+                        });
+
+                        if (hasUpdates) {
+                            props.setAttributes(updates);
+                        }
+                    }, [props.clientId]);
 
                     var tabs         = config.tabs || [];
                     var tabState     = useState(tabs.length > 0 ? tabs[0].name : '');

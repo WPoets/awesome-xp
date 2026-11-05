@@ -1023,7 +1023,7 @@ class BlockLibrary
             }
 
             // B. Extract from legacy child pseudo-blocks (dgb/field)
-            $extracted_inner = $this->extract_field_values($block);
+            $extracted_inner = $this->extract_field_values($block, $config);
             if (!empty($extracted_inner)) {
                 $field_values = array_merge($field_values, $extracted_inner);
             }
@@ -1035,6 +1035,9 @@ class BlockLibrary
             foreach ($field_values as $key => $val) {
                 $data[$key] = $val;
             }
+
+            // D. Self-heal and normalize legacy data (images, video URLs, and legacy un-prefixed keys)
+            $this->self_heal_data_attributes($data, $config);
 
             // 2. Bidirectional Attribute Bridge (Flattening & Nesting)
             // Ensure both dot-notated ($data['content.title']) and nested ($data['content']['title']) exist
@@ -1151,11 +1154,190 @@ class BlockLibrary
     }
 
     /**
+     * Normalize an image value into a standard object dictionary
+     * Supports:
+     * - Native object/array: ['id' => 12, 'url' => '...', 'alt' => '...', 'title' => '...']
+     * - Attachment ID: 12 or "12" -> resolves via wp_get_attachment_url
+     * - URL string: "https://..." or "/wp-content/..." -> ['id' => 0, 'url' => '...', ...]
+     *
+     * @param mixed $value
+     * @return array|null
+     */
+    public function normalize_image_value($value)
+    {
+        if (empty($value)) {
+            return null;
+        }
+
+        // Already structured array
+        if (is_array($value)) {
+            if (!empty($value['url'])) {
+                return array(
+                    'id'    => !empty($value['id']) ? (int) $value['id'] : 0,
+                    'url'   => (string) $value['url'],
+                    'alt'   => isset($value['alt']) ? (string) $value['alt'] : '',
+                    'title' => isset($value['title']) ? (string) $value['title'] : '',
+                );
+            }
+            if (!empty($value['id']) && is_numeric($value['id'])) {
+                $value = (int) $value['id'];
+            } else {
+                return null;
+            }
+        } elseif (is_object($value)) {
+            if (!empty($value->url)) {
+                return array(
+                    'id'    => !empty($value->id) ? (int) $value->id : 0,
+                    'url'   => (string) $value->url,
+                    'alt'   => isset($value->alt) ? (string) $value->alt : '',
+                    'title' => isset($value->title) ? (string) $value->title : '',
+                );
+            }
+            if (!empty($value->id) && is_numeric($value->id)) {
+                $value = (int) $value->id;
+            } else {
+                return null;
+            }
+        }
+
+        // Numeric attachment ID
+        if (is_numeric($value) && (int) $value > 0) {
+            $id = (int) $value;
+            $url = function_exists('wp_get_attachment_url') ? wp_get_attachment_url($id) : '';
+            if (!empty($url)) {
+                $alt   = function_exists('get_post_meta') ? (string) get_post_meta($id, '_wp_attachment_image_alt', true) : '';
+                $title = function_exists('get_the_title') ? (string) get_the_title($id) : '';
+                return array(
+                    'id'    => $id,
+                    'url'   => $url,
+                    'alt'   => $alt,
+                    'title' => $title,
+                );
+            }
+            return null;
+        }
+
+        // String URL
+        if (is_string($value) && (strpos($value, 'http://') === 0 || strpos($value, 'https://') === 0 || strpos($value, '/') === 0)) {
+            return array(
+                'id'    => 0,
+                'url'   => $value,
+                'alt'   => '',
+                'title' => '',
+            );
+        }
+
+        return null;
+    }
+
+    /**
+     * Normalize media URL if value is an attachment ID or object
+     *
+     * @param mixed $value
+     * @return string
+     */
+    public function normalize_media_url($value)
+    {
+        if (empty($value)) {
+            return '';
+        }
+        if (is_numeric($value) && (int) $value > 0) {
+            $url = function_exists('wp_get_attachment_url') ? wp_get_attachment_url((int) $value) : '';
+            return $url ? $url : (string) $value;
+        }
+        if (is_array($value) && !empty($value['url'])) {
+            return (string) $value['url'];
+        }
+        if (is_object($value) && !empty($value->url)) {
+            return (string) $value->url;
+        }
+        return is_string($value) ? $value : '';
+    }
+
+    /**
+     * Self-heal and normalize data attributes against block configuration
+     *
+     * @param array &$data
+     * @param array $config
+     */
+    public function self_heal_data_attributes(&$data, $config)
+    {
+        $all_fields = isset($config['fields']) && is_array($config['fields']) ? $config['fields'] : array();
+        if (!empty($config['tabs']) && is_array($config['tabs'])) {
+            foreach ($config['tabs'] as $t) {
+                if (!empty($t['fields']) && is_array($t['fields'])) {
+                    $all_fields = array_merge($all_fields, $t['fields']);
+                }
+            }
+        }
+
+        foreach ($all_fields as $f) {
+            $attr_name = !empty($f['attr_name']) ? $f['attr_name'] : (!empty($f['name']) ? $f['name'] : '');
+            $name      = !empty($f['name']) ? $f['name'] : '';
+            $type      = isset($f['type']) ? $f['type'] : 'text';
+
+            if (empty($attr_name)) {
+                continue;
+            }
+
+            // Check if legacy un-prefixed name has value while attr_name is missing
+            if (!empty($name) && $name !== $attr_name) {
+                if ((!isset($data[$attr_name]) || $data[$attr_name] === '' || $data[$attr_name] === null) && isset($data[$name]) && $data[$name] !== '') {
+                    $data[$attr_name] = $data[$name];
+                    $this->set_nested_value($data, $attr_name, $data[$name]);
+                }
+            }
+
+            // Self-heal image / media values
+            if ($type === 'image' || $type === 'media' || $type === 'file') {
+                if (isset($data[$attr_name])) {
+                    $normalized = $this->normalize_image_value($data[$attr_name]);
+                    if ($normalized !== null) {
+                        $data[$attr_name] = $normalized;
+                        $this->set_nested_value($data, $attr_name, $normalized);
+                    }
+                }
+            } elseif (strpos($attr_name, 'video') !== false || strpos($attr_name, 'url') !== false) {
+                if (isset($data[$attr_name]) && is_numeric($data[$attr_name])) {
+                    $norm_url = $this->normalize_media_url($data[$attr_name]);
+                    if ($norm_url !== '') {
+                        $data[$attr_name] = $norm_url;
+                        $this->set_nested_value($data, $attr_name, $norm_url);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Extract field values from inner blocks (legacy support)
      */
-    private function extract_field_values($block)
+    public function extract_field_values($block, $config = array())
     {
         $values = array();
+
+        // Build mapping of field name -> attr_name and field types from config
+        $name_to_attr = array();
+        $field_types  = array();
+        $all_fields   = isset($config['fields']) && is_array($config['fields']) ? $config['fields'] : array();
+        if (!empty($config['tabs']) && is_array($config['tabs'])) {
+            foreach ($config['tabs'] as $t) {
+                if (!empty($t['fields']) && is_array($t['fields'])) {
+                    $all_fields = array_merge($all_fields, $t['fields']);
+                }
+            }
+        }
+        foreach ($all_fields as $f) {
+            if (!empty($f['name'])) {
+                $target_attr = !empty($f['attr_name']) ? $f['attr_name'] : $f['name'];
+                $name_to_attr[$f['name']] = $target_attr;
+                $field_types[$target_attr] = isset($f['type']) ? $f['type'] : 'text';
+            }
+            if (!empty($f['attr_name'])) {
+                $name_to_attr[$f['attr_name']] = $f['attr_name'];
+                $field_types[$f['attr_name']] = isset($f['type']) ? $f['type'] : 'text';
+            }
+        }
 
         $inner_blocks = array();
         if (is_object($block) && isset($block->parsed_block['innerBlocks'])) {
@@ -1180,10 +1362,31 @@ class BlockLibrary
             if (isset($inner_block['blockName']) && $inner_block['blockName'] === 'dgb/field') {
                 $attrs = isset($inner_block['attrs']) ? $inner_block['attrs'] : array();
 
-                if (!empty($attrs['attr_name']) && isset($attrs['value'])) {
+                $raw_key  = !empty($attrs['attr_name']) ? $attrs['attr_name'] : (!empty($attrs['name']) ? $attrs['name'] : '');
+                $attr_key = isset($name_to_attr[$raw_key]) ? $name_to_attr[$raw_key] : $raw_key;
+
+                if (!empty($attr_key) && isset($attrs['value'])) {
+                    $val   = $attrs['value'];
+                    $ftype = isset($field_types[$attr_key]) ? $field_types[$attr_key] : (isset($attrs['type']) ? $attrs['type'] : '');
+
+                    if ($ftype === 'image' || $ftype === 'media' || $ftype === 'file') {
+                        $normalized = $this->normalize_image_value($val);
+                        if ($normalized !== null) {
+                            $val = $normalized;
+                        }
+                    } elseif (is_numeric($val) && (strpos($attr_key, 'video') !== false || strpos($attr_key, 'url') !== false)) {
+                        $val = $this->normalize_media_url($val);
+                    }
+
                     // Populate both flat key and nested array path
-                    $values[$attrs['attr_name']] = $attrs['value'];
-                    $this->set_nested_value($values, $attrs['attr_name'], $attrs['value']);
+                    $values[$attr_key] = $val;
+                    $this->set_nested_value($values, $attr_key, $val);
+
+                    // If attr_key was mapped from a different raw key, keep raw key as fallback too
+                    if ($raw_key !== $attr_key && !empty($raw_key)) {
+                        $values[$raw_key] = $val;
+                        $this->set_nested_value($values, $raw_key, $val);
+                    }
                 }
             }
         }
