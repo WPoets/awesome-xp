@@ -15,6 +15,29 @@ Initial setup requires configuration in wp-config.php.
 
 ### Changelog 
 
+##### 1.0.8
+* Improved: Eliminated the Per-Request 𝑂(𝑁) Runtime Bottleneck
+* Improved: Payload Segregation (frontend_blocks vs. editor_blocks)
+* Improved: Complete Attribute Schema Synthesizer with Bidirectional Attribute SSR Bridge
+* Improved: Added Asset Compilation Pipeline 
+* Improved: Toolbar Mode Switcher
+* Improved: Live WYSIWYG Canvas View ("Preview" Mode)
+* Improved: Distraction-Free Modal Dialogs for Repeaters & Code
+* Improved: Spacious Canvas Form View ("Edit" Mode)
+* Improved: Add WP-CLI commands (wp awx blocks flush, wp awx blocks list, wp awx blocks recompile)
+* Improved: Add MCP Ability awesome/blocks-flush under lifecycle category
+* Improved: Add wp_after_insert_post hook for REST API mutation handling with recursion guard
+* Improved: Update authoring guides, readme, sample SFC modules and guardrails
+* Improved: Implemented WAL engine and pattern bridge subsystems
+* Improved: Added Core 12 DGB blocks and an idempotent database seeder
+* Improved: Added 'wp awx blocks seed' CLI command in class-blocks-cli.php
+* Improved: Added pattern bridge admin interfaces, CLI tooling, and fixtures to import and export pattern JSON files
+* Improved: Added Patterns_CLI_Command in class-patterns-cli.php ('wp awx patterns import/export/list')
+* Improved: Added awesome/pattern-export and awesome/pattern-import operations for portable JSON pattern bundles
+* Improved: Added awesome/wal-compile and awesome/wal-decompile operations for declarative agent page authoring
+* Improved: Registered awesome-wal category and ability schemas in Abilities_Registry
+
+
 ##### 1.0.7
 * Improved: Introduced 24 abilities through the WordPress Abilities API
 * Improved: Added support for hierarchical posts in apps
