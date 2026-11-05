@@ -56,7 +56,7 @@ class apps_setup_wp
 		if (!isset($_REQUEST['awesome_purge']))
 			return;
 
-		if (!current_user_can('manage_options'))
+		if (!current_user_can('manage_options') && !current_user_can('edit_pages') && !current_user_can('develop_for_awesomeui'))
 			wp_die('Sorry, you do not have the necessary privileges to edit these options.');
 
 		$action = $_REQUEST['awesome_purge'];
@@ -88,6 +88,9 @@ class apps_setup_wp
 				}
 				break;
 			case 'redis_cache':
+				if (!current_user_can('manage_options') && !current_user_can('develop_for_awesomeui')) {
+					wp_die('Sorry, you do not have the necessary privileges to edit these options.');
+				}
 				check_admin_referer('redis_nonced-purge');
 				$redis_db = intval($_POST['redis_db']);
 
