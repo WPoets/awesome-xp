@@ -33,6 +33,8 @@ class Guide_Read extends Operation_Base
             'safety'     => 'SQL safety, the esc library, and parameterization',
             'css-tokens' => 'Awesome CSS Design System: Two-layer token model and awx tokens',
             'block-css'  => 'Writing block CSS: Tokens -> modifiers -> patterns -> blocks',
+            'wal-engine' => 'Website Assembly Language (WAL): Declarative compilation, pattern resolution, and decompilation',
+            'patterns'   => 'AWX Pattern Bridge: Portable JSON pattern manifests, unsynced status, and tooling',
             'pitfalls'   => 'Common pitfalls, disallowed patterns, and lint rules'
         ];
 

@@ -1,6 +1,6 @@
 # Awesome XP — Authoring Overview & Workflow
 
-Awesome XP exposes 27 abilities through the WordPress Abilities API and MCP Adapter to let AI agents develop services, apps, and Gutenberg blocks safely and reliably.
+Awesome XP exposes 31 abilities through the WordPress Abilities API and MCP Adapter to let AI agents develop services, apps, and Gutenberg blocks safely and reliably.
 
 ## The Agent Lifecycle
 Every agent must follow this exact progression:
@@ -24,4 +24,6 @@ Pass any of the following topic slugs to `awesome/guide-read`:
 - `safety`: SQL safety, the `esc` library, and parameterization.
 - `css-tokens`: The Awesome CSS Design System two-layer token model.
 - `block-css`: Dynamic Gutenberg Blocks (DGB) architecture: Single-File Components (SFC), `@layer blocks` styling, repeaters, InnerBlocks, dynamic sidebar, and cache tooling.
+- `wal-engine`: Website Assembly Language (WAL) declarative page composition, AST transpilation, pattern resolution, and reverse decompilation (`awesome/wal-compile`, `awesome/wal-decompile`).
+- `patterns`: AWX Pattern Bridge: portable JSON pattern manifests, unsynced sync status, dotted slugs, and MCP tooling (`awesome/pattern-export`, `awesome/pattern-import`).
 - `pitfalls`: Common architectural, syntax, and block authoring mistakes.
