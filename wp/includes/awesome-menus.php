@@ -49,6 +49,7 @@ class aw2_menu{
 		$nginx_nonced_url = wp_nonce_url( $nginx_purge_url, 'nginx_helper-purge_all' );
 		$global_nonced_url = wp_nonce_url( admin_url('admin.php?page=awesome-enterprise&awesome_purge=global'), 'global_nonced-purge_all' );
 		$session_nonced_url = wp_nonce_url(admin_url('admin.php?page=awesome-enterprise&awesome_purge=session'), 'session_nonced-purge_all' );
+		$blocks_nonced_url = wp_nonce_url(admin_url('admin.php?page=awesome-enterprise&awesome_purge=blocks'), 'blocks_nonced-purge_all' );
 		
 		echo '<div class="wrap" >'; 
 			echo '<h2>Awesome Enterprise</h2><hr>';
@@ -57,6 +58,7 @@ class aw2_menu{
 			echo "<p><a href='".$global_nonced_url."' class='page-title-action'>Purge Global Cache (Modules & Taxonomy etc)</a> </p>"; //11       	
 			echo "<p><a href='".$nginx_nonced_url."' class='page-title-action'>Purge NGINX Cache</a> </p>";
 			echo "<p><a href='".$session_nonced_url."' class='page-title-action'>Purge Session Cache (Search. OTP & self expiry)</a> </p>";//12
+			echo "<p><a href='".$blocks_nonced_url."' class='page-title-action'>Flush Blocks Cache (Gutenberg DGB Registry & Styles)</a> </p>";
 			echo '
 			<div>
 			<form  action="'.wp_nonce_url(admin_url('admin.php?page=awesome-enterprise&awesome_purge=redis_cache'), 'redis_nonced-purge').'" method="post">

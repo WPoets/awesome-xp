@@ -2,7 +2,7 @@
 namespace aw2\gutenberg_blocks;
 
 if (!defined('DGB_VERSION')) {
-	\define('DGB_VERSION', '1.1.0');
+	\define('DGB_VERSION', '1.1.2');
 }
 if (!defined('DGB_PLUGIN_DIR')) {
 	\define('DGB_PLUGIN_DIR', \plugin_dir_path(__FILE__));

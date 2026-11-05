@@ -33,12 +33,14 @@ class apps_setup_wp
 		$nginx_nonced_url = wp_nonce_url($nginx_purge_url, 'nginx_helper-purge_all');
 		$global_nonced_url = wp_nonce_url(admin_url('admin.php?page=awesome-studio-cache&awesome_purge=global'), 'global_nonced-purge_all');
 		$session_nonced_url = wp_nonce_url(admin_url('admin.php?page=awesome-studio-cache&awesome_purge=session'), 'session_nonced-purge_all');
+		$blocks_nonced_url = wp_nonce_url(admin_url('admin.php?page=awesome-studio-cache&awesome_purge=blocks'), 'blocks_nonced-purge_all');
 
 		echo '<div class="wrap ">';
 		echo '<h2>Manage Awesome Cache</h2><hr>';
 		echo "<a href='" . $global_nonced_url . "' class='page-title-action'>Purge Global Cache (Modules & Taxonomy etc)</a> <br /><br />"; //11       	
 		echo "<a href='" . $nginx_nonced_url . "' class='page-title-action'>Purge NGINX Cache</a> <br /><br />";
 		echo "<a href='" . $session_nonced_url . "' class='page-title-action'>Purge Session Cache (Search. OTP & self expiry)</a> <br /><br />";//12
+		echo "<a href='" . $blocks_nonced_url . "' class='page-title-action'>Flush Blocks Cache (Gutenberg DGB Registry & Styles)</a> <br /><br />";
 		echo '<form  action="' . wp_nonce_url(admin_url('admin.php?page=awesome-studio-cache&awesome_purge=redis_cache'), 'redis_nonced-purge') . '" method="post">
 				<label for="redis_db">Redis DB Number</label>
 				<input type="text" id="redis_db" name="redis_db" />
@@ -60,8 +62,9 @@ class apps_setup_wp
 		$action = $_REQUEST['awesome_purge'];
 
 		if ($action == 'done') {
-			//add_action( 'admin_notices', array( &$this, 'show_notice' ) );
-			//add_action( 'network_admin_notices', array( &$this, 'show_notice' ) );
+			add_action('admin_notices', function () {
+				echo '<div class="notice notice-success is-dismissible"><p>Awesome Cache successfully purged.</p></div>';
+			});
 			return;
 		}
 
@@ -69,10 +72,20 @@ class apps_setup_wp
 			case 'global':
 				check_admin_referer('global_nonced-purge_all');
 				\aw2\global_cache\flush(null, null, null);
+				if (function_exists('aw2\gutenberg_blocks\dgb')) {
+					\aw2\gutenberg_blocks\dgb()->invalidate_registry();
+				}
 				break;
 			case 'session':
 				check_admin_referer('session_nonced-purge_all');
 				\aw2\session_cache\flush(null, null, '');
+				break;
+			case 'blocks':
+				check_admin_referer('blocks_nonced-purge_all');
+				if (function_exists('aw2\gutenberg_blocks\dgb')) {
+					\aw2\gutenberg_blocks\dgb()->invalidate_registry();
+					\aw2\gutenberg_blocks\dgb()->build_registry();
+				}
 				break;
 			case 'redis_cache':
 				check_admin_referer('redis_nonced-purge');

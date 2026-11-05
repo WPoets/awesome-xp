@@ -440,7 +440,7 @@ class BlockLibrary
         $stamp_option = 'awx_gb_registry_stamp';
         $cache_option = 'awx_gb_registry';
 
-        $version       = defined('DGB_VERSION') ? DGB_VERSION : '1.1.0';
+        $version       = defined('DGB_VERSION') ? DGB_VERSION : '1.1.2';
         $current_stamp = get_option($stamp_option, '') . '|' . $version;
         $cached        = get_option($cache_option);
 
@@ -921,9 +921,9 @@ class BlockLibrary
 
         $attr_type = isset($type_map[$type]) ? $type_map[$type] : 'string';
 
-        // Allow null for object types in Gutenberg REST schema validation
+        // Allow object, null, string, and number for object types in Gutenberg REST schema validation
         if ($attr_type === 'object') {
-            $config = array('type' => array('object', 'null'));
+            $config = array('type' => array('object', 'null', 'string', 'number'));
         } else {
             $config = array('type' => $attr_type);
         }
