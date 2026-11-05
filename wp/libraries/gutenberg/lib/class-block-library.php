@@ -920,7 +920,13 @@ class BlockLibrary
         );
 
         $attr_type = isset($type_map[$type]) ? $type_map[$type] : 'string';
-        $config    = array('type' => $attr_type);
+
+        // Allow null for object types in Gutenberg REST schema validation
+        if ($attr_type === 'object') {
+            $config = array('type' => array('object', 'null'));
+        } else {
+            $config = array('type' => $attr_type);
+        }
 
         if ($default !== null) {
             $config['default'] = $default;
