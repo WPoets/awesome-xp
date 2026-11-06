@@ -27,3 +27,4 @@ Pass any of the following topic slugs to `awesome/guide-read`:
 - `wal-engine`: Website Assembly Language (WAL) declarative page composition, AST transpilation, pattern resolution, and reverse decompilation (`awesome/wal-compile`, `awesome/wal-decompile`).
 - `patterns`: AWX Pattern Bridge: portable JSON pattern manifests, unsynced sync status, dotted slugs, and MCP tooling (`awesome/pattern-export`, `awesome/pattern-import`).
 - `pitfalls`: Common architectural, syntax, and block authoring mistakes.
+- `shortcodes`: Complete Awesome Enterprise shortcode services directory, parameters, and execution guardrails.

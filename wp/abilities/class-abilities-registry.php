@@ -81,7 +81,7 @@ class Abilities_Registry
                 'input_schema' => [
                     'type'       => 'object',
                     'properties' => [
-                        'topic' => ['type' => 'string', 'description' => 'Optional guide topic slug (overview, lifecycle, syntax, scopes, safety, css-tokens, block-css, pitfalls)']
+                        'topic' => ['type' => 'string', 'description' => 'Optional guide topic slug (overview, lifecycle, syntax, scopes, safety, css-tokens, block-css, wal-engine, patterns, pitfalls, shortcodes)']
                     ]
                 ]
             ],
