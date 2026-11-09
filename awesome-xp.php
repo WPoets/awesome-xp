@@ -3,7 +3,7 @@
 Plugin Name: Awesome XP
 Plugin URI: http://www.awxdocs.com
 Description: Awesome XP is a shortcode-based, low-code/No-Code execution platform with useful services and apps that let us easily create custom WordPress workflows. 
-Version: 1.0.8
+Version: 1.0.9
 Author: WPoets Team
 Author URI: http://www.wpoets.com
 License: GPLv3 or Later
