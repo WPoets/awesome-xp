@@ -15,6 +15,16 @@ Initial setup requires configuration in wp-config.php.
 
 ### Changelog 
 
+##### 1.0.9
+* Improved: Role-Based Cache Purge Permissions
+* Improved: Block Cache Management — Added a dedicated manual blocks cache flush button in the admin interface.
+* Improved: Database & Migration Engine — Enhanced runtime self-healing and batch database migration routines with an expanded, tolerant schema.
+* Improved: Agent & MCP Documentation Synchronization — Updated in-platform orientation abilities (awesome/guide-read, Abilities_Registry, and overview.md)
+* Improved: Shortcode Reference & Discovery
+* Fixed: Resolved schema validation error in get_attribute_config_for_field() by allowing null values for object types.
+* Fixed: Corrected an issue within Awesome Enterprise core execution code.
+* Fixed: Synchronized Allowlist guardrails with 26 core runtime libraries (cond, while, arr_each, arr_items, currency, regex, taxonomy, validate, etc.) to eliminate false linter rejections on valid dynamic block shortcodes
+
 ##### 1.0.8
 * Improved: Eliminated the Per-Request 𝑂(𝑁) Runtime Bottleneck
 * Improved: Payload Segregation (frontend_blocks vs. editor_blocks)
