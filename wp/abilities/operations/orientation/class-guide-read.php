@@ -36,8 +36,14 @@ class Guide_Read extends Operation_Base
             'wal-engine' => 'Website Assembly Language (WAL): Declarative compilation, pattern resolution, and decompilation',
             'patterns'   => 'AWX Pattern Bridge: Portable JSON pattern manifests, unsynced status, and tooling',
             'pitfalls'   => 'Common pitfalls, disallowed patterns, and lint rules',
-            'shortcodes' => 'Complete Awesome Enterprise shortcode services directory, parameters, and limitations'
+            'shortcodes' => 'Complete Awesome Enterprise shortcode services directory, parameters, and limitations',
+            'cheatsheet' => 'Template validator cheatsheet, real-world gotchas, and agent authoring rules'
         ];
+
+        // Support topic aliases for the validator cheatsheet
+        if ($topic === 'validator-rules' || $topic === 'validator-cheatsheet') {
+            $topic = 'cheatsheet';
+        }
 
         if (empty($topic) || $topic === 'overview') {
             $file = $this->guides_dir . 'overview.md';
