@@ -28,3 +28,4 @@ Pass any of the following topic slugs to `awesome/guide-read`:
 - `patterns`: AWX Pattern Bridge: portable JSON pattern manifests, unsynced sync status, dotted slugs, and MCP tooling (`awesome/pattern-export`, `awesome/pattern-import`).
 - `pitfalls`: Common architectural, syntax, and block authoring mistakes.
 - `shortcodes`: Complete Awesome Enterprise shortcode services directory, parameters, and execution guardrails.
+- `cheatsheet`: Template validator cheatsheet, real-world gotchas, and agent authoring rules.
