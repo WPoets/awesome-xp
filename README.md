@@ -15,6 +15,20 @@ Initial setup requires configuration in wp-config.php.
 
 ### Changelog 
 
+##### 1.1.0
+* Improved: AWX Sync — move a saved page from a development site to production from the block editor.
+* Improved: Added new Abilities `awesome/sync-analyze`, `sync-plan`, `sync-confirm`, `sync-step`, `sync-resume`, `sync-cancel` and `sync-status`, the `wp awx sync` command group (`push`, `backfill`, `pair`, `pair-patterns`, `export-pattern-ids`, `uuid`, `install`) and a "Sync to Production" editor sidebar with progress and resume.
+* Improved: `AWX_SYNC_ROLE` (`source`, `target`, `none`) and related `wp-config.php` constants (`AWX_SYNC_TARGET_URL`, `AWX_SYNC_TOKEN`, `AWX_SYNC_SOURCE_URL`, `AWX_SYNC_SOURCE_AUTH`, `AWX_SYNC_ALLOW_PUSH`, `AWX_SYNC_IP_ALLOWLIST`) guard which sites may send or receive.
+* Improved: Guide `cheatsheet.md` for the Abilities API — the 7-step authoring and cache-purging lifecycle, template rules and gotchas, tooling boundaries and a pre-publish checklist.
+* Improved: Abilities are restricted to developers — all tiers now require `develop_for_awesomeui`, unknown abilities no longer bypass the permission check, template preview and log listing are developer-only, and `AWX_ABILITIES_TEST_MODE` is honoured only under WP-CLI.
+* Improved: `util.constant` no longer returns sync tokens, the database password, or WordPress keys and salts.
+* Improved: New `add_abilities()` extension point on the Abilities registry for other plugin components.
+* Fixed: Unauthenticated AJAX code execution and path traversal in the import/export handlers — they now require a developer capability and a nonce, sanitise uploaded file names, restrict extensions and reject archives containing absolute paths, `..`, symlinks or hard links.
+* Fixed: Path traversal in the file, file viewer and Excel controllers with strict in-app-folder checks and an extension allowlist; the code editor "Update Without Refresh" now requires a nonce and `edit_post`.
+* Fixed: Potential command injection in `wp aw2 run` / `awcli.run` and SQL injection in the search controller, modules list table and import paths; nonces are compared with `hash_equals()`.
+* Fixed: XSS in the search controller and ticket error messages; `aw2.upload` now enforces the extension allowlist before saving and sanitises client-supplied names; a credential left in a code comment was removed.
+* Note: Activating 1.1.0 creates the `awx_sync_*` tables on first load; existing media must be stamped once with `wp awx sync backfill` before the first sync, or every image will be treated as new.
+
 ##### 1.0.9
 * Improved: Role-Based Cache Purge Permissions
 * Improved: Block Cache Management — Added a dedicated manual blocks cache flush button in the admin interface.
