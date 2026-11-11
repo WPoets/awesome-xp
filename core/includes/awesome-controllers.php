@@ -476,11 +476,11 @@ class controllers{
 		
 		header("Content-type: text/csv");
 		self::set_cache_header('no');
-		header('Content-Disposition: attachment;filename="' . $csv_ticket . '.csv');		
+		header('Content-Disposition: attachment;filename="' . self::safe_download_name($csv_ticket . '.csv') . '"');		
 
 		$sql=\aw2\session_ticket\get(["main"=>$csv_ticket,"field"=>'sql'],null,null);
 		if(empty($sql)){
-			echo 'Ticket is invalid: ' . $csv_ticket;
+			echo 'Ticket is invalid: ' . esc_html($csv_ticket);
 			exit();			
 		}
 		
@@ -519,7 +519,7 @@ class controllers{
 		$sql=\aw2\session_ticket\get(["main"=>$csv_ticket,"field"=>'sql'],null,null);
 		
 		if(empty($sql)){
-			echo 'Ticket is invalid: ' . $csv_ticket;
+			echo 'Ticket is invalid: ' . esc_html($csv_ticket);
 			exit();			
 		}
 		
@@ -766,7 +766,7 @@ class controllers{
 		$hash=\aw2\session_ticket\get(["main"=>$ticket],null,null);
 		if(!$hash || !$hash['ticket_activity']){
 			header("HTTP/1.1 404 Not Found");
-			echo 'Ticket is invalid: ' . $ticket;
+			echo 'Ticket is invalid: ' . esc_html($ticket);
 			exit();			
 		}
 		$ticket_activity=json_decode($hash['ticket_activity'],true);
@@ -802,7 +802,7 @@ class controllers{
 		}
 		
 		if(!isset($ticket_activity['module'])){
-			echo 'Ticket is invalid for module: ' . $ticket;
+			echo 'Ticket is invalid for module: ' . esc_html($ticket);
 			exit();			
 		}		
 		
@@ -848,7 +848,7 @@ class controllers{
 
 		$hash=\aw2\session_ticket\get(["main"=>$ticket],null,null);
 		if(!$hash || !$hash['payload']){
-			echo 'Ticket is invalid: ' . $ticket;
+			echo 'Ticket is invalid: ' . esc_html($ticket);
 			exit();			
 		}
 		$payload=json_decode($hash['payload'],true);
@@ -1073,12 +1073,12 @@ class controllers{
 		
 		header("Content-type: text/csv");
 		self::set_cache_header('no');
-		header('Content-Disposition: attachment;filename="' . $ticket . '.csv');		
+		header('Content-Disposition: attachment;filename="' . self::safe_download_name($ticket . '.csv') . '"');		
 
 
 		$hash=\aw2\session_ticket\get(["main"=>$ticket],null,null);
 		if(!$hash || !$hash['ticket_activity']){
-			echo 'Ticket is invalid: ' . $ticket;
+			echo 'Ticket is invalid: ' . esc_html($ticket);
 			exit();			
 		}
 		$ticket_activity=json_decode($hash['ticket_activity'],true);
@@ -1192,7 +1192,7 @@ class controllers{
 		$sql=\aw2\session_ticket\get(["main"=>$grid_ticket,"field"=>'sql'],null,null);
 		
 		if(empty($sql)){
-			echo 'Ticket is invalid: ' . $grid_ticket;
+			echo 'Ticket is invalid: ' . esc_html($grid_ticket);
 			exit();			
 		}
 		
