@@ -152,7 +152,8 @@ function register_rest_routes()
             $registry = Abilities_Registry::instance();
             $abilities = $registry->get_all_abilities();
             if (!isset($abilities[$ability])) {
-                return true; // Let execute return 404/error
+                // Unknown ability: still require a developer before revealing anything
+                return $registry->check_tier_permission('read');
             }
             return $registry->check_tier_permission($abilities[$ability]['tier']);
         },

@@ -41,6 +41,14 @@ class Pattern_Export extends Operation_Base
             'patterns' => $bundle
         ];
 
+        if (!empty($path) && !current_user_can('develop_for_awesomeui')) {
+            return $this->error(
+                'Only Awesome developers can write the export bundle to a file.',
+                'Omit path to receive the bundle in the response.',
+                'forbidden_path'
+            );
+        }
+
         if (!empty($path)) {
             $uploads = wp_upload_dir();
             $base_dir = realpath($uploads['basedir']);

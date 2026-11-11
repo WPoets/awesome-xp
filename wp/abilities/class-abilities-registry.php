@@ -229,7 +229,7 @@ class Abilities_Registry
                 'label'       => 'Template Preview',
                 'description' => 'Renders template code with sample data without saving anything. Use after validation to check output.',
                 'category'    => 'awesome-verify',
-                'tier'        => 'read',
+                'tier'        => 'author',
                 'operation'   => \aw2\abilities\operations\verify\Template_Preview::class,
                 'input_schema' => [
                     'type'       => 'object',
@@ -555,7 +555,7 @@ class Abilities_Registry
                 'label'       => 'Log List',
                 'description' => 'Returns recent exceptions from the Awesome error log, filterable by artifact. Use after preview or publish to diagnose failures.',
                 'category'    => 'awesome-debug',
-                'tier'        => 'read',
+                'tier'        => 'author',
                 'operation'   => \aw2\abilities\operations\debug\Log_List::class,
                 'input_schema' => [
                     'type'       => 'object',
@@ -645,14 +645,15 @@ class Abilities_Registry
             }
         }
 
+        // Awesome blocks, apps, services and patterns are code: creating or
+        // changing them (author/publish) is limited to Awesome developers.
         switch ($tier) {
             case 'read':
-                return current_user_can('read') || current_user_can('develop_for_awesomeui') || current_user_can('edit_posts');
+                // Authors (publish_posts) and above may browse blocks, apps, services and patterns
+                return current_user_can('publish_posts') || current_user_can('develop_for_awesomeui');
             case 'author':
-                return current_user_can('edit_posts') || current_user_can('develop_for_awesomeui');
             case 'publish':
-                // Destructive: requires publish_posts or manage_options
-                return current_user_can('publish_posts') || current_user_can('manage_options');
+                return current_user_can('develop_for_awesomeui');
             default:
                 return false;
         }
