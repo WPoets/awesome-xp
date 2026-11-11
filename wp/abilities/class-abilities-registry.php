@@ -632,8 +632,8 @@ class Abilities_Registry
      */
     public function check_tier_permission($tier)
     {
-        // Allow programmatic bypass in tests or CLI
-        if (defined('AWX_ABILITIES_TEST_MODE') && AWX_ABILITIES_TEST_MODE) {
+        // Allow programmatic bypass in WP-CLI test runs only (never over HTTP)
+        if (defined('WP_CLI') && WP_CLI && defined('AWX_ABILITIES_TEST_MODE') && AWX_ABILITIES_TEST_MODE) {
             return true;
         }
 

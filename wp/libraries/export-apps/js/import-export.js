@@ -22,7 +22,7 @@ var import_export={};
 		if(action=='selected'){
 			selected_items = jQuery(".export form").serialize();
 		}	
-		url=ajaxurl+'?action=awesome_export_code&activity='+action+'&format='+format+'&file_slug='+file_slug+'&'+selected_items;
+		url=ajaxurl+'?action=awesome_export_code&awx_nonce='+encodeURIComponent(awxIE.nonce)+'&activity='+action+'&format='+format+'&file_slug='+file_slug+'&'+selected_items;
 		ladda.stop();	
 		window.location.href = url;
 		
@@ -96,7 +96,7 @@ var import_export={};
 			// Check file selected or not
 			if(files.length > 0 ){
 				fd.append('file',files[0]);
-				url=ajaxurl+'?action=awesome_import_gt_code&activity='+action;
+				url=ajaxurl+'?action=awesome_import_gt_code&awx_nonce='+encodeURIComponent(awxIE.nonce)+'&activity='+action;
 				$.ajax({
 					url: url,
 					type: 'post',
@@ -111,7 +111,7 @@ var import_export={};
 						// function to trigger the ajax call
 						var ajax_request = function(item,ticket_id) {
 							var deferred = $.Deferred();
-							var url=ajaxurl+'?action=awesome_import_single_block&ticket_id='+ticket_id;
+							var url=ajaxurl+'?action=awesome_import_single_block&awx_nonce='+encodeURIComponent(awxIE.nonce)+'&ticket_id='+ticket_id;
 							$.ajax({
 							url: url,
 							dataType: "json",
@@ -181,7 +181,7 @@ var import_export={};
 				fd.append('file',files[0]);
 				fd.append('overwrite',overwrite);
 				
-				url=ajaxurl+'?action=awesome_import_zip_html';
+				url=ajaxurl+'?action=awesome_import_zip_html&awx_nonce='+encodeURIComponent(awxIE.nonce);
 				$.ajax({
 					url: url,
 					type: 'post',

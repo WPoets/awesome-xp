@@ -29,6 +29,16 @@ class awesome_import_export{
 		WP_CLI::add_command( 'awesome-import', 'awesome_import_export' );
 	}
 		
+	/**
+	 * Common permission + nonce guard for the import/export AJAX handlers.
+	 */
+	private static function guard_ajax(){
+		if ( ! current_user_can('develop_for_awesomeui') && ! current_user_can('manage_options') ) {
+			wp_send_json_error( array('message'=>'Forbidden'), 403 );
+		}
+		check_ajax_referer( 'awx_import_export', 'awx_nonce' );
+	}
+
 	static function setup(){
 		$import_export_page = add_submenu_page( 'tools.php', 'Export Awesome Apps', 'Export Awesome Apps',
     'develop_for_awesomeui', 'awesome-app-import-export', 'awesome_import_export::import_export_dashboard',3);
@@ -56,6 +66,7 @@ class awesome_import_export{
 		}
 		
 		wp_enqueue_script( 'awsome-import-export-script', plugins_url('export-apps/js/import-export.js',dirname(__FILE__)), array() );
+		wp_localize_script( 'awsome-import-export-script', 'awxIE', array( 'nonce' => wp_create_nonce('awx_import_export') ) );
 	}
 	
 	static function import_export_dashboard(){
@@ -369,6 +380,7 @@ class awesome_import_export{
 	}
 
 	static function awesome_export_code(){
+		self::guard_ajax();
 		$output=array();
 		$output['status']="fail";
 		$file_slug = sanitize_text_field($_GET['file_slug']);
@@ -406,8 +418,13 @@ class awesome_import_export{
 	}
 	
 	static function awesome_import_gt_code(){
+		self::guard_ajax();
 		//got the xml file, let break it so that we can do multiple imports
-		$filename = $_FILES['file']['name'];
+		$filename = isset($_FILES['file']['name']) ? sanitize_file_name( wp_basename( $_FILES['file']['name'] ) ) : '';
+		if ( $filename === '' || ! preg_match('/\.xml$/i', $filename) || empty($_FILES['file']['tmp_name']) || ! is_uploaded_file($_FILES['file']['tmp_name']) ) {
+			echo json_encode( array('status'=>'failed','message'=>'error: a valid .xml file is required') );
+			wp_die();
+		}
 
 		$upload_dir   = wp_upload_dir();
 		$location = $upload_dir['path'].'/'.$filename;
@@ -476,10 +493,13 @@ class awesome_import_export{
 	}
 
 	static function awesome_import_single_block(){
-		$xml_json = \aw2\session_ticket\get(["main"=>$_REQUEST['ticket_id'],"field"=>'xml_json'],null,null);
+		self::guard_ajax();
+		$ticket_id = isset($_REQUEST['ticket_id']) ? preg_replace('/[^A-Za-z0-9_\-\.:]/', '', (string) wp_unslash($_REQUEST['ticket_id'])) : '';
+		$item_position = isset($_REQUEST['item_position']) ? sanitize_text_field( wp_unslash($_REQUEST['item_position']) ) : '';
+		$xml_json = \aw2\session_ticket\get(["main"=>$ticket_id,"field"=>'xml_json'],null,null);
 		$arrOutput = json_decode($xml_json, TRUE);
 
-		$item = $arrOutput['gtblock'][$_REQUEST['item_position']];
+		$item = isset($arrOutput['gtblock'][$item_position]) ? $arrOutput['gtblock'][$item_position] : null;
 		if(is_array($item)){
 			//update post
 			//$gt_post= get_page_by_path( 'gutenberg-blocks', OBJECT, AWESOME_CORE_POST_TYPE );
@@ -631,6 +651,7 @@ class awesome_import_export{
 	}
 	
 	public function awesome_import_zip_html() {
+		self::guard_ajax();
 
         // process arguments 
 		//$code_path = $assoc_args['code-path'];
@@ -643,7 +664,7 @@ class awesome_import_export{
 		$overwrite = $_REQUEST['overwrite'];
 		
 		if (!file_exists($upload_dir)) {
-				mkdir($upload_dir, 0777, true);
+				mkdir($upload_dir, 0755, true);
 		}
 		
 		if(empty($overwrite) || $overwrite==='true'){
@@ -651,7 +672,10 @@ class awesome_import_export{
 		}
 		
 
-		$filename = $_FILES['file']['name'];
+		$filename = isset($_FILES['file']['name']) ? sanitize_file_name( wp_basename( $_FILES['file']['name'] ) ) : '';
+		if ( $filename === '' || ! preg_match('/\.(tar\.gz|tgz)$/i', $filename) || empty($_FILES['file']['tmp_name']) || ! is_uploaded_file($_FILES['file']['tmp_name']) ) {
+			wp_send_json_error( array('message'=>'A valid .tar.gz or .tgz file is required'), 400 );
+		}
 		
 		$location = $upload_dir.'/'.$filename;
 		
@@ -663,11 +687,28 @@ class awesome_import_export{
 		
 		$export_path = $upload_dir . '/'.$base_export_folder;
 		if (!file_exists($export_path)) {
-				mkdir($export_path, 0777, true);
+				mkdir($export_path, 0755, true);
 		}
 		
 		//Unzip file to destination folder /var/tmp/code-export
-		$cmd='tar -xzf '.$location.'  -C '.$export_path.' --strip-components=1'; //strip components to ensure top level directory is stripped
+		// Inspect the archive before extracting: refuse absolute paths, "..", symlinks and hardlinks.
+		$entries = array();
+		exec( 'tar -tzf '.escapeshellarg($location).' 2>/dev/null', $entries );
+		$entries_verbose = array();
+		exec( 'tar -tvzf '.escapeshellarg($location).' 2>/dev/null', $entries_verbose );
+		$bad_archive = empty($entries);
+		foreach ( $entries as $entry ) {
+			if ( $entry === '' || $entry[0] === '/' || preg_match('#(^|/)\.\.(/|$)#', $entry) ) { $bad_archive = true; break; }
+		}
+		foreach ( $entries_verbose as $line ) {
+			if ( $line !== '' && ( $line[0] === 'l' || $line[0] === 'h' ) ) { $bad_archive = true; break; }
+		}
+		if ( $bad_archive ) {
+			@unlink($location);
+			wp_send_json_error( array('message'=>'Invalid or unsafe archive'), 400 );
+		}
+
+		$cmd='tar -xzf '.escapeshellarg($location).' -C '.escapeshellarg($export_path).' --strip-components=1 --no-same-owner'; //strip components to ensure top level directory is stripped
 		
 		shell_exec($cmd);
 		

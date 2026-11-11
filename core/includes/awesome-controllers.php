@@ -162,6 +162,27 @@ class controllers{
 		exit();	
 	}
 	
+	static $allowed_download_ext = array('pdf','xls','xlsx','excel','csv','png','jpg','jpeg','gif','txt');
+
+	/** Normalise a user supplied relative path: no NULs, no "..", no leading slash. */
+	static function safe_relative_path($name){
+		$name = str_replace(array("\0","\\"), array('','/'), (string)$name);
+		if (preg_match('#(^|/)\.\.(/|$)#', $name)) return '';
+		return ltrim($name, '/');
+	}
+
+	/** File name that is safe to place in a Content-Disposition header. */
+	static function safe_download_name($name){
+		return sanitize_file_name( wp_basename( (string)$name ) );
+	}
+
+	/** True when $path (already realpath'ed) is a regular file inside $folder. */
+	static function path_in_folder($path,$folder){
+		$base = realpath($folder);
+		if ($base === false || $path === false) return false;
+		return is_file($path) && strpos($path, rtrim($base, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR) === 0;
+	}
+
 	static function controller_file($o){
 		self::$module=array_shift($o->pieces);
 		$app=&aw2_library::get_array_ref('app');
@@ -170,13 +191,14 @@ class controllers{
 		$app['active']['module'] = self::$module;
 		$app['active']['template'] = self::$template;
 		
-		$filename=preg_replace('/\.\.\/+|\.\/+/', '', $_REQUEST['filename']); 
+		$filename=self::safe_relative_path(isset($_REQUEST['filename']) ? $_REQUEST['filename'] : ''); 
 		$file_extension=explode('.',$filename);
 		$extension=end($file_extension);
 		
 		$folder=aw2_library::get('realpath.app_folder');
 		$path=realpath($folder . $filename);
-		if($path === false ) exit;
+		if(!self::path_in_folder($path,$folder)) exit;
+		if(!in_array(strtolower(pathinfo($path, PATHINFO_EXTENSION)), self::$allowed_download_ext, true)) exit;
 		
 		switch ($extension) {
 			case 'excel':
@@ -193,7 +215,7 @@ class controllers{
 				break;
 		}
 		
-		header('Content-Disposition: attachment;filename="' . $filename.'"');
+		header('Content-Disposition: attachment;filename="' . self::safe_download_name($filename) . '"');
 		self::set_cache_header('no');
 		self::set_index_header();
 		
@@ -211,13 +233,14 @@ class controllers{
 		$app['active']['module'] = self::$module;
 		$app['active']['template'] = self::$template;
 		
-		$filename=preg_replace('/\.\.\/+|\.\/+/', '', $_REQUEST['filename']); //$_REQUEST['filename'];
+		$filename=self::safe_relative_path(isset($_REQUEST['filename']) ? $_REQUEST['filename'] : ''); //$_REQUEST['filename'];
 		$file_extension=explode('.',$filename);
 		$extension=end($file_extension);
 		
 		$folder=aw2_library::get('realpath.app_folder');
 		$path=realpath($folder . $filename);
-		if($path === false ) exit;
+		if(!self::path_in_folder($path,$folder)) exit;
+		if(!in_array(strtolower(pathinfo($path, PATHINFO_EXTENSION)), self::$allowed_download_ext, true)) exit;
 	
 		switch ($extension) {
 			case 'excel':
@@ -233,7 +256,7 @@ class controllers{
 				header('Content-Type: application/pdf');	
 				break;
 			default:
-				header('Content-Type: '.mime_content_type($filename));
+				$aw_mime = wp_check_filetype($path); header('Content-Type: '.(!empty($aw_mime['type']) ? $aw_mime['type'] : 'application/octet-stream')); header('X-Content-Type-Options: nosniff');
 				break;	
 		}			
 		
@@ -256,10 +279,11 @@ class controllers{
 		$filename=self::$module;	
 		$folder=aw2_library::get('realpath.app_folder');
 		$path=realpath($folder . $filename);
-		if($path === false ) exit;
+		if(!self::path_in_folder($path,$folder)) exit;
+		if(!in_array(strtolower(pathinfo($path, PATHINFO_EXTENSION)), self::$allowed_download_ext, true)) exit;
 
 		header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-		header('Content-Disposition: attachment;filename="' . $filename.'"');
+		header('Content-Disposition: attachment;filename="' . self::safe_download_name($filename) . '"');
 		
 		self::set_cache_header('no');
 		self::set_index_header();
@@ -362,7 +386,7 @@ class controllers{
 		$nonce=$pieces[1];
 		
 		//verify that nonce is valid
-		if(wp_create_nonce($token)!=$nonce){
+		if(!hash_equals(wp_create_nonce($token),(string)$nonce)){
 			echo 'Error E1:The Data Submitted is not valid. Check with Administrator';
 			exit();		
 		}
@@ -381,7 +405,7 @@ class controllers{
 		$nonce=$pieces[1];
 		
 		//verify that nonce is valid
-		if(wp_create_nonce($token)!=$nonce){
+		if(!hash_equals(wp_create_nonce($token),(string)$nonce)){
 			echo 'Error E1:The Data Submitted is not valid. Check with Administrator';
 			exit();		
 		}
@@ -401,10 +425,10 @@ class controllers{
 		$csv_ticket=array_shift($o->pieces);
 		self::set_qs($o);
 		
-		$filename=preg_replace('/\.\.\/+|\.\/+/', '', $_REQUEST['filename']); //$_REQUEST['filename'];
+		$filename=self::safe_relative_path(isset($_REQUEST['filename']) ? $_REQUEST['filename'] : ''); //$_REQUEST['filename'];
 		
 		header("Content-type: application/csv");
-		header('Content-Disposition: attachment;filename="' . $filename);
+		header('Content-Disposition: attachment;filename="' . self::safe_download_name($filename) . '"');
 		
 		self::set_cache_header('no');
 
@@ -425,10 +449,10 @@ class controllers{
 		$csv_ticket=array_shift($o->pieces);
 		self::set_qs($o);
 		
-		$filename=preg_replace('/\.\.\/+|\.\/+/', '', $_REQUEST['filename']); //$_REQUEST['filename'];
+		$filename=self::safe_relative_path(isset($_REQUEST['filename']) ? $_REQUEST['filename'] : ''); //$_REQUEST['filename'];
 		
 		header("Content-type: application/csv");
-		header('Content-Disposition: attachment;filename="' . $filename);
+		header('Content-Disposition: attachment;filename="' . self::safe_download_name($filename) . '"');
 		
 		self::set_cache_header('no');
 

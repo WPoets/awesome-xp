@@ -42,6 +42,21 @@ class Pattern_Export extends Operation_Base
         ];
 
         if (!empty($path)) {
+            $uploads = wp_upload_dir();
+            $base_dir = realpath($uploads['basedir']);
+            $target_dir = realpath(dirname($path));
+            if (
+                $base_dir === false || $target_dir === false ||
+                strpos($target_dir . DIRECTORY_SEPARATOR, $base_dir . DIRECTORY_SEPARATOR) !== 0 ||
+                strtolower(pathinfo($path, PATHINFO_EXTENSION)) !== 'json'
+            ) {
+                return $this->error(
+                    'Export path must be a .json file inside the uploads directory.',
+                    'Use a path under ' . $uploads['basedir'] . ' that ends in .json, or omit path to get the bundle in the response.',
+                    'invalid_path'
+                );
+            }
+            $path = $target_dir . DIRECTORY_SEPARATOR . wp_basename($path);
             $json = json_encode($bundle, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
             $bytes = @file_put_contents($path, $json);
 

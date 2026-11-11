@@ -444,7 +444,7 @@ function awesome_custom_button(){
 						jQuery('#uwrspin').addClass('is-active');
 						jQuery.post(
 							ajaxurl,
-							{action:'codeeditor_update',awesome_code:aw_ui_code,post_id:post_id},
+							{action:'codeeditor_update',awesome_code:aw_ui_code,post_id:post_id,awesome_cm_custom_box_nonce:jQuery('#awesome_cm_custom_box_nonce').val()},
 							function(data){
 									jQuery('#uwrspin').removeClass('is-active');
 									jQuery.iaoAlert({msg: 'Saved',
@@ -465,16 +465,22 @@ function awesome_custom_button(){
 
 function awesome_save_without_refersh(){
 	
-	if(intval($_POST['post_id']))
+	$post_id = isset($_POST['post_id']) ? absint($_POST['post_id']) : 0;
+	if ( ! $post_id || ! current_user_can('develop_for_awesomeui') || ! current_user_can('edit_post', $post_id) ) {
+		wp_die('Forbidden', '', array('response'=>403));
+	}
+	check_ajax_referer( 'awesome_cm_custom_box', 'awesome_cm_custom_box_nonce' );
+
+	if($post_id)
 	{  
 		$my_post = array(
-		  'ID'           => $_POST['post_id'],
+		  'ID'           => $post_id,
 		  'post_content' => $_POST['awesome_code']
 		);
 
 		// Update the post into the database
 		wp_update_post( $my_post );
-		$new_post = get_post($_POST['post_id']);
+		$new_post = get_post($post_id);
 		
 		aw2_library::get_module(['post_type'=>$new_post->post_type],$new_post->post_name);
 	}  
