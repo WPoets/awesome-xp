@@ -68,7 +68,7 @@ echo $have_wp ? "WordPress: " . get_bloginfo('version') . " at " . ABSPATH . "\n
 // ---------------------------------------------------------------------------
 echo "1. Checking class surface...\n";
 assert_true(class_exists('aw2\sync\Schema'), "aw2\\sync\\Schema class exists");
-assert_true(Schema::DB_VERSION === 1, "DB_VERSION is 1");
+assert_true(Schema::DB_VERSION === 2, "DB_VERSION is 2");
 assert_true(Schema::OPTION === 'awx_sync_db_version', "OPTION is 'awx_sync_db_version'");
 foreach (['init','table','maybe_upgrade','install','tables_exist','purge_nonces','purge_logs','uninstall','sql'] as $m) {
     assert_true(method_exists(Schema::class, $m) && (new ReflectionMethod(Schema::class, $m))->isStatic(), "public static $m() exists");

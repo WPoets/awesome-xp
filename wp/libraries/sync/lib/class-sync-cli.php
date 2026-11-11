@@ -351,4 +351,124 @@ class Sync_CLI_Command extends \WP_CLI_Command
         \WP_CLI::line($uuid);
         \WP_CLI::success("Assigned a new UUID to post {$post_id}.");
     }
+
+    /**
+     * Create or upgrade the sync tables (runs, steps, tokens, log, nonces).
+     *
+     * ## EXAMPLES
+     *
+     *     $ wp awx sync install
+     */
+    public function install($args, $assoc_args)
+    {
+        Schema::install();
+        update_option(Schema::OPTION, Schema::DB_VERSION, false);
+        foreach (Schema::tables_exist() as $short => $ok) {
+            \WP_CLI::line(sprintf('%-8s %s', $short, $ok ? 'ok' : 'MISSING'));
+        }
+        \WP_CLI::success('Sync tables are in place.');
+    }
+
+    /**
+     * Sync one post to the configured target site (source sites only).
+     *
+     * Runs analyze, plan, confirm and every step in sequence. Without --yes the
+     * dry run is printed and nothing is written on the target.
+     *
+     * ## OPTIONS
+     *
+     * <post_id>
+     * : The post to sync.
+     *
+     * [--yes]
+     * : Execute the plan instead of only printing it.
+     *
+     * [--overwrite]
+     * : Replace the target page even if it was edited there since the last sync.
+     *
+     * [--user=<login>]
+     * : Run as this user (needed for capability checks). Defaults to the first administrator.
+     *
+     * ## EXAMPLES
+     *
+     *     $ wp awx sync push 123
+     *     $ wp awx sync push 123 --yes
+     *     $ wp awx sync push 123 --yes --overwrite
+     */
+    public function push($args, $assoc_args)
+    {
+        $post_id = isset($args[0]) ? (int) $args[0] : 0;
+        if ($post_id <= 0 || !get_post($post_id)) {
+            \WP_CLI::error("Post {$post_id} does not exist.");
+        }
+        if (!get_current_user_id()) {
+            $login = $assoc_args['user'] ?? null;
+            $user  = $login ? get_user_by('login', $login) : (get_users(['role' => 'administrator', 'number' => 1])[0] ?? null);
+            if (!$user) {
+                \WP_CLI::error('No user to run as; pass --user=<login>.');
+            }
+            wp_set_current_user($user->ID);
+        }
+        $run = function ($ability, $input) {
+            $res = \aw2\abilities\awx_execute_ability($ability, $input);
+            if (empty($res['success'])) {
+                $e = $res['error'] ?? [];
+                \WP_CLI::error(sprintf('%s: %s %s', $e['code'] ?? 'error', $e['message'] ?? '', $e['next_step'] ?? ''));
+            }
+            return $res['data'];
+        };
+
+        $a = $run('awesome/sync-analyze', ['post_id' => $post_id]);
+        \WP_CLI::line(sprintf('Run %s for "%s" (%s, %s). Media %d, blocks %d, links %d, terms %d.', $a['run_id'], $a['page']['title'], $a['page']['type'], $a['page']['status'], $a['counts']['media'], $a['counts']['blocks'], $a['counts']['posts'], $a['counts']['terms']));
+
+        $p = $run('awesome/sync-plan', ['run_id' => $a['run_id']]);
+        $s = $p['plan']['summary'];
+        \WP_CLI::line(sprintf('Plan: %s page (%s -> %s), %d media (%s, push %d / pull %d), %d reusable block(s), %d other page(s) affected.',
+            $s['page_action'], $s['from_status'] ?? 'new', $s['to_status'], $s['media_count'], \aw2\sync\Planner::human((int) $s['media_bytes']), $s['media_push'], $s['media_pull'], $s['blocks_count'], count($s['affected_pages'])));
+        foreach ($p['plan']['warnings'] as $w) {
+            \WP_CLI::warning($w['code'] . ': ' . $w['message']);
+        }
+        foreach ($p['plan']['blockers'] as $b) {
+            \WP_CLI::line('BLOCKED ' . $b['code'] . ': ' . $b['message']);
+        }
+        if ($p['status'] === 'blocked') {
+            \WP_CLI::error('The run is blocked; fix the items above and retry.');
+        }
+        if ($p['status'] === 'done') {
+            \WP_CLI::success('Nothing to do: the target already matches.');
+            return;
+        }
+        if (empty($assoc_args['yes'])) {
+            \WP_CLI::line('Dry run only. Re-run with --yes to execute.');
+            return;
+        }
+        $run('awesome/sync-confirm', ['run_id' => $a['run_id'], 'overwrite' => !empty($assoc_args['overwrite'])]);
+
+        $total = count($p['steps']);
+        $bar = \WP_CLI\Utils\make_progress_bar('Syncing', $total);
+        while (true) {
+            $r = $run('awesome/sync-step', ['run_id' => $a['run_id']]);
+            if (!empty($r['error'])) {
+                $bar->finish();
+                if (!empty($r['error']['retryable'])) {
+                    \WP_CLI::warning('Retrying: ' . $r['error']['message']);
+                    continue;
+                }
+                \WP_CLI::error($r['error']['code'] . ': ' . $r['error']['message'] . ' (resume with the editor banner or `wp awx sync push` again)');
+            }
+            if (!empty($r['step'])) {
+                $bar->tick(1, sprintf('%s %s', $r['step']['type'], $r['step']['object_uuid'] ? substr($r['step']['object_uuid'], 0, 8) : ''));
+            }
+            if ($r['status'] === 'done') {
+                $bar->finish();
+                $last = $r['last_sync'] ?? [];
+                \WP_CLI::success(sprintf('Synced. %s (revision %s)', $last['permalink'] ?? '', $last['revision_id'] ?? '-'));
+                return;
+            }
+            if ($r['status'] !== 'running') {
+                $bar->finish();
+                \WP_CLI::error('Run stopped with status ' . $r['status'] . ': ' . ($r['error'] ?? ''));
+            }
+        }
+    }
 }

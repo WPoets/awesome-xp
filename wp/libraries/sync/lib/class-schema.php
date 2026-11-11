@@ -26,7 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Schema {
 
 	/** Bump when the SQL below changes; `maybe_upgrade()` re-runs dbDelta. */
-	const DB_VERSION = 1;
+	const DB_VERSION = 2;
 
 	/** Option holding the installed schema version. */
 	const OPTION = 'awx_sync_db_version';
@@ -237,6 +237,7 @@ class Schema {
   token_id char(16) NOT NULL,
   label varchar(100) NOT NULL DEFAULT '',
   token_hash char(64) NOT NULL,
+  secret_enc text NULL,
   scopes text NOT NULL,
   expires_at datetime NULL,
   last_used_at datetime NULL,

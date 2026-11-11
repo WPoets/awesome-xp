@@ -37,6 +37,22 @@ require_once __DIR__ . '/lib/class-transform-result.php';
 require_once __DIR__ . '/lib/class-transformer.php';
 require_once __DIR__ . '/lib/class-extractor.php';
 require_once __DIR__ . '/lib/class-wp-site-resolver.php';
+require_once __DIR__ . '/lib/class-signer.php';
+require_once __DIR__ . '/lib/class-planner.php';
+require_once __DIR__ . '/lib/class-token-store.php';
+require_once __DIR__ . '/lib/class-nonce-store.php';
+require_once __DIR__ . '/lib/class-audit-log.php';
+require_once __DIR__ . '/lib/class-step-store.php';
+require_once __DIR__ . '/lib/class-manifest-store.php';
+require_once __DIR__ . '/lib/class-request-auth.php';
+require_once __DIR__ . '/lib/class-service-user.php';
+require_once __DIR__ . '/lib/class-receiver.php';
+require_once __DIR__ . '/lib/class-media-handler.php';
+require_once __DIR__ . '/lib/class-prod-routes.php';
+require_once __DIR__ . '/lib/class-sync-client.php';
+require_once __DIR__ . '/lib/class-export-routes.php';
+require_once __DIR__ . '/lib/class-orchestrator.php';
+require_once __DIR__ . '/admin/class-tokens-page.php';
 
 // Components delivered by other work streams; loaded when present so the
 // plugin keeps working while the feature is assembled.
@@ -82,6 +98,21 @@ function init(): void {
 	}
 	if (defined('WP_CLI') && WP_CLI && class_exists(__NAMESPACE__ . '\\Sync_CLI_Command') && method_exists(__NAMESPACE__ . '\\Sync_CLI_Command', 'register')) {
 		Sync_CLI_Command::register();
+	}
+	// Target side: signed receiving routes, service user and the tokens screen.
+	Prod_Routes::init();
+	if (\is_admin()) {
+		Tokens_Page::init();
+	}
+	// Source side: signed export URLs for pull mode, abilities and the editor UI.
+	Export_Routes::init();
+	if (is_source() && \class_exists('\\aw2\\abilities\\operations\\Operation_Base')) {
+		require_once __DIR__ . '/abilities/class-sync-abilities.php';
+		abilities\Sync_Abilities::register();
+	}
+	if (is_source() && \is_readable(__DIR__ . '/lib/class-editor-ui.php')) {
+		require_once __DIR__ . '/lib/class-editor-ui.php';
+		Editor_UI::init();
 	}
 	// Let third-party code add registry entries once everything is loaded.
 	\do_action('awx_sync_register_references', Reference_Registry::instance());

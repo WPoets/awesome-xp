@@ -700,6 +700,23 @@ class Abilities_Registry
     }
 
     /**
+     * Merge categories and abilities registered by other parts of the plugin
+     * (for example AWX Sync). Call before register_with_wordpress() runs on init.
+     *
+     * @param array $categories category key => ['label','description']
+     * @param array $abilities  ability name => definition (same shape as above)
+     */
+    public function add_abilities(array $categories, array $abilities)
+    {
+        foreach ($categories as $key => $category) {
+            $this->categories[$key] = $category;
+        }
+        foreach ($abilities as $name => $meta) {
+            $this->abilities[$name] = $meta;
+        }
+    }
+
+    /**
      * Get all registered abilities metadata
      *
      * @return array
