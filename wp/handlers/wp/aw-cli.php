@@ -10,9 +10,17 @@ function regwp(){
          * Run shortcode background
          */
         function run($args) {
-            $params = json_decode($args[1]);
-            foreach($params as $arg => $val){
-                $str = $str . "$arg='$val' ";
+            if (!preg_match('/^[A-Za-z0-9_.\-]+$/', (string)$args[0])) {
+                WP_CLI::error('Invalid service name');
+            }
+            $params = json_decode(isset($args[1]) ? $args[1] : '{}', true);
+            $str = '';
+            foreach((array)$params as $arg => $val){
+                if (!preg_match('/^[A-Za-z0-9_.\-]+$/', (string)$arg)) continue;
+                if (is_array($val) || is_object($val)) $val = json_encode($val);
+                // values are wrapped in single quotes: strip quote and bracket characters
+                $val = str_replace(array("'", '[', ']'), '', (string)$val);
+                $str .= "$arg='$val' ";
             }
             
             echo aw2_library::parse_shortcode("[" . $args[0] . " " . $str . "/]");
@@ -35,8 +43,11 @@ function run($atts,$content=null,$shortcode = array()){
     unset($atts['set']);
     unset($atts['dump']);
     
+    if (!preg_match('/^[A-Za-z0-9_.\-]+$/', (string)$main)) {
+        return \aw2_library::post_actions('all', '_error', $atts);
+    }
     $args = json_encode($atts);
-    $cmd = sprintf("wp aw2 run $main %s >/dev/null 2>/dev/null & echo $!", escapeshellarg($args));
+    $cmd = sprintf("wp aw2 run %s %s >/dev/null 2>/dev/null & echo $!", escapeshellarg($main), escapeshellarg($args));
     $op = shell_exec($cmd);
     
     return \aw2_library::post_actions('all', trim($op), $atts);

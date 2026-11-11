@@ -76,7 +76,7 @@ function async_url($atts,$content=null,$shortcode = array()){
 	);
 	
 	if(defined('HTTP_AUTH')){
-		$cron_request['args']['headers'] = array('Authorization' => 'Basic ' . base64_encode( HTTP_AUTH )); // HTTP_AUTH='easyengine:q5jgE6'
+		$cron_request['args']['headers'] = array('Authorization' => 'Basic ' . base64_encode( HTTP_AUTH ));
 	}
 	
 	

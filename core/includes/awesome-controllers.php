@@ -366,12 +366,13 @@ class controllers{
 		$app=&aw2_library::get_array_ref('app');
 		
 		$post_type=$app['active']['collection']['post_type'];
-		echo '<h3>Searching for:' . urldecode(self::$module) . '</h3>';
-		$sql="Select * from  ".$wpdb->posts."  where post_status='publish' and post_content like '%" . urldecode(self::$module) . "%' and post_type='" . $post_type . "'";
+		$search_term = urldecode(self::$module);
+		echo '<h3>Searching for:' . esc_html($search_term) . '</h3>';
+		$sql=$wpdb->prepare("Select * from  ".$wpdb->posts."  where post_status='publish' and post_content like %s and post_type=%s", '%' . $wpdb->esc_like($search_term) . '%', $post_type);
 		global $wpdb;
 		$results = $wpdb->get_results($sql,ARRAY_A);
 		foreach ($results as $result){
-			echo('<a target=_blank href="' . site_url("wp-admin/post.php?post=" . $result['ID']  . "&action=edit") .'">' . $result['post_title'] . '(' . $result['ID'] . ')</a>' . '<br>');
+			echo('<a target=_blank href="' . esc_url(site_url("wp-admin/post.php?post=" . absint($result['ID'])  . "&action=edit")) .'">' . esc_html($result['post_title']) . '(' . absint($result['ID']) . ')</a>' . '<br>');
 		}
 		aw2_library::cleanup();		
 		exit();	

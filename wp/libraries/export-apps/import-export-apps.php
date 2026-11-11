@@ -619,7 +619,7 @@ class awesome_import_export{
 				
 				//check if module exits or not
 				global $wpdb;
-				 $post_id = $wpdb->get_var("SELECT ID FROM {$wpdb->prefix}posts WHERE post_name = '" . $module . "' AND post_type = '" . $post_type . "'");
+				 $post_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM {$wpdb->posts} WHERE post_name = %s AND post_type = %s", $module, $post_type));
 				
 				WP_CLI::debug(WP_CLI::colorize( '%B post_id = '. $post_id.'%n' ) );
 				if(!empty($post_id)){
@@ -748,7 +748,7 @@ class awesome_import_export{
 					
 					//check if module exits or not
 					global $wpdb;
-					$post_id = $wpdb->get_var("SELECT ID FROM {$wpdb->prefix}posts WHERE post_name = '" . $module . "' AND post_type = '" . $post_type . "'");
+					$post_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM {$wpdb->posts} WHERE post_name = %s AND post_type = %s", $module, $post_type));
 					
 					if(!empty($post_id)){
 						if($overwrite !== true){

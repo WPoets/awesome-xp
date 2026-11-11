@@ -165,8 +165,10 @@ class wp_posts extends \WP_List_Table {
         );
 
         if ( isset( $_REQUEST['orderby'] ) && isset( $_REQUEST['order'] ) ) {
-            $args['orderby'] = $_REQUEST['orderby'];
-            $args['order']   = $_REQUEST['order'] ;
+            $allowed_orderby = array('id'=>'ID','post_title'=>'post_title','post_name'=>'post_name','post_date'=>'post_date');
+            $req_orderby = strtolower(sanitize_key(wp_unslash($_REQUEST['orderby'])));
+            if (isset($allowed_orderby[$req_orderby])) $args['orderby'] = $allowed_orderby[$req_orderby];
+            $args['order'] = strtoupper((string)$_REQUEST['order']) === 'DESC' ? 'DESC' : 'ASC';
         }
 
         $this->items  = aw_get_all_Module( $args );
@@ -235,11 +237,15 @@ function aw_get_all_Module( $args = array() ) {
     );
 
     $args      = wp_parse_args( $args, $defaults );
-    $cache_key = $args['post_type'] . 'Module-all';
+    // whitelist ORDER BY parts; everything else goes through prepare()
+    $allowed_orderby = array('id'=>'ID','ID'=>'ID','post_title'=>'post_title','post_name'=>'post_name','post_date'=>'post_date');
+    $orderby   = isset($allowed_orderby[$args['orderby']]) ? $allowed_orderby[$args['orderby']] : 'ID';
+    $order     = strtoupper((string)$args['order']) === 'DESC' ? 'DESC' : 'ASC';
+    $cache_key = md5( $args['post_type'] . '|' . $orderby . '|' . $order . '|' . (int)$args['offset'] . '|' . (int)$args['number'] ) . '-Module-all';
     $items     = wp_cache_get( $cache_key, 'awesome' );
 
     if ( false === $items ) {
-        $items = $wpdb->get_results( 'SELECT * FROM ' . $wpdb->prefix . 'posts where post_type = "' . $args['post_type'] . '" ORDER BY ' . $args['orderby'] .' ' . $args['order'] .' LIMIT ' . $args['offset'] . ', ' . $args['number'] );
+        $items = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->posts} WHERE post_type = %s ORDER BY {$orderby} {$order} LIMIT %d, %d", $args['post_type'], (int)$args['offset'], (int)$args['number'] ) );
 
         wp_cache_set( $cache_key, $items, 'awesome', 60 );
     }
@@ -255,5 +261,5 @@ function aw_get_all_Module( $args = array() ) {
 function aw_get_Module_count($post_type) {
     global $wpdb;
 
-    return (int) $wpdb->get_var( 'SELECT COUNT(*) FROM ' . $wpdb->prefix . 'posts where post_type = "' . $post_type . '"' );
+    return (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s", $post_type ) );
 }
