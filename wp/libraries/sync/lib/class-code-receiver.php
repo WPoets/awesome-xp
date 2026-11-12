@@ -777,7 +777,7 @@ class Code_Receiver {
 	 * Flush caches after the run's writes. What was written is read back from
 	 * the run's step rows, so nothing else has to be stored per run.
 	 */
-	public function finalize(string $run_id, string $step_id): array {
+	public function finalize(string $run_id, string $step_id, array $meta = array()): array {
 		$replay = Step_Store::replay($run_id, $step_id);
 		if ($replay !== null) {
 			return $replay + array('replayed' => true);
@@ -809,6 +809,42 @@ class Code_Receiver {
 		if ($written['app_created']) {
 			\flush_rewrite_rules();
 			$rewrite = true;
+		}
+
+		if (\class_exists(__NAMESPACE__ . '\\Release_Store')) {
+			$by_kind = array();
+			$items_summary = array();
+			foreach ($written['items'] as $it) {
+				$k = (string) ($it['kind'] ?: 'other');
+				$by_kind[$k] = ($by_kind[$k] ?? 0) + 1;
+				$items_summary[] = array(
+					'key'     => (string) ($it['key'] ?? ''),
+					'kind'    => $k,
+					'slug'    => (string) ($it['slug'] ?? ''),
+					'action'  => (string) ($it['action'] ?? ''),
+					'post_id' => (int) ($it['post_id'] ?? 0),
+				);
+			}
+			$summary = array(
+				'total'   => \count($written['items']),
+				'by_kind' => $by_kind,
+			);
+			$token_id = !empty($meta['token_id']) ? (string) $meta['token_id'] : (isset($_SERVER['HTTP_X_AWX_TOKEN_ID']) ? (string) $_SERVER['HTTP_X_AWX_TOKEN_ID'] : null);
+			Release_Store::record(array(
+				'release_id'       => $run_id,
+				'kind'             => 'code',
+				'label'            => !empty($meta['label']) ? (string) $meta['label'] : 'Code Deploy',
+				'status'           => 'success',
+				'source_url'       => !empty($meta['source_url']) ? (string) $meta['source_url'] : '',
+				'target_url'       => \function_exists('home_url') ? \untrailingslashit(\home_url()) : '',
+				'author_name'      => !empty($meta['author_name']) ? (string) $meta['author_name'] : '',
+				'author_email'     => !empty($meta['author_email']) ? (string) $meta['author_email'] : '',
+				'token_id'         => $token_id,
+				'ip'               => Request_Auth::client_ip(),
+				'summary'          => $summary,
+				'items'            => $items_summary,
+				'completed_at'     => \current_time('mysql', true),
+			));
 		}
 
 		\do_action('awx_sync_after_code_deploy', $run_id, $written);

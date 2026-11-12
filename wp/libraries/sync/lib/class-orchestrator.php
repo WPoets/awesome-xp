@@ -158,6 +158,25 @@ class Orchestrator {
 			\update_post_meta((int) $run['post_id'], Identity::META_CONTENT_HASH, (string) $run['manifest']['page']['hash']);
 			\update_post_meta((int) $run['post_id'], '_awx_last_sync', array('run_id' => $run_id, 'time' => \time(), 'permalink' => $result['permalink'] ?? null, 'revision_id' => $result['revision_id'] ?? null, 'target_id' => $result['id'] ?? null));
 			Manifest_Store::update($run_id, array('status' => 'done', 'error' => null));
+			if (\class_exists(__NAMESPACE__ . '\\Release_Store')) {
+				$u = \function_exists('wp_get_current_user') ? \wp_get_current_user() : null;
+				$author_name  = ($u && $u->exists()) ? (string) $u->display_name : 'Developer';
+				$author_email = ($u && $u->exists()) ? (string) $u->user_email : '';
+				$title = \function_exists('get_the_title') ? (\get_the_title((int) $run['post_id']) ?: ('Page #' . $run['post_id'])) : ('Page #' . $run['post_id']);
+				Release_Store::record(array(
+					'release_id'       => $run_id,
+					'kind'             => 'page',
+					'label'            => $title,
+					'status'           => 'success',
+					'source_url'       => \function_exists('home_url') ? \untrailingslashit(\home_url()) : '',
+					'target_url'       => $this->client->target_url(),
+					'author_name'      => $author_name,
+					'author_email'     => $author_email,
+					'summary'          => array('total' => 1, 'by_kind' => array('page' => 1)),
+					'items'            => array(array('key' => 'page:' . $run['post_id'], 'kind' => 'page', 'title' => $title, 'action' => 'updated', 'post_id' => (int) ($result['id'] ?? 0))),
+					'completed_at'     => \current_time('mysql', true),
+				));
+			}
 		}
 		$view = $this->view($run_id);
 		$view['step'] = $this->step_view(Step_Store::get($run_id, $step['step_id']));

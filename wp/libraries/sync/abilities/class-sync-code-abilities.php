@@ -9,6 +9,8 @@ use aw2\sync\Code_Catalog;
 use aw2\sync\Code_Orchestrator;
 use aw2\sync\Deploy_Sets;
 use aw2\sync\Manifest_Store;
+use aw2\sync\Release_Store;
+use aw2\sync\Sync_Client;
 use aw2\sync\Sync_Exception;
 
 abstract class Code_Operation extends Sync_Operation {
@@ -341,6 +343,110 @@ class Sync_Set_Delete extends Code_Operation {
 	}
 }
 
+class Sync_Release_List extends Code_Operation {
+	public function execute(array $params = []) {
+		$ok = $this->developer();
+		if ($ok !== true) {
+			return $ok;
+		}
+		$limit  = isset($params['limit']) ? \max(1, \min(200, (int) $params['limit'])) : 50;
+		$target = (string) ($params['target'] ?? 'auto'); // 'auto', 'remote', 'local'
+		$status = !empty($params['status']) ? \sanitize_key((string) $params['status']) : null;
+		$kind   = !empty($params['kind']) ? \sanitize_key((string) $params['kind']) : null;
+
+		$filters = array();
+		if ($status) { $filters['status'] = $status; }
+		if ($kind) { $filters['kind'] = $kind; }
+
+		if ($target !== 'local' && \aw2\sync\is_source()) {
+			try {
+				$client = Sync_Client::from_config();
+				$qs = array('limit' => $limit);
+				if ($status) { $qs['status'] = $status; }
+				if ($kind) { $qs['kind'] = $kind; }
+				$res = $client->get('/code/releases?' . \http_build_query($qs));
+				if (!\is_wp_error($res) && isset($res['releases'])) {
+					return $this->success(array(
+						'releases'   => $res['releases'],
+						'total'      => $res['total'] ?? \count($res['releases']),
+						'source'     => 'remote',
+						'target_url' => $client->target_url(),
+					));
+				}
+			} catch (\Exception $e) {
+				// Fall back to local
+			}
+		}
+
+		$releases = Release_Store::recent($limit, $filters, false);
+		return $this->success(array(
+			'releases' => $releases,
+			'total'    => \count($releases),
+			'source'   => 'local',
+			'fallback' => ($target !== 'local'),
+		));
+	}
+}
+
+class Sync_Release_Get extends Code_Operation {
+	public function execute(array $params = []) {
+		$ok = $this->developer();
+		if ($ok !== true) {
+			return $ok;
+		}
+		$id = (string) ($params['release_id'] ?? $params['id'] ?? '');
+		if ($id === '') {
+			return $this->error('Missing release_id.', 'Provide a valid release UUID.', 'invalid_params');
+		}
+
+		$remote = !isset($params['remote']) || !empty($params['remote']);
+		if ($remote && \aw2\sync\is_source()) {
+			try {
+				$client = Sync_Client::from_config();
+				$res = $client->get('/code/releases/' . \rawurlencode($id));
+				if (!\is_wp_error($res) && isset($res['release'])) {
+					return $this->success(array(
+						'release' => $res['release'],
+						'source'  => 'remote',
+					));
+				}
+			} catch (\Exception $e) {
+				// Fall back to local
+			}
+		}
+
+		$release = Release_Store::get($id, true);
+		if (!$release) {
+			return $this->error('Release not found.', 'Check the release UUID.', 'release_not_found');
+		}
+
+		return $this->success(array(
+			'release' => $release,
+			'source'  => 'local',
+		));
+	}
+}
+
+class Sync_Release_Reconcile extends Code_Operation {
+	public function execute(array $params = []) {
+		$ok = $this->developer();
+		if ($ok !== true) {
+			return $ok;
+		}
+		$run_id = (string) ($params['run_id'] ?? '');
+		if ($run_id === '') {
+			return $this->error('Missing run_id.', 'Provide the run_id to reconcile.', 'invalid_params');
+		}
+		$o = $this->code_orchestrator();
+		if (!($o instanceof Code_Orchestrator)) {
+			return $o;
+		}
+		return $this->guard_code(function () use ($o, $run_id) {
+			return $o->reconcile($run_id);
+		});
+	}
+}
+
 class Sync_Code_Abilities {
 
 	public static function abilities(): array {
@@ -401,6 +507,21 @@ class Sync_Code_Abilities {
 				'label' => 'Deploy Set Delete', 'category' => 'awesome-sync', 'tier' => 'publish', 'operation' => Sync_Set_Delete::class,
 				'description' => 'Deletes a named deployment set.',
 				'input_schema' => array('type' => 'object', 'required' => array('name'), 'properties' => array('name' => array('type' => 'string'))),
+			),
+			'awesome/sync-release-list' => array(
+				'label' => 'Sync Release List', 'category' => 'awesome-sync', 'tier' => 'read', 'operation' => Sync_Release_List::class,
+				'description' => 'List recent sync releases and audit records. Queries remote target if configured, falling back to local.',
+				'input_schema' => array('type' => 'object', 'properties' => array('limit' => array('type' => 'integer', 'default' => 50), 'status' => array('type' => 'string'), 'kind' => array('type' => 'string'), 'target' => array('type' => 'string', 'enum' => array('auto', 'remote', 'local')))),
+			),
+			'awesome/sync-release-get' => array(
+				'label' => 'Sync Release Get', 'category' => 'awesome-sync', 'tier' => 'read', 'operation' => Sync_Release_Get::class,
+				'description' => 'Fetch a single release record including its itemized list of what was synced.',
+				'input_schema' => array('type' => 'object', 'required' => array('release_id'), 'properties' => array('release_id' => array('type' => 'string'), 'remote' => array('type' => 'boolean', 'default' => true))),
+			),
+			'awesome/sync-release-reconcile' => array(
+				'label' => 'Sync Release Reconcile', 'category' => 'awesome-sync', 'tier' => 'publish', 'operation' => Sync_Release_Reconcile::class,
+				'description' => 'Reconcile a pending or interrupted run against the target to verify if finalize completed.',
+				'input_schema' => array('type' => 'object', 'required' => array('run_id'), 'properties' => array('run_id' => array('type' => 'string'))),
 			),
 		);
 	}

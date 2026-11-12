@@ -95,7 +95,9 @@ class Tokens_Page {
 		$tables = Schema::tables_exist();
 		?>
 		<div class="wrap">
-			<h1>AWX Sync Tokens</h1>
+			<h1 class="wp-heading-inline">AWX Sync Tokens</h1>
+			<a href="<?php echo \esc_url(\admin_url('admin.php?page=awx-sync-audit')); ?>" class="page-title-action">View Sync Audit & Releases &rarr;</a>
+			<hr class="wp-header-end">
 			<p>This site is a sync <strong>target</strong>. Tokens let a source site write synced pages, reusable blocks and media here, and nothing else.
 				Source host for pull mode: <code><?php echo \esc_html(Receiver::source_url() ?: 'not set (AWX_SYNC_SOURCE_URL)'); ?></code>.
 				Push uploads: <code><?php echo Receiver::push_allowed() ? 'allowed' : 'disabled (AWX_SYNC_ALLOW_PUSH)'; ?></code>.

@@ -449,6 +449,24 @@ class Receiver {
 			);
 		});
 		Step_Store::record($run_id, $step_id, 'page', $uuid, 'done', $result);
+		if (\class_exists(__NAMESPACE__ . '\\Release_Store')) {
+			$title = isset($payload['title']) ? (string) $payload['title'] : 'Page';
+			$token_id = isset($_SERVER['HTTP_X_AWX_TOKEN_ID']) ? (string) $_SERVER['HTTP_X_AWX_TOKEN_ID'] : null;
+			Release_Store::record(array(
+				'release_id'       => $run_id,
+				'kind'             => 'page',
+				'label'            => $title,
+				'status'           => 'success',
+				'source_url'       => !empty($source_hosts[0]) ? ('https://' . $source_hosts[0]) : '',
+				'target_url'       => \function_exists('home_url') ? \untrailingslashit(\home_url()) : '',
+				'author_name'      => !empty($payload['author_login']) ? (string) $payload['author_login'] : 'Dev User',
+				'token_id'         => $token_id,
+				'ip'               => Request_Auth::client_ip(),
+				'summary'          => array('total' => 1, 'by_kind' => array('page' => 1)),
+				'items'            => array(array('key' => 'page:' . $uuid, 'kind' => 'page', 'title' => $title, 'action' => !empty($result['created']) ? 'created' : 'updated', 'post_id' => (int) ($result['id'] ?? 0))),
+				'completed_at'     => \current_time('mysql', true),
+			));
+		}
 		return $result;
 	}
 

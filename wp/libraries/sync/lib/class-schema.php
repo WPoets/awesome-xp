@@ -27,7 +27,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Schema {
 
 	/** Bump when the SQL below changes; `maybe_upgrade()` re-runs dbDelta. */
-	const DB_VERSION = 3;
+	const DB_VERSION = 4;
 
 	/** Option holding the installed schema version. */
 	const OPTION = 'awx_sync_db_version';
@@ -40,12 +40,13 @@ class Schema {
 
 	/** Short name => table suffix (prefix is added at runtime). */
 	const TABLES = array(
-		'runs'   => 'awx_sync_runs',
-		'steps'  => 'awx_sync_steps',
-		'tokens' => 'awx_sync_tokens',
-		'log'    => 'awx_sync_log',
-		'nonces' => 'awx_sync_nonces',
-		'sets'   => 'awx_sync_sets',
+		'runs'     => 'awx_sync_runs',
+		'steps'    => 'awx_sync_steps',
+		'tokens'   => 'awx_sync_tokens',
+		'log'      => 'awx_sync_log',
+		'nonces'   => 'awx_sync_nonces',
+		'sets'     => 'awx_sync_sets',
+		'releases' => 'awx_sync_releases',
 	);
 
 	/**
@@ -157,6 +158,9 @@ class Schema {
 		}
 		if ( ! empty( $exists['log'] ) ) {
 			self::purge_logs();
+		}
+		if ( ! empty( $exists['releases'] ) && \class_exists( __NAMESPACE__ . '\\Release_Store' ) ) {
+			Release_Store::purge();
 		}
 	}
 
@@ -292,7 +296,34 @@ class Schema {
   UNIQUE KEY name (name)
 ) ENGINE=InnoDB {$charset};";
 
-		return array( $runs, $steps, $tokens, $log, $nonces, $sets );
+		$releases = "CREATE TABLE {$p}awx_sync_releases (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  release_id char(36) NOT NULL,
+  kind varchar(20) NOT NULL DEFAULT 'code',
+  label varchar(100) NOT NULL DEFAULT '',
+  status varchar(20) NOT NULL DEFAULT 'running',
+  source_url varchar(255) NOT NULL DEFAULT '',
+  target_url varchar(255) NOT NULL DEFAULT '',
+  author_name varchar(100) NOT NULL DEFAULT '',
+  author_email varchar(100) NOT NULL DEFAULT '',
+  token_id char(16) NULL,
+  ip varchar(45) NULL,
+  summary text NULL,
+  items longtext NULL,
+  error text NULL,
+  created_at datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  completed_at datetime NULL,
+  duration_seconds int(10) unsigned NOT NULL DEFAULT 0,
+  PRIMARY KEY  (id),
+  UNIQUE KEY release_id (release_id),
+  KEY created_at (created_at),
+  KEY status (status),
+  KEY kind (kind),
+  KEY target_url (target_url(191)),
+  KEY token_id (token_id)
+) ENGINE=InnoDB {$charset};";
+
+		return array( $runs, $steps, $tokens, $log, $nonces, $sets, $releases );
 	}
 
 	// ------------------------------------------------------------------

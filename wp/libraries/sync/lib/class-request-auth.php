@@ -75,7 +75,30 @@ class Request_Auth {
 	}
 
 	public static function client_ip(): string {
-		$ip = isset($_SERVER['REMOTE_ADDR']) ? (string) $_SERVER['REMOTE_ADDR'] : '';
+		$headers = array('HTTP_CF_CONNECTING_IP', 'HTTP_X_REAL_IP', 'HTTP_X_FORWARDED_FOR', 'REMOTE_ADDR');
+		$ip = '';
+		foreach ($headers as $h) {
+			if (empty($_SERVER[$h])) {
+				continue;
+			}
+			$val = (string) $_SERVER[$h];
+			if ($h === 'HTTP_X_FORWARDED_FOR') {
+				$parts = \explode(',', $val);
+				foreach ($parts as $p) {
+					$candidate = \trim($p);
+					if (\filter_var($candidate, FILTER_VALIDATE_IP)) {
+						$ip = $candidate;
+						break 2;
+					}
+				}
+			} elseif (\filter_var($val, FILTER_VALIDATE_IP)) {
+				$ip = $val;
+				break;
+			}
+		}
+		if ($ip === '' && isset($_SERVER['REMOTE_ADDR'])) {
+			$ip = (string) $_SERVER['REMOTE_ADDR'];
+		}
 		return (string) \apply_filters('awx_sync_client_ip', $ip);
 	}
 

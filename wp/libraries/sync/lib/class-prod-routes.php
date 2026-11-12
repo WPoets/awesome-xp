@@ -109,6 +109,13 @@ class Prod_Routes {
 			$res = Request_Auth::authenticate($r, 'code');
 			return \is_wp_error($res) ? $res : true;
 		};
+		$auth_code_or_admin = function (\WP_REST_Request $r) {
+			if (\current_user_can('manage_options') || \current_user_can('develop_for_awesomeui')) {
+				return true;
+			}
+			$res = Request_Auth::authenticate($r, 'code');
+			return \is_wp_error($res) ? $res : true;
+		};
 		\register_rest_route(self::NS, '/code/plan', array(
 			'methods'             => 'POST',
 			'permission_callback' => $auth_code,
@@ -153,7 +160,31 @@ class Prod_Routes {
 			'permission_callback' => $auth_code,
 			'callback'            => self::wrap('code/finalize', function (\WP_REST_Request $r) {
 				list($run, $step) = self::ids($r);
-				return (new Code_Receiver())->finalize($run, $step);
+				return (new Code_Receiver())->finalize($run, $step, self::params($r));
+			}),
+		));
+		\register_rest_route(self::NS, '/code/releases', array(
+			'methods'             => 'GET',
+			'permission_callback' => $auth_code_or_admin,
+			'callback'            => self::wrap('code/releases', function (\WP_REST_Request $r) {
+				$limit = isset($_GET['limit']) ? (int) $_GET['limit'] : 20;
+				$filters = array();
+				if (!empty($_GET['kind'])) { $filters['kind'] = \sanitize_text_field($_GET['kind']); }
+				if (!empty($_GET['status'])) { $filters['status'] = \sanitize_text_field($_GET['status']); }
+				if (!empty($_GET['search'])) { $filters['search'] = \sanitize_text_field($_GET['search']); }
+				return array('releases' => Release_Store::recent($limit, $filters, false));
+			}),
+		));
+		\register_rest_route(self::NS, '/code/releases/(?P<id>[0-9a-fA-F-]{36})', array(
+			'methods'             => 'GET',
+			'permission_callback' => $auth_code_or_admin,
+			'callback'            => self::wrap('code/releases/get', function (\WP_REST_Request $r) {
+				$id = (string) $r->get_param('id');
+				$rel = Release_Store::get($id, true);
+				if (!$rel) {
+					throw new Sync_Http_Exception('release_not_found', 'Release not found.', 404);
+				}
+				return array('release' => $rel);
 			}),
 		));
 	}

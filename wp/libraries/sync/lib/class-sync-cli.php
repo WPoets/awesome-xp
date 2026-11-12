@@ -795,4 +795,186 @@ class Sync_CLI_Command extends \WP_CLI_Command
             return $res['data'];
         };
     }
+
+    /**
+     * Inspect deployment releases and sync audit records.
+     *
+     * ## OPTIONS
+     *
+     * [<action>]
+     * : 'list' (default) or 'show'.
+     *
+     * [<release-id>]
+     * : UUID of the release (required for 'show').
+     *
+     * [--limit=<n>]
+     * : Maximum number of releases to list.
+     * ---
+     * default: 20
+     * ---
+     *
+     * [--status=<status>]
+     * : Filter by status ('success', 'failed', 'running').
+     *
+     * [--kind=<kind>]
+     * : Filter by kind ('code', 'page').
+     *
+     * [--target=<target>]
+     * : 'remote', 'local', or 'auto'.
+     * ---
+     * default: auto
+     * ---
+     *
+     * [--format=<format>]
+     * : Output format ('table', 'json', 'csv', 'yaml').
+     * ---
+     * default: table
+     * ---
+     *
+     * ## EXAMPLES
+     *
+     *     # List recent sync releases
+     *     $ wp awx sync releases
+     *
+     *     # Show only failed code deploys
+     *     $ wp awx sync releases list --kind=code --status=failed
+     *
+     *     # Show itemized details of a release
+     *     $ wp awx sync releases show c036d07e-1111-2222-3333-444455556666
+     */
+    public function releases($args, $assoc_args)
+    {
+        $this->ensure_user($assoc_args);
+        $action = $args[0] ?? 'list';
+        $format = $assoc_args['format'] ?? 'table';
+
+        if ($action === 'list') {
+            $limit  = isset($assoc_args['limit']) ? max(1, (int) $assoc_args['limit']) : 20;
+            $target = $assoc_args['target'] ?? 'auto';
+            $status = !empty($assoc_args['status']) ? sanitize_key($assoc_args['status']) : null;
+            $kind   = !empty($assoc_args['kind']) ? sanitize_key($assoc_args['kind']) : null;
+
+            $releases = [];
+            $source = 'local';
+
+            if ($target !== 'local' && is_source()) {
+                try {
+                    $client = Sync_Client::from_config();
+                    $qs = ['limit' => $limit];
+                    if ($status) { $qs['status'] = $status; }
+                    if ($kind) { $qs['kind'] = $kind; }
+                    $res = $client->get('/code/releases?' . http_build_query($qs));
+                    if (!is_wp_error($res) && isset($res['releases'])) {
+                        $releases = $res['releases'];
+                        $source = 'remote';
+                    }
+                } catch (\Exception $e) {
+                    // Fall back to local
+                }
+            }
+
+            if (empty($releases) && $source === 'local') {
+                $filters = [];
+                if ($status) { $filters['status'] = $status; }
+                if ($kind) { $filters['kind'] = $kind; }
+                $releases = Release_Store::recent($limit, $filters, false);
+            }
+
+            if (empty($releases)) {
+                \WP_CLI::line('No sync releases found.');
+                return;
+            }
+
+            if ($format === 'json') {
+                \WP_CLI::line(json_encode(['source' => $source, 'releases' => $releases], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+                return;
+            }
+
+            $rows = array_map(function ($r) {
+                $author = $r['author_name'] ?: ($r['author_email'] ?: 'system');
+                return [
+                    'release_id' => substr($r['release_id'], 0, 13) . '...',
+                    'created_at' => $r['created_at'],
+                    'kind'       => $r['kind'],
+                    'status'     => $r['status'],
+                    'author'     => $author,
+                    'label'      => $r['label'] ?: '-',
+                    'items'      => (int) ($r['items_count'] ?? 0),
+                    'duration_s' => $r['duration_s'] ? $r['duration_s'] . 's' : '-',
+                ];
+            }, $releases);
+
+            \WP_CLI\Utils\format_items($format, $rows, ['release_id', 'created_at', 'kind', 'status', 'author', 'label', 'items', 'duration_s']);
+            if ($source === 'remote') {
+                \WP_CLI::line('(Authoritative history from target)');
+            }
+            return;
+        }
+
+        if ($action === 'show') {
+            $id = $args[1] ?? '';
+            if ($id === '') {
+                \WP_CLI::error('Usage: wp awx sync releases show <release-id>');
+            }
+
+            $release = null;
+            $target = $assoc_args['target'] ?? 'auto';
+            if ($target !== 'local' && is_source()) {
+                try {
+                    $client = Sync_Client::from_config();
+                    $res = $client->get('/code/releases/' . rawurlencode($id));
+                    if (!is_wp_error($res) && isset($res['release'])) {
+                        $release = $res['release'];
+                    }
+                } catch (\Exception $e) {
+                    // Fall back to local
+                }
+            }
+
+            if (!$release) {
+                $release = Release_Store::get($id, true);
+            }
+
+            if (!$release) {
+                \WP_CLI::error("Release '{$id}' not found.");
+            }
+
+            if ($format === 'json') {
+                \WP_CLI::line(json_encode($release, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+                return;
+            }
+
+            \WP_CLI::line('--------------------------------------------------');
+            \WP_CLI::line("Release ID:   {$release['release_id']}");
+            \WP_CLI::line("Created:      {$release['created_at']} UTC");
+            \WP_CLI::line("Completed:    " . ($release['completed_at'] ?: '-') . ' UTC');
+            \WP_CLI::line("Duration:     " . ($release['duration_s'] ? $release['duration_s'] . 's' : '-'));
+            \WP_CLI::line("Kind:         {$release['kind']}");
+            \WP_CLI::line("Status:       {$release['status']}");
+            \WP_CLI::line("Label:        " . ($release['label'] ?: '-'));
+            \WP_CLI::line("Author:       " . ($release['author_name'] ?: '-') . ' <' . ($release['author_email'] ?: '-') . '>');
+            \WP_CLI::line("Client IP:    " . ($release['client_ip'] ?: '-'));
+            \WP_CLI::line("Source URL:   " . ($release['source_url'] ?: '-'));
+            \WP_CLI::line("Token ID:     " . ($release['token_id'] ?: '-'));
+            \WP_CLI::line("Total Items:  {$release['items_count']}");
+            \WP_CLI::line('--------------------------------------------------');
+
+            $items = $release['items'] ?? [];
+            if (!empty($items)) {
+                \WP_CLI::line('Itemized manifest:');
+                $item_rows = array_map(function ($it) {
+                    return [
+                        'key'    => $it['key'] ?? '-',
+                        'kind'   => $it['kind'] ?? '-',
+                        'title'  => $it['title'] ?? ($it['slug'] ?? '-'),
+                        'action' => $it['action'] ?? 'updated',
+                    ];
+                }, $items);
+                \WP_CLI\Utils\format_items($format, $item_rows, ['key', 'kind', 'title', 'action']);
+            }
+            return;
+        }
+
+        \WP_CLI::error("Unknown action '{$action}'. Valid actions: list, show");
+    }
 }

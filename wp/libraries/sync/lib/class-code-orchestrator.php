@@ -192,6 +192,13 @@ class Code_Orchestrator extends Orchestrator {
 		Step_Store::delete_run($run_id);
 		Step_Store::create($run_id, $built['steps']);
 		Manifest_Store::update($run_id, array('plan' => $plan, 'status' => 'running', 'error' => null));
+		if (\class_exists(__NAMESPACE__ . '\\Release_Store')) {
+			$u = \function_exists('wp_get_current_user') ? \wp_get_current_user() : null;
+			$author_name  = ($u && $u->exists()) ? (string) $u->display_name : 'Developer';
+			$author_email = ($u && $u->exists()) ? (string) $u->user_email : '';
+			$source_url   = \function_exists('home_url') ? \untrailingslashit(\home_url()) : '';
+			Release_Store::start($run_id, 'code', (string) ($run['label'] ?: 'Code Deploy'), $source_url, $this->client->target_url(), $author_name, $author_email);
+		}
 		return $this->view($run_id);
 	}
 
@@ -232,7 +239,18 @@ class Code_Orchestrator extends Orchestrator {
 					$result = $this->exec_menu($run, $step, $payload);
 					break;
 				case 'finalize':
-					$result = $this->client->post('/code/finalize', array('run_id' => $run_id, 'step_id' => $step['step_id']));
+					$u = \function_exists('wp_get_current_user') ? \wp_get_current_user() : null;
+					$author_name  = ($u && $u->exists()) ? (string) $u->display_name : 'Developer';
+					$author_email = ($u && $u->exists()) ? (string) $u->user_email : '';
+					$source_url   = \function_exists('home_url') ? \untrailingslashit(\home_url()) : '';
+					$result = $this->client->post('/code/finalize', array(
+						'run_id'       => $run_id,
+						'step_id'      => $step['step_id'],
+						'label'        => (string) ($run['label'] ?: 'Code Deploy'),
+						'author_name'  => $author_name,
+						'author_email' => $author_email,
+						'source_url'   => $source_url,
+					));
 					$this->throw_if_error($result, 'finalize');
 					break;
 				case 'media':
@@ -249,6 +267,9 @@ class Code_Orchestrator extends Orchestrator {
 			Step_Store::record($run_id, $step['step_id'], $step['type'], $step['object_uuid'], $retryable ? 'pending' : 'failed', array('input' => $payload, 'error' => $e->code_slug), $e->getMessage());
 			if (!$retryable) {
 				Manifest_Store::update($run_id, array('status' => 'failed', 'error' => $e->code_slug . ': ' . $e->getMessage()));
+				if (\class_exists(__NAMESPACE__ . '\\Release_Store')) {
+					Release_Store::complete($run_id, 'failed', array(), null, $e->code_slug . ': ' . $e->getMessage());
+				}
 			}
 			$view = $this->view($run_id);
 			$view['step']  = $this->step_view(Step_Store::get($run_id, $step['step_id']));
@@ -262,6 +283,22 @@ class Code_Orchestrator extends Orchestrator {
 			if (!empty($run['label'])) {
 				Deploy_Sets::touch((string) $run['label'], $run_id);
 			}
+			if (\class_exists(__NAMESPACE__ . '\\Release_Store')) {
+				$summary = (array) ($run['plan']['summary'] ?? array());
+				$selected_keys = (array) ($run['plan']['selected_keys'] ?? array());
+				$items = array();
+				foreach ((array) ($run['plan']['rows'] ?? array()) as $r) {
+					if (\in_array($r['key'], $selected_keys, true)) {
+						$items[] = array(
+							'key'    => $r['key'],
+							'kind'   => $r['kind'],
+							'title'  => $r['title'],
+							'action' => $r['status'] === 'new' ? 'created' : 'updated',
+						);
+					}
+				}
+				Release_Store::complete($run_id, 'success', $summary, $items);
+			}
 		}
 		$view = $this->view($run_id);
 		$view['step'] = $this->step_view(Step_Store::get($run_id, $step['step_id']));
@@ -272,6 +309,25 @@ class Code_Orchestrator extends Orchestrator {
 		$this->load_code($run_id, array('running', 'failed', 'awaiting_confirm', 'planning', 'blocked'));
 		Manifest_Store::update($run_id, array('status' => 'planning', 'error' => null));
 		return $this->plan($run_id);
+	}
+
+	/** Reconcile run status against the target if network was interrupted. */
+	public function reconcile(string $run_id): array {
+		$target_status = $this->client->get('/runs/' . $run_id);
+		if (!\is_wp_error($target_status) && !empty($target_status['status'])) {
+			if ($target_status['status'] === 'done') {
+				Manifest_Store::update($run_id, array('status' => 'done', 'error' => null));
+				if (\class_exists(__NAMESPACE__ . '\\Release_Store')) {
+					Release_Store::complete($run_id, 'success', array('reconciled' => true));
+				}
+			} elseif ($target_status['status'] === 'failed') {
+				Manifest_Store::update($run_id, array('status' => 'failed', 'error' => 'Reconciled from target: failed'));
+				if (\class_exists(__NAMESPACE__ . '\\Release_Store')) {
+					Release_Store::complete($run_id, 'failed', array('reconciled' => true), null, 'Reconciled from target: failed');
+				}
+			}
+		}
+		return $this->view($run_id);
 	}
 
 	/* ---- executors ---- */

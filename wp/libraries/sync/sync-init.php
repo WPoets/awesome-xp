@@ -58,8 +58,10 @@ require_once __DIR__ . '/lib/class-code-catalog.php';
 require_once __DIR__ . '/lib/class-code-planner.php';
 require_once __DIR__ . '/lib/class-code-orchestrator.php';
 require_once __DIR__ . '/lib/class-deploy-sets.php';
+require_once __DIR__ . '/lib/class-release-store.php';
 require_once __DIR__ . '/admin/class-tokens-page.php';
 require_once __DIR__ . '/admin/class-deploy-page.php';
+require_once __DIR__ . '/admin/class-audit-page.php';
 
 // Components delivered by other work streams; loaded when present so the
 // plugin keeps working while the feature is assembled.
@@ -110,6 +112,7 @@ function init(): void {
 	Prod_Routes::init();
 	if (\is_admin()) {
 		Tokens_Page::init();
+		Audit_Page::init();
 	}
 	// Source side: signed export URLs for pull mode, abilities and the editor UI.
 	Export_Routes::init();

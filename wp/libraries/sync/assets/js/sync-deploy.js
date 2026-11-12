@@ -420,7 +420,7 @@
 	/* ------------------------------------------------------------------ */
 
 	function App() {
-		var st = useState({ phase: 'loading', catalog: null, sel: emptySel(), label: '', view: null, ticked: {}, busy: false, error: null, notice: null });
+		var st = useState({ phase: 'loading', catalog: null, sel: emptySel(), label: '', view: null, ticked: {}, busy: false, error: null, notice: null, releases: [], releasesSource: 'local', otherDevNotice: null });
 		var s = st[0], setS = st[1];
 		var alive = useRef(true);
 		useEffect(function () { return function () { alive.current = false; }; }, []);
@@ -432,12 +432,38 @@
 				return data;
 			}).catch(function (e) { patch({ phase: 'select', error: e }); });
 		}
+
+		function loadReleases() {
+			return ability('awesome/sync-release-list', { limit: 5 }).then(function (res) {
+				var rels = (res && res.releases) || [];
+				var src = (res && res.source) || 'local';
+				var otherNotice = null;
+
+				if (rels.length > 0) {
+					var latest = rels[0];
+					var ts = latest.created_at ? new Date(latest.created_at.replace(' ', 'T') + 'Z').getTime() : 0;
+					var now = Date.now();
+					var hoursAgo = ts ? (now - ts) / (1000 * 60 * 60) : 999;
+
+					if (latest.author_name || latest.author_email) {
+						var author = latest.author_name ? (latest.author_name + (latest.author_email ? ' (' + latest.author_email + ')' : '')) : latest.author_email;
+						if (hoursAgo < 24) {
+							otherNotice = __('Latest deployment on target by ', 'awesome-xp') + author + ' ' + (hoursAgo < 1 ? Math.max(1, Math.round(hoursAgo * 60)) + 'm ago' : Math.round(hoursAgo) + 'h ago') + ': "' + (latest.label || 'Release') + '" (' + (latest.items_count || 0) + ' items).';
+						}
+					}
+				}
+
+				patch({ releases: rels, releasesSource: src, otherDevNotice: otherNotice });
+			}).catch(function () {});
+		}
+
 		useEffect(function () {
 			loadCatalog().then(function (data) {
 				if (data && data.open_run && (data.open_run.status === 'running' || data.open_run.status === 'failed')) {
 					ability('awesome/sync-code-status', { run_id: data.open_run.run_id }).then(function (v) { patch({ view: v, phase: 'progress', notice: __('An unfinished deployment was found; resume or cancel it.', 'awesome-xp') }); }).catch(function () {});
 				}
 			});
+			loadReleases();
 		}, []);
 
 		function fail(e) { patch({ busy: false, error: e }); }
@@ -473,6 +499,7 @@
 				} else {
 					patch({ busy: false });
 					loadCatalog('progress');
+					loadReleases();
 				}
 			}).catch(fail);
 		}
@@ -509,6 +536,7 @@
 		}
 		var head = el(Fragment, null,
 			!s.catalog.configured ? el(C.Notice, { status: 'warning', isDismissible: false }, __('No target configured. Add AWX_SYNC_TARGET_URL and AWX_SYNC_TOKEN (with the code scope) to wp-config.php.', 'awesome-xp')) : el('p', { className: 'awx-muted' }, __('Target:', 'awesome-xp') + ' ' + s.catalog.target_url),
+			s.otherDevNotice && s.phase === 'select' ? el(C.Notice, { status: 'info', isDismissible: true, onRemove: function () { patch({ otherDevNotice: null }); } }, s.otherDevNotice, ' ', el('a', { href: 'admin.php?page=awx-sync-audit', style: { marginLeft: '8px', textDecoration: 'underline' } }, __('View Audit Log →', 'awesome-xp'))) : null,
 			s.notice ? el(C.Notice, { status: 'info', onRemove: function () { patch({ notice: null }); } }, s.notice) : null,
 			s.error && s.phase !== 'progress' ? el(C.Notice, { status: 'error', onRemove: function () { patch({ error: null }); } }, el('code', null, s.error.code), ' ', s.error.message, s.error.nextStep ? el('div', null, s.error.nextStep) : null) : null,
 			el('div', { className: 'awx-phases' }, ['select', 'plan', 'progress'].map(function (p, i) {
@@ -521,15 +549,30 @@
 		} else if (s.phase === 'plan') {
 			body = el(PlanPanel, { view: s.view, ticked: s.ticked, setTicked: function (t) { patch({ ticked: t }); }, busy: s.busy, onBack: function () { patch({ phase: 'select', error: null }); }, onReplan: replan, onDeploy: deploy });
 		} else {
-			body = el(ProgressPanel, { view: s.view, error: s.error, busy: s.busy, onResume: resume, onCancel: cancel, onContinue: function () { patch({ busy: true, error: null }); runSteps(s.view.run_id); }, onNew: function () { patch({ phase: 'select', view: null, error: null, notice: null }); loadCatalog(); } });
+			body = el(ProgressPanel, { view: s.view, error: s.error, busy: s.busy, onResume: resume, onCancel: cancel, onContinue: function () { patch({ busy: true, error: null }); runSteps(s.view.run_id); }, onNew: function () { patch({ phase: 'select', view: null, error: null, notice: null }); loadCatalog(); loadReleases(); } });
 		}
-		var recent = (s.catalog.recent || []).slice(0, 5);
+		var recent = (s.releases && s.releases.length) ? s.releases.slice(0, 5) : (s.catalog.recent || []).slice(0, 5);
 		return el('div', null, head, body,
-			recent.length && s.phase === 'select' ? el('details', { className: 'awx-recent' }, el('summary', null, __('Recent deployments', 'awesome-xp')), el('ul', null, recent.map(function (r) {
-				var by = r.summary && r.summary.by_status || {};
-				return el('li', { key: r.run_id }, el('code', null, r.created_at), ' ', r.label ? el('strong', null, r.label + ' ') : null, r.status, r.summary ? el('span', { className: 'awx-muted' }, ' · ' + (by.new || 0) + ' new, ' + (by.changed || 0) + ' changed, ' + (by.prod_edited || 0) + ' overwritten') : null, r.error ? el('span', { className: 'awx-warn-strong' }, ' · ' + r.error) : null,
-					r.status === 'failed' || r.status === 'running' ? el(C.Button, { variant: 'link', size: 'small', onClick: function () { ability('awesome/sync-code-status', { run_id: r.run_id }).then(function (v) { patch({ view: v, phase: 'progress' }); }).catch(fail); } }, __('open', 'awesome-xp')) : null);
-			}))) : null
+			recent.length && s.phase === 'select' ? el('details', { className: 'awx-recent', open: true },
+				el('summary', null, __('Recent deployments', 'awesome-xp'), s.releasesSource === 'remote' ? ' (' + __('Authoritative on Target', 'awesome-xp') + ')' : ''),
+				el('ul', null, recent.map(function (r) {
+					var id = r.release_id || r.run_id;
+					var by = (r.summary && r.summary.by_status) || {};
+					var author = r.author_name ? (' ' + __('by', 'awesome-xp') + ' ' + r.author_name) : '';
+					return el('li', { key: id },
+						el('code', null, r.created_at),
+						' ',
+						r.label ? el('strong', null, r.label + ' ') : null,
+						author ? el('span', { className: 'awx-muted' }, author + ' · ') : null,
+						el('span', { className: 'awx-badge' }, r.status),
+						r.items_count !== undefined ? el('span', { className: 'awx-muted' }, ' · ' + r.items_count + ' ' + __('items', 'awesome-xp')) : (r.summary ? el('span', { className: 'awx-muted' }, ' · ' + (by.new || 0) + ' new, ' + (by.changed || 0) + ' changed') : null),
+						r.status === 'failed' || r.status === 'running' ? el(C.Button, { variant: 'link', size: 'small', onClick: function () { ability('awesome/sync-code-status', { run_id: id }).then(function (v) { patch({ view: v, phase: 'progress' }); }).catch(fail); } }, __('open', 'awesome-xp')) : null
+					);
+				})),
+				el('div', { style: { marginTop: '8px' } },
+					el('a', { href: 'admin.php?page=awx-sync-audit', className: 'button button-secondary button-small' }, __('View Full Release Audit Log →', 'awesome-xp'))
+				)
+			) : null
 		);
 	}
 

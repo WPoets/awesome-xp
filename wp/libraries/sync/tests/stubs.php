@@ -91,6 +91,60 @@ class AWX_Stub_WPDB
             meta_id INTEGER PRIMARY KEY AUTOINCREMENT,
             post_id INTEGER, meta_key TEXT, meta_value TEXT
         )');
+        $this->pdo->exec('CREATE TABLE wp_awx_sync_releases (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            release_id TEXT NOT NULL UNIQUE,
+            kind TEXT NOT NULL DEFAULT \'code\',
+            label TEXT NOT NULL DEFAULT \'\',
+            status TEXT NOT NULL DEFAULT \'running\',
+            source_url TEXT NOT NULL DEFAULT \'\',
+            target_url TEXT NOT NULL DEFAULT \'\',
+            author_name TEXT NOT NULL DEFAULT \'\',
+            author_email TEXT NOT NULL DEFAULT \'\',
+            token_id TEXT,
+            ip TEXT,
+            summary TEXT,
+            items TEXT,
+            error TEXT,
+            created_at TEXT NOT NULL DEFAULT \'\',
+            completed_at TEXT,
+            duration_seconds INTEGER NOT NULL DEFAULT 0
+        )');
+    }
+
+    public function insert($table, array $data, $format = null)
+    {
+        $cols = array_keys($data);
+        $placeholders = implode(', ', array_fill(0, count($cols), '?'));
+        $sql = "INSERT INTO {$table} (" . implode(', ', $cols) . ") VALUES ({$placeholders})";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(array_values($data));
+        $this->insert_id = (int) $this->pdo->lastInsertId();
+        return 1;
+    }
+
+    public function update($table, array $data, array $where, $format = null, $where_format = null)
+    {
+        $set = [];
+        $vals = [];
+        foreach ($data as $col => $val) {
+            $set[] = "{$col} = ?";
+            $vals[] = $val;
+        }
+        $where_clauses = [];
+        foreach ($where as $col => $val) {
+            $where_clauses[] = "{$col} = ?";
+            $vals[] = $val;
+        }
+        $sql = "UPDATE {$table} SET " . implode(', ', $set) . " WHERE " . implode(' AND ', $where_clauses);
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($vals);
+        return $stmt->rowCount();
+    }
+
+    public function esc_like($text)
+    {
+        return addcslashes($text, '_%\\');
     }
 
     /** Mimics $wpdb->prepare(): %s quoted, %d int, %f float, %% literal. */
@@ -311,4 +365,34 @@ function wp_delete_post($post_id, $force = false)
     $wpdb->query($wpdb->prepare('DELETE FROM wp_postmeta WHERE post_id = %d', $post_id));
     $wpdb->query($wpdb->prepare('DELETE FROM wp_posts WHERE ID = %d', $post_id));
     return true;
+}
+
+if (!function_exists('wp_json_encode')) {
+    function wp_json_encode($data, $options = 0, $depth = 512) {
+        return json_encode($data, $options, $depth);
+    }
+}
+
+if (!function_exists('current_time')) {
+    function current_time($type) {
+        return $type === 'mysql' ? gmdate('Y-m-d H:i:s') : time();
+    }
+}
+
+if (!function_exists('sanitize_text_field')) {
+    function sanitize_text_field($str) {
+        return trim(strip_tags((string) $str));
+    }
+}
+
+if (!function_exists('sanitize_key')) {
+    function sanitize_key($key) {
+        return preg_replace('/[^a-z0-9_\-]/', '', strtolower((string) $key));
+    }
+}
+
+if (!function_exists('wp_unslash')) {
+    function wp_unslash($val) {
+        return is_string($val) ? stripslashes($val) : $val;
+    }
 }
