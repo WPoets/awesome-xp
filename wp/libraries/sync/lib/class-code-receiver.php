@@ -20,6 +20,9 @@ namespace aw2\sync;
 if (!\class_exists(__NAMESPACE__ . '\\Code_Item')) {
 	require_once __DIR__ . '/class-code-item.php';
 }
+if (!\class_exists(__NAMESPACE__ . '\\Identity')) {
+	require_once __DIR__ . '/class-identity.php';
+}
 
 class Code_Receiver {
 
@@ -661,7 +664,7 @@ class Code_Receiver {
 
 					$found_id = null;
 					if ($uuid !== null) {
-						$found_id = Identity::find_local_id($uuid);
+						$found_id = Identity::find_by_uuid($uuid, $obj_type ? array($obj_type) : array());
 					}
 					if (!$found_id && $obj_slug !== '') {
 						$p = self::find_post($obj_type, $obj_slug);
