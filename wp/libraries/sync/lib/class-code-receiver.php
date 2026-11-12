@@ -28,7 +28,10 @@ class Code_Receiver {
 	const ACF_POST_TYPE = 'acf-field-group';
 	const STEP_TYPE_CODE     = 'code';
 	const STEP_TYPE_ACF      = 'acf';
+	const STEP_TYPE_OPTION   = 'option';
 	const STEP_TYPE_FINALIZE = 'finalize';
+
+	const ALLOWED_OPTIONS = array('awx_token_overrides');
 
 	/* ================================================================== */
 	/* Configuration                                                       */
@@ -43,9 +46,9 @@ class Code_Receiver {
 		return \function_exists('acf_import_field_group');
 	}
 
-	/** Kinds accepted by /code/modules (everything but ACF groups). */
+	/** Kinds accepted by /code/modules (everything but ACF groups and options). */
 	public static function post_kinds(): array {
-		return \array_values(\array_diff(Code_Item::KINDS, array('acf')));
+		return \array_values(\array_diff(Code_Item::KINDS, array('acf', 'option')));
 	}
 
 	/* ================================================================== */
@@ -75,7 +78,15 @@ class Code_Receiver {
 			$post_type = (string) ($it['post_type'] ?? '');
 			$slug      = (string) ($it['slug'] ?? '');
 			$hash      = isset($it['hash']) ? (string) $it['hash'] : '';
-			if ($post_type === '' || $slug === '' || !\in_array($kind, self::post_kinds(), true)) {
+			if ($post_type === '' || $slug === '') {
+				continue;
+			}
+			if ($kind === 'option') {
+				$seen[$post_type][$slug] = true;
+				$out['items'][$post_type . ':' . $slug] = $this->plan_option($slug, $hash);
+				continue;
+			}
+			if (!\in_array($kind, self::post_kinds(), true)) {
 				continue;
 			}
 			$seen[$post_type][$slug] = true;
@@ -118,6 +129,20 @@ class Code_Receiver {
 
 	/** Status of one code post on this site, by the shared rules. */
 	private function plan_item(string $kind, string $post_type, string $slug, string $hash): array {
+		if ($kind === 'styles') {
+			$current_theme = \function_exists('get_stylesheet') ? (string) \get_stylesheet() : '';
+			if ($current_theme !== '' && $slug !== $current_theme) {
+				return array(
+					'status'           => 'theme_mismatch',
+					'prod_id'          => null,
+					'prod_hash'        => null,
+					'last_synced_hash' => null,
+					'never_synced'     => false,
+					'has_revisions'    => false,
+					'title'            => 'Global Styles (' . $slug . ')',
+				);
+			}
+		}
 		$post = self::find_post($post_type, $slug);
 		$row  = array(
 			'status'           => 'new',
@@ -126,7 +151,7 @@ class Code_Receiver {
 			'last_synced_hash' => null,
 			'never_synced'     => false,
 			'has_revisions'    => \post_type_exists($post_type) && \post_type_supports($post_type, 'revisions'),
-			'title'            => null,
+			'title'            => $kind === 'styles' ? 'Global Styles (' . $slug . ')' : null,
 		);
 		if ($post === null) {
 			return $row;
@@ -137,8 +162,38 @@ class Code_Receiver {
 		$row['prod_id']          = (int) $post->ID;
 		$row['prod_hash']        = $prod_hash;
 		$row['last_synced_hash'] = $last !== '' ? $last : null;
-		$row['title']            = (string) $post->post_title;
+		$row['title']            = (string) ($post->post_title ?: ($kind === 'styles' ? 'Global Styles (' . $slug . ')' : ''));
 		$row['status']           = self::classify($prod_hash, $last, $src, $hash, $row['never_synced']);
+		return $row;
+	}
+
+	/** Status of one option on this site. */
+	private function plan_option(string $name, string $hash): array {
+		$row = array(
+			'status'           => 'new',
+			'prod_id'          => null,
+			'prod_hash'        => null,
+			'last_synced_hash' => null,
+			'never_synced'     => false,
+			'has_revisions'    => false,
+			'title'            => 'Token overrides (' . $name . ')',
+		);
+		if (!\in_array($name, self::ALLOWED_OPTIONS, true) || !\function_exists('get_option')) {
+			$row['status'] = 'option_not_allowed';
+			return $row;
+		}
+		$val = \get_option($name, null);
+		if ($val === null || $val === false) {
+			return $row;
+		}
+		$prod_hash = \hash('sha256', \json_encode(Code_Item::canonical($val), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+		$last = (string) \get_option('_awx_content_hash_option_' . $name, '');
+		$src  = (string) \get_option('_awx_source_hash_option_' . $name, '');
+		$never = false;
+		$row['prod_hash']        = $prod_hash;
+		$row['last_synced_hash'] = $last !== '' ? $last : null;
+		$row['status']           = self::classify($prod_hash, $last, $src, $hash, $never);
+		$row['never_synced']     = $never;
 		return $row;
 	}
 
@@ -211,6 +266,12 @@ class Code_Receiver {
 		}
 		$slug      = (string) ($raw['slug'] ?? '');
 		$post_type = (string) ($raw['post_type'] ?? '');
+		if ($kind === 'styles') {
+			$current_theme = \function_exists('get_stylesheet') ? (string) \get_stylesheet() : '';
+			if ($current_theme !== '' && $slug !== $current_theme) {
+				throw new Sync_Http_Exception('theme_mismatch', "Theme mismatch: cannot deploy styles for '{$slug}' to target running '{$current_theme}'.", 422, array('target_theme' => $current_theme, 'source_theme' => $slug));
+			}
+		}
 		if (!\preg_match(self::SLUG_RE, $slug)) {
 			throw new Sync_Http_Exception('invalid_payload', 'Invalid slug.', 400, array('slug' => $slug));
 		}
@@ -243,6 +304,9 @@ class Code_Receiver {
 			// Identical already: only make sure the markers are in place, no new revision.
 			$id = (int) $existing->ID;
 			self::stamp($id, $kind, $item->meta_skipped, $item_hash);
+			if ($kind === 'styles') {
+				self::clear_global_styles_cache($slug);
+			}
 			$result = array('action' => 'unchanged', 'post_id' => $id, 'revision_id' => Receiver::latest_revision($id), 'key' => $key, 'kind' => $kind, 'post_type' => $post_type, 'slug' => $slug, 'warnings' => array());
 			Step_Store::record($run_id, $step_id, self::STEP_TYPE_CODE, $key, 'done', $result);
 			return $result;
@@ -259,10 +323,11 @@ class Code_Receiver {
 					$warnings[] = array('code' => 'parent_missing', 'message' => "Parent {$post_type}:{$item->parent_slug} is not on the target; {$key} was saved at the top level.");
 				}
 			}
+			$save_slug = ($kind === 'styles') ? 'wp-global-styles-' . $slug : $slug;
 			$postarr = array(
 				'post_type'    => $post_type,
-				'post_title'   => $item->title,
-				'post_name'    => $slug,
+				'post_title'   => ($kind === 'styles' && empty($item->title)) ? 'Custom Styles' : $item->title,
+				'post_name'    => $save_slug,
 				'post_status'  => $status,
 				'post_content' => $item->content,
 				'post_parent'  => $parent,
@@ -277,7 +342,15 @@ class Code_Receiver {
 				throw new Sync_Http_Exception('write_failed', $id->get_error_message(), 500, array('key' => $key), true);
 			}
 			$id = (int) $id;
-			self::force_slug($id, $slug, $warnings);
+			if ($kind === 'styles') {
+				if (\taxonomy_exists('wp_theme')) {
+					\wp_set_post_terms($id, array($slug), 'wp_theme');
+				}
+				self::force_slug($id, $save_slug, $warnings);
+				self::clear_global_styles_cache($slug);
+			} else {
+				self::force_slug($id, $slug, $warnings);
+			}
 
 			if (!$item->meta_skipped) {
 				self::replace_meta($id, $item->meta);
@@ -369,6 +442,63 @@ class Code_Receiver {
 	}
 
 	/* ================================================================== */
+	/* Options (e.g. awx_token_overrides)                                  */
+	/* ================================================================== */
+
+	/**
+	 * @param array $payload {option, item|value|content, hash, expected_prod_hash|null, overwrite:bool}
+	 */
+	public function write_option(array $payload, string $run_id, string $step_id): array {
+		$replay = Step_Store::replay($run_id, $step_id);
+		if ($replay !== null) {
+			return $replay + array('replayed' => true);
+		}
+		$name = (string) ($payload['option'] ?? ($payload['item']['slug'] ?? ''));
+		if (!\in_array($name, self::ALLOWED_OPTIONS, true)) {
+			throw new Sync_Http_Exception('option_not_allowed', "Option {$name} is not allowed for sync.", 400, array('option' => $name));
+		}
+		$raw = isset($payload['item']) && \is_array($payload['item']) ? $payload['item'] : null;
+		$content = isset($payload['content']) ? (string) $payload['content'] : (string) ($raw['content'] ?? '');
+		$value = isset($payload['value']) ? $payload['value'] : \json_decode($content, true);
+		if ($value === null && $content !== 'null' && !isset($payload['value'])) {
+			throw new Sync_Http_Exception('invalid_payload', 'Invalid option payload value.', 400);
+		}
+		$item_hash = isset($payload['hash']) && $payload['hash'] !== '' ? (string) $payload['hash'] : (isset($raw['hash']) ? (string) $raw['hash'] : \hash('sha256', \json_encode(Code_Item::canonical($value), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)));
+		$key = 'option:' . $name;
+
+		$prod_val = \get_option($name, null);
+		$prod_hash = null;
+		if ($prod_val !== null && $prod_val !== false) {
+			$prod_hash = \hash('sha256', \json_encode(Code_Item::canonical($prod_val), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+			$expected  = isset($payload['expected_prod_hash']) && $payload['expected_prod_hash'] !== '' ? (string) $payload['expected_prod_hash'] : null;
+			if ($expected !== null && !\hash_equals($prod_hash, $expected) && empty($payload['overwrite'])) {
+				throw new Sync_Http_Exception('edited_on_prod', "Option {$name} was edited on the target since the plan was made. Re-plan or confirm overwrite.", 409, array('prod_hash' => $prod_hash, 'expected_prod_hash' => $expected, 'key' => $key));
+			}
+		}
+
+		$result = Service_User::run(function () use ($name, $value, $item_hash, $key, $prod_val) {
+			\update_option($name, $value, false);
+			$saved = \get_option($name);
+			$saved_hash = \hash('sha256', \json_encode(Code_Item::canonical($saved), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+			\update_option('_awx_content_hash_option_' . $name, $saved_hash, false);
+			\update_option('_awx_source_hash_option_' . $name, $item_hash, false);
+			\do_action('awx_sync_after_option_write', $name, $value);
+			return array(
+				'action' => ($prod_val === null || $prod_val === false) ? 'created' : 'updated',
+				'key'    => $key,
+				'kind'   => 'option',
+				'option' => $name,
+			);
+		});
+
+		if ($prod_hash !== null && \hash_equals($prod_hash, $item_hash)) {
+			$result['action'] = 'unchanged';
+		}
+		Step_Store::record($run_id, $step_id, self::STEP_TYPE_OPTION, $key, 'done', $result);
+		return $result;
+	}
+
+	/* ================================================================== */
 	/* Finalize                                                            */
 	/* ================================================================== */
 
@@ -386,6 +516,8 @@ class Code_Receiver {
 		if (\function_exists('\\aw2\\global_cache\\flush')) {
 			\aw2\global_cache\flush(null, null, null);
 		}
+
+		self::clear_global_styles_cache();
 
 		$recompiled = array();
 		if (\function_exists('\\aw2\\gutenberg_blocks\\dgb')) {
@@ -430,7 +562,7 @@ class Code_Receiver {
 			if ($row['status'] !== 'done' || !\is_array($row['response'])) {
 				continue;
 			}
-			if (!\in_array($row['type'], array(self::STEP_TYPE_CODE, self::STEP_TYPE_ACF), true)) {
+			if (!\in_array($row['type'], array(self::STEP_TYPE_CODE, self::STEP_TYPE_ACF, self::STEP_TYPE_OPTION), true)) {
 				continue;
 			}
 			$r = $row['response'];
@@ -438,8 +570,8 @@ class Code_Receiver {
 			$out['items'][] = array(
 				'key'       => (string) ($r['key'] ?? $row['object_uuid']),
 				'kind'      => $kind,
-				'post_type' => (string) ($r['post_type'] ?? ($kind === 'acf' ? self::ACF_POST_TYPE : '')),
-				'slug'      => (string) ($r['slug'] ?? ($r['key'] ?? '')),
+				'post_type' => (string) ($r['post_type'] ?? ($kind === 'acf' ? self::ACF_POST_TYPE : ($kind === 'option' ? 'option' : ''))),
+				'slug'      => (string) ($r['slug'] ?? ($r['option'] ?? ($r['key'] ?? ''))),
 				'action'    => (string) ($r['action'] ?? ''),
 				'post_id'   => (int) ($r['post_id'] ?? 0),
 			);
@@ -464,6 +596,9 @@ class Code_Receiver {
 
 	/** The live post with this type and slug (trash and auto-drafts ignored). */
 	public static function find_post(string $post_type, string $slug): ?\WP_Post {
+		if ($post_type === 'wp_global_styles') {
+			return self::find_styles_post($slug);
+		}
 		global $wpdb;
 		$id = $wpdb->get_var($wpdb->prepare(
 			"SELECT ID FROM {$wpdb->posts} WHERE post_type = %s AND post_name = %s AND post_status NOT IN ('trash','auto-draft') ORDER BY ID ASC LIMIT 1",
@@ -475,6 +610,31 @@ class Code_Receiver {
 		}
 		$post = \get_post((int) $id);
 		return $post instanceof \WP_Post ? $post : null;
+	}
+
+	/** Find the global styles post for a theme on this site. */
+	public static function find_styles_post(string $theme_slug): ?\WP_Post {
+		return Code_Catalog::find_styles_post($theme_slug);
+	}
+
+	/** Flush transients and cache for global styles. */
+	public static function clear_global_styles_cache(?string $theme = null): void {
+		if ($theme === null && \function_exists('get_stylesheet')) {
+			$theme = \get_stylesheet();
+		}
+		if (\function_exists('wp_clean_theme_json_cache')) {
+			\wp_clean_theme_json_cache();
+		}
+		if ($theme !== null && $theme !== '') {
+			\delete_transient('global_styles_' . $theme);
+			\delete_transient('wp_global_styles_' . $theme);
+			if (\function_exists('wp_cache_delete')) {
+				\wp_cache_delete('wp_global_styles_' . $theme, 'themes');
+				\wp_cache_delete('global_styles_' . $theme, 'themes');
+			}
+		}
+		\delete_transient('global_styles');
+		\delete_transient('wp_global_styles');
 	}
 
 	/** @return array<int, array{post_name:string, post_title:string}> */

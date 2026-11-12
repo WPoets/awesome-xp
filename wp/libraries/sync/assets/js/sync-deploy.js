@@ -37,7 +37,7 @@
 	var KIND_LABEL = {
 		app: __('App definition', 'awesome-xp'), core: __('Core', 'awesome-xp'), service: __('Service', 'awesome-xp'), config: __('App config', 'awesome-xp'),
 		module: __('App module', 'awesome-xp'), dgb: __('Block definition', 'awesome-xp'), acf: __('ACF field group', 'awesome-xp'), pattern: __('Pattern', 'awesome-xp'),
-		template: __('Template / part', 'awesome-xp'), page: __('App page / post', 'awesome-xp')
+		template: __('Template / part', 'awesome-xp'), page: __('App page / post', 'awesome-xp'), styles: __('Global styles', 'awesome-xp'), option: __('Token overrides', 'awesome-xp')
 	};
 	var STATUS_LABEL = {
 		new: __('New', 'awesome-xp'), changed: __('Changed', 'awesome-xp'), unchanged: __('Unchanged', 'awesome-xp'), prod_edited: __('Edited on target', 'awesome-xp'),
@@ -48,8 +48,8 @@
 	/* Selection helpers                                                    */
 	/* ------------------------------------------------------------------ */
 
-	// UI selection: { core: {slug:true}, services: {pt: {slug:true}}, apps: {slug: {definition, config:{slug:true}, modules:{...}, pages:bool, posts:bool}}, dgb:{}, acf:{}, patterns:{}, templates:{} }
-	function emptySel() { return { core: {}, services: {}, apps: {}, dgb: {}, acf: {}, patterns: {}, templates: {} }; }
+	// UI selection: { core: {slug:true}, services: {pt: {slug:true}}, apps: {slug: {definition, config:{slug:true}, modules:{...}, pages:bool, posts:bool}}, dgb:{}, acf:{}, patterns:{}, templates:{}, styles:bool, tokens:bool }
+	function emptySel() { return { core: {}, services: {}, apps: {}, dgb: {}, acf: {}, patterns: {}, templates: {}, styles: false, tokens: false }; }
 
 	function toApiSelection(sel, tree) {
 		var out = {};
@@ -88,6 +88,8 @@
 		if (pat) { out.patterns = pat; }
 		var tmpl = list(sel.templates, (tree.templates || []).map(function (t) { return t.slug; }));
 		if (tmpl) { out.templates = tmpl; }
+		if (sel.styles) { out.styles = true; }
+		if (sel.tokens) { out.tokens = true; }
 		return out;
 	}
 
@@ -117,6 +119,8 @@
 		if (api.acf) { fill(sel.acf, api.acf, (tree.blocks.acf.groups || []).map(function (g) { return g.slug; })); }
 		if (api.patterns) { fill(sel.patterns, api.patterns, (tree.patterns || []).map(function (p) { return p.slug; })); }
 		if (api.templates) { fill(sel.templates, api.templates, (tree.templates || []).map(function (t) { return t.slug; })); }
+		if (api.styles) { sel.styles = true; }
+		if (api.tokens || api.options) { sel.tokens = true; }
 		return sel;
 	}
 
@@ -124,6 +128,8 @@
 		var n = 0;
 		function c(map) { Object.keys(map || {}).forEach(function (k) { if (map[k]) { n++; } }); }
 		c(sel.core); c(sel.dgb); c(sel.acf); c(sel.patterns); c(sel.templates);
+		if (sel.styles) { n++; }
+		if (sel.tokens) { n++; }
 		Object.keys(sel.services).forEach(function (pt) { c(sel.services[pt]); });
 		Object.keys(sel.apps).forEach(function (s) { var p = sel.apps[s]; if (p.definition) { n++; } c(p.config); c(p.modules); if (p.pages) { n++; } if (p.posts) { n++; } });
 		return n;
@@ -259,6 +265,29 @@
 				filter: fl,
 				onChange: function (m) { upd(function (n) { n.templates = m; }); }
 			}) : null,
+			(tree.styles || tree.tokens) ? el(Fragment, null,
+				el('h2', null, __('Styles & design tokens', 'awesome-xp')),
+				tree.styles ? el('div', { className: 'awx-group' },
+					el('div', { className: 'awx-group-head' },
+						el(C.CheckboxControl, {
+							__nextHasNoMarginBottom: true,
+							label: el('span', null, __('Global styles', 'awesome-xp') + ' (' + tree.styles.theme + ')', tree.styles.last_sync ? el('span', { className: 'awx-muted' }, ' · ' + __('deployed', 'awesome-xp') + ' ' + new Date(tree.styles.last_sync.time * 1000).toLocaleDateString()) : el('span', { className: 'awx-muted' }, ' · ' + __('never deployed', 'awesome-xp'))),
+							checked: !!sel.styles,
+							onChange: function (v) { upd(function (n) { n.styles = v; }); }
+						})
+					)
+				) : null,
+				tree.tokens ? el('div', { className: 'awx-group' },
+					el('div', { className: 'awx-group-head' },
+						el(C.CheckboxControl, {
+							__nextHasNoMarginBottom: true,
+							label: el('span', null, __('Token overrides (awx_token_overrides)', 'awesome-xp'), tree.tokens.last_sync ? el('span', { className: 'awx-muted' }, ' · ' + __('deployed', 'awesome-xp') + ' ' + new Date(tree.tokens.last_sync.time * 1000).toLocaleDateString()) : el('span', { className: 'awx-muted' }, ' · ' + __('never deployed', 'awesome-xp'))),
+							checked: !!sel.tokens,
+							onChange: function (v) { upd(function (n) { n.tokens = v; }); }
+						})
+					)
+				) : null
+			) : null,
 			el('div', { className: 'awx-actions' },
 				el(C.Button, { variant: 'primary', disabled: !props.configured || countSel(sel) === 0 || props.busy, isBusy: props.busy, onClick: props.onPlan }, __('Plan deployment', 'awesome-xp') + (countSel(sel) ? ' (' + countSel(sel) + ')' : '')),
 				el('span', { className: 'awx-save-set' },
@@ -283,7 +312,7 @@
 		var ticked = props.ticked;
 		var setTicked = props.setTicked;
 		var groups = useMemo(function () {
-			var order = ['app', 'core', 'service', 'config', 'module', 'dgb', 'acf', 'pattern', 'template', 'page'];
+			var order = ['app', 'core', 'service', 'config', 'module', 'dgb', 'acf', 'styles', 'option', 'pattern', 'template', 'page'];
 			var g = {};
 			plan.rows.forEach(function (r) { (g[r.kind] = g[r.kind] || []).push(r); });
 			return order.filter(function (k) { return g[k]; }).map(function (k) { return { kind: k, rows: g[k] }; });

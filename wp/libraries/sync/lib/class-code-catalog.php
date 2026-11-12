@@ -116,6 +116,8 @@ class Code_Catalog {
 			),
 			'patterns'  => $this->patterns(),
 			'templates' => $this->templates(),
+			'styles'    => $this->styles(),
+			'tokens'    => $this->tokens(),
 			'generated_at' => \time(),
 		);
 		foreach (self::service_post_types() as $pt => $label) {
@@ -245,6 +247,108 @@ class Code_Catalog {
 		return $out;
 	}
 
+	/** Find the global styles post for a theme. */
+	public static function find_styles_post(string $theme_slug): ?\WP_Post {
+		if (\class_exists('\WP_Theme_JSON_Resolver') && \method_exists('\WP_Theme_JSON_Resolver', 'get_user_global_styles_post_id')) {
+			$id = \WP_Theme_JSON_Resolver::get_user_global_styles_post_id();
+			if ($id) {
+				$p = \get_post((int) $id);
+				if ($p instanceof \WP_Post) {
+					return $p;
+				}
+			}
+		}
+		global $wpdb;
+		$post_name = 'wp-global-styles-' . $theme_slug;
+		$id = $wpdb->get_var($wpdb->prepare(
+			"SELECT ID FROM {$wpdb->posts} WHERE post_type = 'wp_global_styles' AND post_name IN (%s, %s) AND post_status NOT IN ('trash','auto-draft') ORDER BY ID DESC LIMIT 1",
+			$post_name,
+			$theme_slug
+		));
+		if ($id) {
+			$p = \get_post((int) $id);
+			if ($p instanceof \WP_Post) {
+				return $p;
+			}
+		}
+		if (\taxonomy_exists('wp_theme')) {
+			$posts = \get_posts(array(
+				'post_type'      => 'wp_global_styles',
+				'post_status'    => 'any',
+				'posts_per_page' => 1,
+				'tax_query'      => array(
+					array(
+						'taxonomy' => 'wp_theme',
+						'field'    => 'slug',
+						'terms'    => $theme_slug,
+					),
+				),
+			));
+			if (!empty($posts)) {
+				return $posts[0];
+			}
+		}
+		return null;
+	}
+
+	/** Code_Item for the active theme's global styles post (null if none saved yet). */
+	public function styles_item(): ?Code_Item {
+		$theme = \function_exists('get_stylesheet') ? (string) \get_stylesheet() : '';
+		if ($theme === '') {
+			return null;
+		}
+		$post = self::find_styles_post($theme);
+		if (!$post) {
+			return null;
+		}
+		return Code_Item::from_post('styles', $post);
+	}
+
+	/** Code_Item for design token overrides (null if not configured). */
+	public function tokens_item(): ?Code_Item {
+		if (!\function_exists('get_option')) {
+			return null;
+		}
+		$val = \get_option('awx_token_overrides', null);
+		if ($val === null || $val === false) {
+			return null;
+		}
+		return Code_Item::from_option('awx_token_overrides', $val);
+	}
+
+	/** Active theme's global styles info for the tree. */
+	public function styles(): ?array {
+		$item = $this->styles_item();
+		if (!$item) {
+			return null;
+		}
+		return array(
+			'theme'     => $item->slug,
+			'slug'      => $item->slug,
+			'title'     => $item->title ?: ('Global Styles (' . $item->slug . ')'),
+			'id'        => $item->id,
+			'hash'      => $item->hash(),
+			'last_sync' => $item->id ? (\get_post_meta($item->id, self::META_LAST_SYNC, true) ?: null) : null,
+		);
+	}
+
+	/** Token overrides info for the tree. */
+	public function tokens(): ?array {
+		$item = $this->tokens_item();
+		if (!$item) {
+			return null;
+		}
+		$val = \get_option('awx_token_overrides', array());
+		return array(
+			'name'      => 'awx_token_overrides',
+			'slug'      => 'awx_token_overrides',
+			'title'     => $item->title,
+			'count'     => \is_array($val) ? \count($val) : 1,
+			'hash'      => $item->hash(),
+			'last_sync' => \get_option(self::META_LAST_SYNC . '_option_awx_token_overrides', null) ?: null,
+		);
+	}
+
 	/* ------------------------------------------------------------------ */
 	/* Items                                                               */
 	/* ------------------------------------------------------------------ */
@@ -308,7 +412,7 @@ class Code_Catalog {
 	 * @return array {items: Code_Item[] (dependency order), content: [...], collections: [{kind,post_type}], apps: [slug], notes: [...]}
 	 */
 	public function items_for(array $sel): array {
-		$items = array('app' => array(), 'core' => array(), 'service' => array(), 'config' => array(), 'module' => array(), 'dgb' => array(), 'acf' => array());
+		$items = array('app' => array(), 'core' => array(), 'service' => array(), 'config' => array(), 'module' => array(), 'dgb' => array(), 'acf' => array(), 'styles' => array(), 'option' => array());
 		$content = $collections = $apps = $notes = array();
 		$core_pt = self::core_post_type();
 
@@ -393,14 +497,28 @@ class Code_Catalog {
 				$content[] = array('kind' => 'template', 'post_id' => (int) $t['id'], 'slug' => $t['slug'], 'title' => $t['title'], 'post_type' => $t['post_type']);
 			}
 		}
+		if (!empty($sel['styles'])) {
+			$st_item = $this->styles_item();
+			if ($st_item) {
+				$items['styles'][] = $st_item;
+				$collections[] = array('kind' => 'styles', 'post_type' => 'wp_global_styles');
+			}
+		}
+		if (!empty($sel['tokens']) || !empty($sel['options'])) {
+			$tk_item = $this->tokens_item();
+			if ($tk_item) {
+				$items['option'][] = $tk_item;
+				$collections[] = array('kind' => 'option', 'post_type' => 'option');
+			}
+		}
 		foreach ($items['config'] as $it) {
 			if ($it->meta_skipped) {
 				$notes[] = array('code' => 'settings_meta_skipped', 'message' => 'Settings of ' . $it->key() . ' (postmeta) are environment-specific and are not deployed; only the module content is.', 'key' => $it->key());
 			}
 		}
 
-		// Dependency order: app definitions, core, services, config, modules, block definitions, ACF.
-		$ordered = \array_merge($items['app'], $items['core'], $items['service'], $items['config'], $items['module'], $items['dgb'], $items['acf']);
+		// Dependency order: app definitions, core, services, config, modules, block definitions, ACF, global styles, token overrides.
+		$ordered = \array_merge($items['app'], $items['core'], $items['service'], $items['config'], $items['module'], $items['dgb'], $items['acf'], $items['styles'], $items['option']);
 		return array('items' => $ordered, 'content' => $this->order_content($content), 'collections' => $collections, 'apps' => \array_values(\array_unique($apps)), 'notes' => $notes);
 	}
 
@@ -464,6 +582,13 @@ class Code_Catalog {
 	public static function mark_synced(?int $post_id, string $run_id, string $hash): void {
 		if ($post_id) {
 			\update_post_meta($post_id, self::META_LAST_SYNC, array('run_id' => $run_id, 'time' => \time(), 'hash' => $hash));
+		}
+	}
+
+	/** Record on the source that an option was deployed. */
+	public static function mark_option_synced(string $name, string $run_id, string $hash): void {
+		if (\function_exists('update_option')) {
+			\update_option(self::META_LAST_SYNC . '_option_' . $name, array('run_id' => $run_id, 'time' => \time(), 'hash' => $hash), false);
 		}
 	}
 }

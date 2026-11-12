@@ -551,7 +551,7 @@ class Sync_CLI_Command extends \WP_CLI_Command
         } else {
             $input['selection'] = self::selection_from_flags($assoc_args);
             if (empty($input['selection'])) {
-                \WP_CLI::error('Nothing selected. Pass --core, --services, --apps, --blocks, --acf, --patterns, --templates or --set=<name>.');
+                \WP_CLI::error('Nothing selected. Pass --core, --services, --apps, --blocks, --acf, --patterns, --templates, --styles, --tokens or --set=<name>.');
             }
         }
         $view = $run('awesome/sync-code-analyze', $input);
@@ -688,7 +688,7 @@ class Sync_CLI_Command extends \WP_CLI_Command
             case 'save':
                 $sel = self::selection_from_flags($assoc_args);
                 if ($name === '' || empty($sel)) {
-                    \WP_CLI::error('Usage: wp awx sync sets save <name> --core|--services|--apps|--blocks|--acf|--patterns|--templates');
+                    \WP_CLI::error('Usage: wp awx sync sets save <name> --core|--services|--apps|--blocks|--acf|--patterns|--templates|--styles|--tokens');
                 }
                 $res = $run('awesome/sync-set-save', ['name' => $name, 'selection' => $sel]);
                 \WP_CLI::success('Saved set ' . $res['set']['name'] . '.');
@@ -755,6 +755,12 @@ class Sync_CLI_Command extends \WP_CLI_Command
         }
         if (isset($a['templates'])) {
             $sel['templates'] = $list($a['templates']);
+        }
+        if (isset($a['styles'])) {
+            $sel['styles'] = true;
+        }
+        if (isset($a['tokens'])) {
+            $sel['tokens'] = true;
         }
         return $sel;
     }

@@ -132,6 +132,14 @@ class Prod_Routes {
 				return (new Code_Receiver())->write_acf_group(self::params($r), $run, $step);
 			}),
 		));
+		\register_rest_route(self::NS, '/code/options', array(
+			'methods'             => 'POST',
+			'permission_callback' => $auth_code,
+			'callback'            => self::wrap('code/options', function (\WP_REST_Request $r) {
+				list($run, $step) = self::ids($r);
+				return (new Code_Receiver())->write_option(self::params($r), $run, $step);
+			}),
+		));
 		\register_rest_route(self::NS, '/code/finalize', array(
 			'methods'             => 'POST',
 			'permission_callback' => $auth_code,
@@ -183,6 +191,8 @@ class Prod_Routes {
 				$uuid = (string) $p['item']['post_type'] . ':' . (string) $p['item']['slug'];
 			} elseif ($uuid === null && isset($p['key']) && \is_scalar($p['key']) && \strpos($route, 'code/acf') === 0) {
 				$uuid = Code_Receiver::ACF_POST_TYPE . ':' . (string) $p['key'];
+			} elseif ($uuid === null && isset($p['option']) && \is_scalar($p['option']) && \strpos($route, 'code/options') === 0) {
+				$uuid = 'option:' . (string) $p['option'];
 			}
 			try {
 				$result = $fn($r);

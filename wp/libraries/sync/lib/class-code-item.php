@@ -17,12 +17,14 @@
  *   dgb       aw_gb_blocks block definitions
  *   acf       ACF field groups (keyed by the ACF group key, not a post slug)
  *   pattern   managed wp_block patterns (keyed by _awx_pattern_slug)
+ *   styles    wp_global_styles user customizations for active theme (keyed by theme stylesheet)
+ *   option    theme/design token options (e.g. awx_token_overrides)
  */
 namespace aw2\sync;
 
 class Code_Item {
 
-	const KINDS = array('core', 'service', 'app', 'config', 'module', 'dgb', 'acf', 'pattern');
+	const KINDS = array('core', 'service', 'app', 'config', 'module', 'dgb', 'acf', 'pattern', 'styles', 'option');
 
 	/** Meta keys never carried across for any kind. */
 	const META_SKIP = array('_edit_lock', '_edit_last', '_wp_old_slug', '_wp_old_date', '_wp_trash_meta_status', '_wp_trash_meta_time', '_wp_desired_post_slug', '_pingme', '_encloseme');
@@ -103,12 +105,19 @@ class Code_Item {
 			$doc = array('kind' => 'acf', 'group' => self::canonical($acf_group ?? array()));
 		} else {
 			$meta = self::filter_meta($meta);
+			$normalized_content = \str_replace("\r\n", "\n", $content);
+			if ($kind === 'styles' && $normalized_content !== '') {
+				$decoded = \json_decode($normalized_content, true);
+				if (\is_array($decoded)) {
+					$normalized_content = \json_encode(self::canonical($decoded), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+				}
+			}
 			$doc = array(
 				'kind'    => $kind,
 				'title'   => $title,
 				'status'  => $status,
 				'parent'  => $parent_slug !== null && $parent_slug !== '' ? $parent_slug : null,
-				'content' => \str_replace("\r\n", "\n", $content),
+				'content' => $normalized_content,
 				'meta'    => $meta,
 			);
 		}
@@ -167,14 +176,38 @@ class Code_Item {
 		return $item;
 	}
 
+	/** Build an item for an option (e.g. awx_token_overrides). */
+	public static function from_option(string $name, $value): Code_Item {
+		$item = new self('option', 'option', $name);
+		$item->title = 'Token overrides (' . $name . ')';
+		$item->status = 'publish';
+		$item->content = \json_encode(self::canonical($value), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+		return $item;
+	}
+
+	/** Determine the theme slug of a wp_global_styles post. */
+	public static function styles_slug_for_post(\WP_Post $post): string {
+		if (\function_exists('wp_get_post_terms')) {
+			$terms = \wp_get_post_terms($post->ID, 'wp_theme', array('fields' => 'names'));
+			if (!empty($terms) && !\is_wp_error($terms) && !empty($terms[0])) {
+				return (string) $terms[0];
+			}
+		}
+		if (\strpos($post->post_name, 'wp-global-styles-') === 0) {
+			return \substr($post->post_name, \strlen('wp-global-styles-'));
+		}
+		return \function_exists('get_stylesheet') ? (string) \get_stylesheet() : $post->post_name;
+	}
+
 	/**
 	 * Build the item for an existing post on either site. $meta_skipped
 	 * drops the postmeta (the `settings` module of a config collection).
 	 */
 	public static function from_post(string $kind, \WP_Post $post, bool $meta_skipped = false): Code_Item {
-		$item = new self($kind, $post->post_type, $post->post_name);
+		$slug = ($kind === 'styles') ? self::styles_slug_for_post($post) : $post->post_name;
+		$item = new self($kind, $post->post_type, $slug);
 		$item->id     = (int) $post->ID;
-		$item->title  = (string) $post->post_title;
+		$item->title  = ($kind === 'styles') ? (string) ($post->post_title ?: ('Global Styles (' . $slug . ')')) : (string) $post->post_title;
 		$item->status = (string) $post->post_status;
 		$item->content = (string) $post->post_content;
 		if ((int) $post->post_parent > 0) {

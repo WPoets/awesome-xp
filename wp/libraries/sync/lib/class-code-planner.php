@@ -73,6 +73,16 @@ class Code_Planner {
 				} elseif ($status === 'prod_edited') {
 					$row['warnings'][] = array('code' => 'no_revision', 'message' => 'ACF field groups keep no revisions; the overwrite cannot be undone from the target.');
 				}
+			} elseif ($kind === 'styles') {
+				$target_theme = (string) ($hs['theme'] ?? ($answer['theme'] ?? ''));
+				if ($status === 'theme_mismatch' || ($target_theme !== '' && $it['slug'] !== $target_theme)) {
+					$row['status'] = 'blocked';
+					$row['selectable'] = false;
+					$row['warnings'][] = array(
+						'code' => 'theme_mismatch',
+						'message' => "The target runs theme '{$target_theme}', but these global styles are for '{$it['slug']}'. Themes must match to deploy global styles."
+					);
+				}
 			}
 			if (!empty($hosts) && !empty($it['content'])) {
 				foreach ($hosts as $h) {
@@ -257,17 +267,23 @@ class Code_Planner {
 		$seen_objects = array();
 		$wrote_code = false;
 
-		// Code items in manifest order (dependency order).
-		foreach ((array) ($plan['rows'] ?? array()) as $r) {
-			if (!isset($selected[$r['key']]) || \in_array($r['kind'], array('page', 'pattern', 'template'), true)) {
-				continue;
-			}
+		// Code items in dependency order: app, core, service, config, module, dgb, acf, styles, option.
+		$code_rows = \array_filter((array) ($plan['rows'] ?? array()), function ($r) use ($selected) {
+			return isset($selected[$r['key']]) && !\in_array($r['kind'], array('page', 'pattern', 'template'), true);
+		});
+		\usort($code_rows, function ($a, $b) {
+			$order = array('app' => 0, 'core' => 1, 'service' => 2, 'config' => 3, 'module' => 4, 'dgb' => 5, 'acf' => 6, 'styles' => 7, 'option' => 8);
+			$ka = $order[$a['kind']] ?? 9;
+			$kb = $order[$b['kind']] ?? 9;
+			return $ka <=> $kb;
+		});
+		foreach ($code_rows as $r) {
 			if ($r['status'] === 'prod_edited') {
 				$overwrite_needed = true;
 			}
 			$steps[] = array(
 				'step_id'     => $uuid_gen(),
-				'type'        => $r['kind'] === 'acf' ? 'acf' : 'code',
+				'type'        => $r['kind'] === 'acf' ? 'acf' : ($r['kind'] === 'option' ? 'option' : 'code'),
 				'object_uuid' => $r['key'],
 				'payload'     => array('kind' => $r['kind'], 'title' => $r['title'], 'status' => $r['status'], 'expected_prod_hash' => $r['prod_hash'] ?? null),
 			);

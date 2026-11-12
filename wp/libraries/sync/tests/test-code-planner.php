@@ -37,6 +37,11 @@ $g2 = Code_Item::hash_parts('acf', '', '', null, '', array(), array('title' => '
 assert_true($g1 === $g2, 'ACF group hash is key-order independent');
 $filtered = Code_Item::filter_meta(array('b' => array('2'), 'a' => '1', '_awx_x' => array('z'), '_edit_last' => array('1')));
 assert_true(array_keys($filtered) === array('a', 'b') && $filtered['a'] === array('1'), 'filter_meta drops skipped keys, normalises scalars and sorts');
+$s1 = Code_Item::hash_parts('styles', 'Custom Styles', 'publish', null, '{"version": 3, "styles": {"color": {"text": "#000"}}}', array());
+$s2 = Code_Item::hash_parts('styles', 'Custom Styles', 'publish', null, "{\n  \"styles\": {\n    \"color\": {\n      \"text\": \"#000\"\n    }\n  },\n  \"version\": 3\n}", array());
+assert_true($s1 === $s2, 'styles hash is whitespace and key-order independent (canonical JSON)');
+$opt = Code_Item::from_option('awx_token_overrides', array('colors' => array('primary' => '#ff0000')));
+assert_true($opt->kind === 'option' && $opt->post_type === 'option' && $opt->slug === 'awx_token_overrides', 'from_option sets kind=option and slug');
 $item = new Code_Item('module', 'crm_modules', 'lead-form');
 $item->title = 'Lead form';
 $item->content = '[x]';
@@ -58,6 +63,8 @@ $items = array(
 	array('kind' => 'module', 'post_type' => 'crm_modules', 'slug' => 'lead', 'title' => 'Lead', 'hash' => 'h5', 'content' => ''),
 	array('kind' => 'dgb', 'post_type' => 'aw_gb_blocks', 'slug' => 'hero', 'title' => 'Hero', 'hash' => 'h6', 'content' => ''),
 	array('kind' => 'acf', 'post_type' => 'acf-field-group', 'slug' => 'group_1', 'title' => 'Group 1', 'hash' => 'h7', 'content' => ''),
+	array('kind' => 'styles', 'post_type' => 'wp_global_styles', 'slug' => 'twentytwentyfour', 'title' => 'Global Styles', 'hash' => 'h-styles', 'content' => '{}'),
+	array('kind' => 'option', 'post_type' => 'option', 'slug' => 'awx_token_overrides', 'title' => 'Token overrides (awx_token_overrides)', 'hash' => 'h-tokens', 'content' => '{}'),
 );
 $manifest = array(
 	'protocol' => 1,
@@ -73,7 +80,7 @@ $manifest = array(
 	'collections' => array(array('kind' => 'core', 'post_type' => 'awesome_core'), array('kind' => 'module', 'post_type' => 'crm_modules')),
 	'apps' => array('crm', 'shop'),
 	'notes' => array(array('code' => 'settings_meta_skipped', 'message' => 'Settings skipped')),
-	'handshake' => array('protocol' => 1, 'allow_code' => true, 'acf_active' => true, 'unfiltered_html' => true),
+	'handshake' => array('protocol' => 1, 'allow_code' => true, 'acf_active' => true, 'unfiltered_html' => true, 'theme' => 'twentytwentyfour'),
 	'source_hosts' => array('dev.example.com'),
 );
 $answer = array(
@@ -87,6 +94,8 @@ $answer = array(
 		'crm_config:settings'  => array('status' => 'changed', 'prod_id' => 4, 'prod_hash' => 'x'),
 		'crm_modules:lead'     => array('status' => 'new'),
 		'aw_gb_blocks:hero'    => array('status' => 'new'),
+		'wp_global_styles:twentytwentyfour' => array('status' => 'changed', 'prod_id' => 88, 'prod_hash' => 's-old'),
+		'option:awx_token_overrides'        => array('status' => 'prod_edited', 'prod_id' => null, 'prod_hash' => 'tok-edited'),
 	),
 	'acf' => array('group_1' => array('status' => 'changed', 'prod_id' => 9, 'prod_hash' => 'g-old')),
 	'only_on_prod' => array('crm_modules' => array(array('slug' => 'legacy', 'title' => 'Legacy'))),
@@ -132,6 +141,8 @@ assert_true(in_array('dgb_deployed_in_run', $codes('page:10'), true) && $rows['p
 assert_true($st('page:11') === 'prod_edited' && !$sel('page:11'), 'page of an existing app is not pre-ticked');
 assert_true($st('pattern:cta') === 'changed' && $sel('pattern:cta'), 'changed pattern is ticked');
 assert_true($st('template:archive') === 'new' && $sel('template:archive'), 'new template is ticked');
+assert_true($st('wp_global_styles:twentytwentyfour') === 'changed' && $sel('wp_global_styles:twentytwentyfour'), 'changed global styles is ticked');
+assert_true($st('option:awx_token_overrides') === 'prod_edited' && $sel('option:awx_token_overrides') && in_array('edited_on_prod', $codes('option:awx_token_overrides'), true), 'prod-edited option is ticked with edited_on_prod warning');
 assert_true($st('page:12') === 'blocked' && !$rows['page:12']['selectable'] && $codes('page:12') === array('post_without_uuid'), 'content that failed to analyze is a blocked row');
 assert_true($plan['summary']['by_status']['new'] === 5 && $plan['summary']['by_status']['only_on_prod'] === 1 && $plan['summary']['by_status']['blocked'] === 1, 'summary counts by status');
 assert_true($plan['summary']['nothing_to_do'] === false, 'nothing_to_do false when writes exist');
@@ -149,6 +160,12 @@ assert_true(empty($noacf['blockers']), 'inactive ACF blocks rows, not the run');
 $m2 = $manifest; $m2['handshake']['protocol'] = 2;
 $proto = Code_Planner::rows($m2, $answer, $subplans);
 assert_true($proto['blockers'][0]['code'] === 'protocol_mismatch', 'protocol mismatch blocks the run');
+$m_mismatch = $manifest;
+$m_mismatch['handshake']['theme'] = 'twentytwentyfive';
+$plan_mismatch = Code_Planner::rows($m_mismatch, $answer, $subplans);
+$r_mismatch = array(); foreach ($plan_mismatch['rows'] as $r) { $r_mismatch[$r['key']] = $r; }
+assert_true($r_mismatch['wp_global_styles:twentytwentyfour']['status'] === 'blocked' && !$r_mismatch['wp_global_styles:twentytwentyfour']['selectable'], 'global styles row blocked on theme mismatch');
+assert_true(in_array('theme_mismatch', array_map(function ($w) { return $w['code']; }, $r_mismatch['wp_global_styles:twentytwentyfour']['warnings']), true), 'theme_mismatch warning present');
 $all_same = $answer;
 foreach ($all_same['items'] as $k => &$v) { $v = array('status' => 'unchanged'); } unset($v);
 $all_same['acf'] = array('group_1' => array('status' => 'unchanged'));
@@ -167,6 +184,12 @@ $pattern_pos = array_search('block:b-50', $types, true);
 $template_pos = array_search('page:tmpl-20', $types, true);
 $page_pos = array_search('page:p-10', $types, true);
 assert_true($pattern_pos !== false && $template_pos !== false && $page_pos !== false && $pattern_pos < $template_pos && $template_pos < $page_pos && $pattern_pos > array_search('acf:acf-field-group:group_1', $types, true), 'patterns after code and before templates and pages');
+$acf_pos = array_search('acf:acf-field-group:group_1', $types, true);
+$styles_pos = array_search('code:wp_global_styles:twentytwentyfour', $types, true);
+$option_pos = array_search('option:option:awx_token_overrides', $types, true);
+assert_true($acf_pos < $styles_pos && $styles_pos < $option_pos && $option_pos < $pattern_pos, 'order: acf < styles < option < patterns');
+$opt_step = null; foreach ($built['steps'] as $s) { if ($s['object_uuid'] === 'option:awx_token_overrides') { $opt_step = $s; } }
+assert_true($opt_step !== null && $opt_step['type'] === 'option' && $opt_step['payload']['kind'] === 'option', 'option step emitted with type=option');
 assert_true(end($types) === 'finalize:-', 'finalize is last');
 assert_true($built['overwrite_needed'] === true, 'overwrite needed because a prod-edited item is ticked');
 $media_steps = array_filter($built['steps'], function ($s) { return $s['type'] === 'media'; });
