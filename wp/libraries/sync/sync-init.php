@@ -124,9 +124,12 @@ function init(): void {
 	if (is_source() && \is_admin()) {
 		Deploy_Page::init();
 	}
-	// App pages/posts collections are content: let the page pipeline carry them on both roles.
+	// App pages/posts collections and site templates are content: let the page pipeline carry them on both roles.
 	$content_types = function (array $types) {
-		return \array_values(\array_unique(\array_merge($types, Code_Catalog::content_post_types())));
+		$template_types = \class_exists(__NAMESPACE__ . '\\Code_Catalog') && \method_exists(__NAMESPACE__ . '\\Code_Catalog', 'template_post_types')
+			? Code_Catalog::template_post_types()
+			: array('wp_template', 'wp_template_part');
+		return \array_values(\array_unique(\array_merge($types, Code_Catalog::content_post_types(), $template_types)));
 	};
 	\add_filter('awx_sync_allowed_post_types', $content_types);
 	\add_filter('awx_sync_tracked_post_types', $content_types);

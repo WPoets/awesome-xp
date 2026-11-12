@@ -53,7 +53,7 @@ class Deploy_Page {
 	}
 
 	public static function render(): void {
-		if (!\current_user_can(self::CAP)) {
+		if (!\current_user_can(self::CAP) && !\current_user_can('manage_options')) {
 			\wp_die('Not allowed.');
 		}
 		echo '<div class="wrap awx-sync-deploy"><h1>Deploy Code to Production</h1>';

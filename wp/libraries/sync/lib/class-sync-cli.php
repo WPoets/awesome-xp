@@ -501,7 +501,10 @@ class Sync_CLI_Command extends \WP_CLI_Command
      * : ACF field groups (plus the gutenberg-blocks core module). All, or a comma-separated list of group keys.
      *
      * [--patterns[=<slugs>]]
-     * : Managed block patterns. All, or a comma-separated list of pattern slugs.
+     * : Block patterns (wp_block). All, or a comma-separated list of pattern slugs.
+     *
+     * [--templates[=<slugs>]]
+     * : Site templates and template parts (wp_template, wp_template_part). All, or a comma-separated list of slugs.
      *
      * [--set=<name>]
      * : Use a saved deployment set instead of the flags above.
@@ -548,7 +551,7 @@ class Sync_CLI_Command extends \WP_CLI_Command
         } else {
             $input['selection'] = self::selection_from_flags($assoc_args);
             if (empty($input['selection'])) {
-                \WP_CLI::error('Nothing selected. Pass --core, --services, --apps, --blocks, --acf, --patterns or --set=<name>.');
+                \WP_CLI::error('Nothing selected. Pass --core, --services, --apps, --blocks, --acf, --patterns, --templates or --set=<name>.');
             }
         }
         $view = $run('awesome/sync-code-analyze', $input);
@@ -649,7 +652,7 @@ class Sync_CLI_Command extends \WP_CLI_Command
      * [<name>]
      * : Set name (save, delete, show).
      *
-     * [--core[=<slugs>]] [--services[=<post_types>]] [--apps[=<slugs>]] [--with-pages] [--with-posts] [--blocks[=<slugs>]] [--acf[=<keys>]] [--patterns[=<slugs>]]
+     * [--core[=<slugs>]] [--services[=<post_types>]] [--apps[=<slugs>]] [--with-pages] [--with-posts] [--blocks[=<slugs>]] [--acf[=<keys>]] [--patterns[=<slugs>]] [--templates[=<slugs>]]
      * : Selection flags for save (same as `deploy`).
      *
      * ## EXAMPLES
@@ -685,7 +688,7 @@ class Sync_CLI_Command extends \WP_CLI_Command
             case 'save':
                 $sel = self::selection_from_flags($assoc_args);
                 if ($name === '' || empty($sel)) {
-                    \WP_CLI::error('Usage: wp awx sync sets save <name> --core|--services|--apps|--blocks|--acf|--patterns');
+                    \WP_CLI::error('Usage: wp awx sync sets save <name> --core|--services|--apps|--blocks|--acf|--patterns|--templates');
                 }
                 $res = $run('awesome/sync-set-save', ['name' => $name, 'selection' => $sel]);
                 \WP_CLI::success('Saved set ' . $res['set']['name'] . '.');
@@ -749,6 +752,9 @@ class Sync_CLI_Command extends \WP_CLI_Command
         }
         if (isset($a['patterns'])) {
             $sel['patterns'] = $list($a['patterns']);
+        }
+        if (isset($a['templates'])) {
+            $sel['templates'] = $list($a['templates']);
         }
         return $sel;
     }

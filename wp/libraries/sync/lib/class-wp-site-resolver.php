@@ -96,7 +96,7 @@ class WP_Site_Resolver implements Site_Resolver {
 	private function public_types(): array {
 		$types = \get_post_types(array('public' => true), 'names');
 		unset($types['attachment']);
-		return \array_values($types);
+		return \array_values(\array_unique(\apply_filters('awx_sync_allowed_post_types', \array_values($types))));
 	}
 
 	/* ---- Media ---- */
@@ -285,7 +285,7 @@ class WP_Site_Resolver implements Site_Resolver {
 			'slug'         => $post->post_name,
 			'title'        => $post->post_title,
 			'hash'         => \hash('sha256', (string) $post->post_content),
-			'pattern_slug' => (string) \get_post_meta($block_id, '_awx_pattern_slug', true) ?: null,
+			'pattern_slug' => (string) (\get_post_meta($block_id, '_awx_pattern_slug', true) ?: $post->post_name),
 		);
 	}
 

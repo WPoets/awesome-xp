@@ -111,13 +111,13 @@ class Code_Planner {
 			}
 		}
 
-		// Content (app pages/posts and patterns)
+		// Content (app pages/posts, templates and patterns)
 		$apps_on_prod = (array) ($answer['apps'] ?? array());
 		foreach ((array) ($manifest['content'] ?? array()) as $i => $c) {
-			$is_page = ($c['kind'] ?? '') === 'page';
-			$key = $is_page ? 'page:' . (int) $c['post_id'] : 'pattern:' . (string) ($c['slug'] ?? $c['block_id']);
+			$is_page = ($c['kind'] ?? '') === 'page' || ($c['kind'] ?? '') === 'template';
+			$key = $is_page ? (($c['kind'] ?? '') === 'template' ? 'template:' . (string) ($c['slug'] ?: $c['post_id']) : 'page:' . (int) $c['post_id']) : 'pattern:' . (string) ($c['slug'] ?? $c['block_id']);
 			$row = array(
-				'key' => $key, 'kind' => $is_page ? 'page' : 'pattern', 'post_type' => (string) ($c['post_type'] ?? 'wp_block'), 'slug' => (string) ($c['slug'] ?? ''), 'title' => (string) ($c['title'] ?? $key),
+				'key' => $key, 'kind' => (string) ($c['kind'] ?? ($is_page ? 'page' : 'pattern')), 'post_type' => (string) ($c['post_type'] ?? 'wp_block'), 'slug' => (string) ($c['slug'] ?? ''), 'title' => (string) ($c['title'] ?? $key),
 				'app' => $c['app'] ?? null, 'collection' => $c['collection'] ?? null, 'content_index' => (int) $i,
 				'status' => 'new', 'never_synced' => false, 'prod_id' => null, 'prod_hash' => null, 'has_revisions' => null, 'meta_skipped' => false,
 				'selectable' => true, 'selected' => false, 'warnings' => array(), 'counts' => array('media' => 0, 'blocks' => 0),
@@ -182,8 +182,12 @@ class Code_Planner {
 			}
 			if ($row['selectable']) {
 				if ($is_page) {
-					$app_new = isset($apps_on_prod[$c['app']]) ? empty($apps_on_prod[$c['app']]) : false;
-					$row['selected'] = $app_new && \in_array($row['status'], self::WRITE_STATUSES, true);
+					if (($c['kind'] ?? '') === 'template') {
+						$row['selected'] = \in_array($row['status'], self::WRITE_STATUSES, true);
+					} else {
+						$app_new = isset($apps_on_prod[$c['app']]) ? empty($apps_on_prod[$c['app']]) : false;
+						$row['selected'] = $app_new && \in_array($row['status'], self::WRITE_STATUSES, true);
+					}
 				} else {
 					$row['selected'] = \in_array($row['status'], self::WRITE_STATUSES, true);
 				}
@@ -255,7 +259,7 @@ class Code_Planner {
 
 		// Code items in manifest order (dependency order).
 		foreach ((array) ($plan['rows'] ?? array()) as $r) {
-			if (!isset($selected[$r['key']]) || \in_array($r['kind'], array('page', 'pattern'), true)) {
+			if (!isset($selected[$r['key']]) || \in_array($r['kind'], array('page', 'pattern', 'template'), true)) {
 				continue;
 			}
 			if ($r['status'] === 'prod_edited') {
@@ -269,13 +273,14 @@ class Code_Planner {
 			);
 			$wrote_code = true;
 		}
-		// Content: patterns first (pages may use them), then pages in manifest order.
+		// Content: patterns first (pages/templates may use them), then templates, then pages.
 		$content_rows = \array_filter((array) ($plan['rows'] ?? array()), function ($r) use ($selected) {
-			return isset($selected[$r['key']]) && \in_array($r['kind'], array('page', 'pattern'), true);
+			return isset($selected[$r['key']]) && \in_array($r['kind'], array('page', 'pattern', 'template'), true);
 		});
 		\usort($content_rows, function ($a, $b) {
-			$ka = $a['kind'] === 'pattern' ? 0 : 1;
-			$kb = $b['kind'] === 'pattern' ? 0 : 1;
+			$order = array('pattern' => 0, 'template' => 1, 'page' => 2);
+			$ka = $order[$a['kind']] ?? 2;
+			$kb = $order[$b['kind']] ?? 2;
 			return $ka <=> $kb ?: $a['content_index'] <=> $b['content_index'];
 		});
 		foreach ($content_rows as $r) {

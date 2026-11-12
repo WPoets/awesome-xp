@@ -237,6 +237,9 @@ $block_id = awx_make_post(['post_type' => 'wp_block', 'post_title' => 'AWX test 
 update_post_meta($block_id, '_awx_pattern_slug', $slug);
 $map = Identity::pair_patterns();
 assert_true(isset($map[$slug]) && $map[$slug] === $block_id, 'pair_patterns maps _awx_pattern_slug to the wp_block ID');
+$unmanaged_id = awx_make_post(['post_type' => 'wp_block', 'post_title' => 'Unmanaged Pattern', 'post_name' => 'unmanaged-pattern']);
+$map2 = Identity::pair_patterns();
+assert_true(isset($map2['unmanaged-pattern']) && $map2['unmanaged-pattern'] === $unmanaged_id, 'pair_patterns falls back to post_name for unmanaged patterns');
 assert_true(Identity::get_uuid($block_id) !== null, 'wp_block received a UUID on save');
 
 // 8. backfill: dry run writes nothing, real run writes, second run skips

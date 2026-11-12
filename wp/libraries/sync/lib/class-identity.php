@@ -192,20 +192,19 @@ class Identity
     {
         global $wpdb;
 
-        $rows = $wpdb->get_results($wpdb->prepare(
-            "SELECT pm.post_id, pm.meta_value AS slug
-               FROM {$wpdb->postmeta} pm
-               INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
-              WHERE pm.meta_key = %s
-                AND p.post_type = 'wp_block'
+        $rows = $wpdb->get_results(
+            "SELECT p.ID AS post_id, p.post_name, pm.meta_value AS meta_slug
+               FROM {$wpdb->posts} p
+               LEFT JOIN {$wpdb->postmeta} pm ON pm.post_id = p.ID AND pm.meta_key = '_awx_pattern_slug'
+              WHERE p.post_type = 'wp_block'
                 AND p.post_status <> 'auto-draft'
-              ORDER BY pm.post_id ASC",
-            '_awx_pattern_slug'
-        ), ARRAY_A);
+              ORDER BY p.ID ASC",
+            ARRAY_A
+        );
 
         $map = [];
         foreach ((array) $rows as $row) {
-            $slug = (string) $row['slug'];
+            $slug = !empty($row['meta_slug']) ? (string) $row['meta_slug'] : (string) ($row['post_name'] ?? '');
             if ($slug === '' || isset($map[$slug])) {
                 continue; // first (lowest ID) wins on duplicate slugs
             }

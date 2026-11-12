@@ -67,6 +67,7 @@ $manifest = array(
 		array('kind' => 'page', 'post_id' => 10, 'app' => 'crm', 'collection' => 'pages', 'post_type' => 'crm_pages', 'title' => 'Home', 'slug' => 'home', 'manifest' => array('page' => array('uuid' => 'p-10'))),
 		array('kind' => 'page', 'post_id' => 11, 'app' => 'shop', 'collection' => 'pages', 'post_type' => 'shop_pages', 'title' => 'Cart', 'slug' => 'cart', 'manifest' => array('page' => array('uuid' => 'p-11'))),
 		array('kind' => 'pattern', 'block_id' => 50, 'slug' => 'cta', 'title' => 'CTA', 'manifest' => array('page' => null)),
+		array('kind' => 'template', 'post_id' => 20, 'slug' => 'archive', 'title' => 'Archive Template', 'post_type' => 'wp_template', 'manifest' => array('page' => array('uuid' => 'tmpl-20', 'type' => 'wp_template'))),
 		array('kind' => 'page', 'post_id' => 12, 'app' => 'crm', 'collection' => 'pages', 'post_type' => 'crm_pages', 'title' => 'Broken', 'manifest' => null, 'error' => array('code' => 'post_without_uuid', 'message' => 'no uuid')),
 	),
 	'collections' => array(array('kind' => 'core', 'post_type' => 'awesome_core'), array('kind' => 'module', 'post_type' => 'crm_modules')),
@@ -105,6 +106,10 @@ $subplans = array(
 		'steps' => array(array('step_id' => 's', 'type' => 'block', 'object_uuid' => 'b-50', 'payload' => array())),
 		'blockers' => array(), 'warnings' => array(), 'summary' => array('nothing_to_do' => false, 'media_count' => 0, 'blocks_count' => 1),
 	)),
+	3 => array('answer' => array('page' => array('status' => 'missing')), 'built' => array(
+		'steps' => array(array('step_id' => 's', 'type' => 'page', 'object_uuid' => 'tmpl-20', 'payload' => array('action' => 'create'))),
+		'blockers' => array(), 'warnings' => array(), 'summary' => array('nothing_to_do' => false, 'media_count' => 0, 'blocks_count' => 0, 'from_status' => null, 'to_status' => 'publish'),
+	)),
 );
 $plan = Code_Planner::rows($manifest, $answer, $subplans);
 $rows = array();
@@ -126,8 +131,9 @@ assert_true($st('page:10') === 'new' && $sel('page:10'), 'page of an app new on 
 assert_true(in_array('dgb_deployed_in_run', $codes('page:10'), true) && $rows['page:10']['selectable'], 'missing dgb block deployed in the same run downgrades the blocker to a warning');
 assert_true($st('page:11') === 'prod_edited' && !$sel('page:11'), 'page of an existing app is not pre-ticked');
 assert_true($st('pattern:cta') === 'changed' && $sel('pattern:cta'), 'changed pattern is ticked');
+assert_true($st('template:archive') === 'new' && $sel('template:archive'), 'new template is ticked');
 assert_true($st('page:12') === 'blocked' && !$rows['page:12']['selectable'] && $codes('page:12') === array('post_without_uuid'), 'content that failed to analyze is a blocked row');
-assert_true($plan['summary']['by_status']['new'] === 4 && $plan['summary']['by_status']['only_on_prod'] === 1 && $plan['summary']['by_status']['blocked'] === 1, 'summary counts by status');
+assert_true($plan['summary']['by_status']['new'] === 5 && $plan['summary']['by_status']['only_on_prod'] === 1 && $plan['summary']['by_status']['blocked'] === 1, 'summary counts by status');
 assert_true($plan['summary']['nothing_to_do'] === false, 'nothing_to_do false when writes exist');
 assert_true(count($plan['warnings']) === 1 && $plan['warnings'][0]['code'] === 'settings_meta_skipped', 'manifest notes become run warnings');
 
@@ -158,8 +164,9 @@ assert_true($types[0] === 'code:aw2_app:crm', 'app definition first');
 assert_true(in_array('code:awesome_core:footer', $types, true) && !in_array('code:awesome_core:header', $types, true), 'changed module included, unchanged not');
 assert_true(array_search('acf:acf-field-group:group_1', $types, true) > array_search('code:aw_gb_blocks:hero', $types, true), 'ACF after block definitions');
 $pattern_pos = array_search('block:b-50', $types, true);
+$template_pos = array_search('page:tmpl-20', $types, true);
 $page_pos = array_search('page:p-10', $types, true);
-assert_true($pattern_pos !== false && $page_pos !== false && $pattern_pos < $page_pos && $pattern_pos > array_search('acf:acf-field-group:group_1', $types, true), 'patterns after code and before pages');
+assert_true($pattern_pos !== false && $template_pos !== false && $page_pos !== false && $pattern_pos < $template_pos && $template_pos < $page_pos && $pattern_pos > array_search('acf:acf-field-group:group_1', $types, true), 'patterns after code and before templates and pages');
 assert_true(end($types) === 'finalize:-', 'finalize is last');
 assert_true($built['overwrite_needed'] === true, 'overwrite needed because a prod-edited item is ticked');
 $media_steps = array_filter($built['steps'], function ($s) { return $s['type'] === 'media'; });

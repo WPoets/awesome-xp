@@ -51,7 +51,7 @@ class Code_Orchestrator extends Orchestrator {
 		$content = array();
 		foreach ($exp['content'] as $c) {
 			try {
-				if ($c['kind'] === 'page') {
+				if ($c['kind'] === 'page' || $c['kind'] === 'template') {
 					$c['manifest'] = $extractor->analyze((int) $c['post_id']);
 					$c['title'] = (string) ($c['manifest']['page']['title'] ?? ('#' . $c['post_id']));
 					$c['slug']  = (string) ($c['manifest']['page']['slug'] ?? '');

@@ -15,6 +15,11 @@ class Code_Catalog {
 	const META_LAST_SYNC = '_awx_code_last_sync';
 	const ACF_MODULE     = 'gutenberg-blocks';
 
+	/** Post types representing block templates and template parts: content, synced through the page pipeline. */
+	public static function template_post_types(): array {
+		return array('wp_template', 'wp_template_part');
+	}
+
 	/* ------------------------------------------------------------------ */
 	/* Post types                                                          */
 	/* ------------------------------------------------------------------ */
@@ -109,7 +114,8 @@ class Code_Catalog {
 				'dgb' => array('post_type' => self::dgb_post_type(), 'label' => 'Gutenberg blocks', 'modules' => $this->modules('dgb', self::dgb_post_type())),
 				'acf' => array('active' => self::acf_active(), 'module' => null, 'groups' => array()),
 			),
-			'patterns' => $this->patterns(),
+			'patterns'  => $this->patterns(),
+			'templates' => $this->templates(),
 			'generated_at' => \time(),
 		);
 		foreach (self::service_post_types() as $pt => $label) {
@@ -176,24 +182,64 @@ class Code_Catalog {
 		return (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s AND post_status NOT IN ('trash','auto-draft','inherit')", $post_type));
 	}
 
-	/** Managed patterns: [{slug, title, id, uuid}] */
-	private function patterns(): array {
+	/** All published wp_block patterns and reusable blocks (managed and unmanaged): [{slug, title, id, uuid, managed, sync_status}] */
+	public function patterns(): array {
 		global $wpdb;
 		$rows = $wpdb->get_results(
-			"SELECT p.ID, p.post_title, p.post_name FROM {$wpdb->posts} p INNER JOIN {$wpdb->postmeta} m ON m.post_id = p.ID AND m.meta_key = '_awx_pattern_managed' AND m.meta_value = '1'
+			"SELECT p.ID, p.post_title, p.post_name FROM {$wpdb->posts} p
 			 WHERE p.post_type = 'wp_block' AND p.post_status = 'publish' ORDER BY p.post_title ASC",
 			ARRAY_A
 		) ?: array();
 		$out = array();
 		foreach ($rows as $r) {
+			$managed = (int) \get_post_meta((int) $r['ID'], '_awx_pattern_managed', true) === 1;
 			$slug = (string) (\get_post_meta((int) $r['ID'], '_awx_pattern_slug', true) ?: $r['post_name']);
+			$sync_status = (string) (\get_post_meta((int) $r['ID'], 'wp_pattern_sync_status', true) ?: 'synced');
 			$out[] = array(
-				'slug'      => $slug,
-				'title'     => (string) $r['post_title'],
-				'id'        => (int) $r['ID'],
-				'uuid'      => (string) \get_post_meta((int) $r['ID'], Identity::META_UUID, true) ?: null,
-				'hash'      => \hash('sha256', (string) \get_post_field('post_content', (int) $r['ID'])),
-				'last_sync' => \get_post_meta((int) $r['ID'], self::META_LAST_SYNC, true) ?: null,
+				'slug'        => $slug,
+				'title'       => (string) ($r['post_title'] ?: $slug),
+				'id'          => (int) $r['ID'],
+				'uuid'        => (string) \get_post_meta((int) $r['ID'], Identity::META_UUID, true) ?: null,
+				'hash'        => \hash('sha256', (string) \get_post_field('post_content', (int) $r['ID'])),
+				'last_sync'   => \get_post_meta((int) $r['ID'], self::META_LAST_SYNC, true) ?: null,
+				'managed'     => $managed,
+				'sync_status' => $sync_status,
+			);
+		}
+		return $out;
+	}
+
+	/** Site templates and template parts: [{slug, title, id, uuid, post_type, theme, area}] */
+	public function templates(): array {
+		global $wpdb;
+		$pts = self::template_post_types();
+		$placeholders = \implode(',', \array_fill(0, \count($pts), '%s'));
+		$sql = $wpdb->prepare(
+			"SELECT p.ID, p.post_title, p.post_name, p.post_type FROM {$wpdb->posts} p
+			 WHERE p.post_type IN ({$placeholders}) AND p.post_status = 'publish' ORDER BY p.post_type ASC, p.post_title ASC",
+			$pts
+		);
+		$rows = $wpdb->get_results($sql, ARRAY_A) ?: array();
+		$out = array();
+		foreach ($rows as $r) {
+			$id = (int) $r['ID'];
+			$theme = \function_exists('wp_get_post_terms') ? \wp_get_post_terms($id, 'wp_theme', array('fields' => 'names')) : array();
+			$theme_name = !empty($theme) && !\is_wp_error($theme) ? $theme[0] : '';
+			$area = '';
+			if ($r['post_type'] === 'wp_template_part' && \function_exists('wp_get_post_terms')) {
+				$areas = \wp_get_post_terms($id, 'wp_template_part_area', array('fields' => 'names'));
+				$area = !empty($areas) && !\is_wp_error($areas) ? $areas[0] : '';
+			}
+			$out[] = array(
+				'slug'      => (string) $r['post_name'],
+				'title'     => (string) ($r['post_title'] ?: $r['post_name']),
+				'id'        => $id,
+				'post_type' => (string) $r['post_type'],
+				'theme'     => $theme_name,
+				'area'      => $area,
+				'uuid'      => (string) \get_post_meta($id, Identity::META_UUID, true) ?: null,
+				'hash'      => \hash('sha256', (string) \get_post_field('post_content', $id)),
+				'last_sync' => \get_post_meta($id, self::META_LAST_SYNC, true) ?: null,
 			);
 		}
 		return $out;
@@ -254,9 +300,10 @@ class Code_Catalog {
 	 *   core:     '*' | [slug]
 	 *   services: { post_type: '*' | [slug] }
 	 *   apps:     { slug: { definition: bool, config: '*'|[slug]|false, modules: '*'|[slug]|false, pages: '*'|[post_id]|false, posts: '*'|[post_id]|false } }
-	 *   dgb:      '*' | [slug]
-	 *   acf:      '*' | [key]            (the registration module is added automatically)
-	 *   patterns: '*' | [pattern slug]
+	 *   dgb:       '*' | [slug]
+	 *   acf:       '*' | [key]            (the registration module is added automatically)
+	 *   patterns:  '*' | [pattern slug]
+	 *   templates: '*' | [template slug]
 	 *
 	 * @return array {items: Code_Item[] (dependency order), content: [...], collections: [{kind,post_type}], apps: [slug], notes: [...]}
 	 */
@@ -338,6 +385,14 @@ class Code_Catalog {
 				$content[] = array('kind' => 'pattern', 'block_id' => (int) $p['id'], 'slug' => $p['slug'], 'title' => $p['title']);
 			}
 		}
+		if (!empty($sel['templates'])) {
+			foreach ($this->templates() as $t) {
+				if (\is_array($sel['templates']) && !\in_array($t['slug'], $sel['templates'], true)) {
+					continue;
+				}
+				$content[] = array('kind' => 'template', 'post_id' => (int) $t['id'], 'slug' => $t['slug'], 'title' => $t['title'], 'post_type' => $t['post_type']);
+			}
+		}
 		foreach ($items['config'] as $it) {
 			if ($it->meta_skipped) {
 				$notes[] = array('code' => 'settings_meta_skipped', 'message' => 'Settings of ' . $it->key() . ' (postmeta) are environment-specific and are not deployed; only the module content is.', 'key' => $it->key());
@@ -360,10 +415,10 @@ class Code_Catalog {
 		)));
 	}
 
-	/** Pages parents-first (by depth), patterns last-independent. */
+	/** Pages and templates parents-first (by depth), patterns last-independent. */
 	private function order_content(array $content): array {
-		$pages = \array_filter($content, function ($c) { return $c['kind'] === 'page'; });
-		$rest  = \array_filter($content, function ($c) { return $c['kind'] !== 'page'; });
+		$pages = \array_filter($content, function ($c) { return $c['kind'] === 'page' || $c['kind'] === 'template'; });
+		$rest  = \array_filter($content, function ($c) { return $c['kind'] !== 'page' && $c['kind'] !== 'template'; });
 		$depth = function (int $id) {
 			$d = 0;
 			$p = \get_post($id);

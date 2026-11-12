@@ -30,6 +30,7 @@ class WP_Post
     public $ID;
     public $post_type;
     public $post_status;
+    public $post_name;
     public $post_title;
     public $post_content;
     public function __construct(array $row)
@@ -37,6 +38,7 @@ class WP_Post
         $this->ID           = (int) $row['ID'];
         $this->post_type    = $row['post_type'];
         $this->post_status  = $row['post_status'];
+        $this->post_name    = $row['post_name'] ?? '';
         $this->post_title   = $row['post_title'];
         $this->post_content = $row['post_content'];
     }
@@ -60,7 +62,7 @@ class AWX_Stub_WPDB
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $this->pdo->exec('CREATE TABLE wp_posts (
             ID INTEGER PRIMARY KEY AUTOINCREMENT,
-            post_type TEXT, post_status TEXT, post_title TEXT, post_content TEXT, post_mime_type TEXT
+            post_type TEXT, post_status TEXT, post_name TEXT, post_title TEXT, post_content TEXT, post_mime_type TEXT
         )');
         $this->pdo->exec('CREATE TABLE wp_postmeta (
             meta_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -231,9 +233,10 @@ function wp_insert_post(array $data, $wp_error = false)
     if ($update) {
         $cur = get_post($data['ID']);
         $wpdb->query($wpdb->prepare(
-            'UPDATE wp_posts SET post_type=%s, post_status=%s, post_title=%s, post_content=%s WHERE ID=%d',
+            'UPDATE wp_posts SET post_type=%s, post_status=%s, post_name=%s, post_title=%s, post_content=%s WHERE ID=%d',
             $data['post_type'] ?? $cur->post_type,
             $data['post_status'] ?? $cur->post_status,
+            $data['post_name'] ?? ($cur->post_name ?? ''),
             $data['post_title'] ?? $cur->post_title,
             $data['post_content'] ?? $cur->post_content,
             $data['ID']
@@ -241,9 +244,10 @@ function wp_insert_post(array $data, $wp_error = false)
         $id = (int) $data['ID'];
     } else {
         $wpdb->query($wpdb->prepare(
-            'INSERT INTO wp_posts (post_type, post_status, post_title, post_content, post_mime_type) VALUES (%s, %s, %s, %s, %s)',
+            'INSERT INTO wp_posts (post_type, post_status, post_name, post_title, post_content, post_mime_type) VALUES (%s, %s, %s, %s, %s, %s)',
             $data['post_type'] ?? 'post',
             $data['post_status'] ?? 'draft',
+            $data['post_name'] ?? '',
             $data['post_title'] ?? '',
             $data['post_content'] ?? '',
             $data['post_mime_type'] ?? ''

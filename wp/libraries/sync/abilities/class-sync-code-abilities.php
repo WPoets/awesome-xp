@@ -15,9 +15,14 @@ abstract class Code_Operation extends Sync_Operation {
 
 	const CAP = 'develop_for_awesomeui';
 
+	/** Developers, or administrators (same rule as the Export Awesome Apps screen). */
+	public static function is_developer(): bool {
+		return \current_user_can(self::CAP) || \current_user_can('manage_options');
+	}
+
 	protected function developer() {
-		if (!\current_user_can(self::CAP)) {
-			return $this->error('Only Awesome developers can deploy code.', '', 'forbidden');
+		if (!self::is_developer()) {
+			return $this->error('Only Awesome developers can deploy code.', 'Run as a user with the develop_for_awesomeui capability or an administrator (wp ... --user=<login>).', 'forbidden');
 		}
 		return true;
 	}
@@ -86,7 +91,7 @@ abstract class Code_Operation extends Sync_Operation {
 			return $v ?: null;
 		};
 		$sel = array();
-		foreach (array('core', 'dgb', 'acf', 'patterns') as $k) {
+		foreach (array('core', 'dgb', 'acf', 'patterns', 'templates') as $k) {
 			if (isset($raw[$k]) && ($v = $list($raw[$k])) !== null) {
 				$sel[$k] = $v;
 			}
@@ -317,7 +322,7 @@ class Sync_Set_Save extends Code_Operation {
 		$name = (string) ($params['name'] ?? '');
 		$selection = self::clean_selection($params['selection'] ?? array());
 		if (empty($selection)) {
-			return $this->error('The selection is empty.', 'Pass a selection object (core, services, apps, dgb, acf, patterns).', 'empty_selection');
+			return $this->error('The selection is empty.', 'Pass a selection object (core, services, apps, dgb, acf, patterns, templates).', 'empty_selection');
 		}
 		return $this->guard_code(function () use ($name, $selection) {
 			return array('set' => Deploy_Sets::save($name, $selection, \get_current_user_id()));
@@ -340,11 +345,11 @@ class Sync_Code_Abilities {
 
 	public static function abilities(): array {
 		$run = array('run_id' => array('type' => 'string', 'description' => 'Run id returned by awesome/sync-code-analyze'));
-		$selection = array('type' => 'object', 'description' => 'What to deploy: {core:"*"|[slug], services:{post_type:"*"|[slug]}, apps:{slug:{definition:bool, config:"*"|[slug], modules:"*"|[slug], pages:"*"|[post_id], posts:"*"|[post_id]}}, dgb:"*"|[slug], acf:"*"|[group key], patterns:"*"|[pattern slug]}');
+		$selection = array('type' => 'object', 'description' => 'What to deploy: {core:"*"|[slug], services:{post_type:"*"|[slug]}, apps:{slug:{definition:bool, config:"*"|[slug], modules:"*"|[slug], pages:"*"|[post_id], posts:"*"|[post_id]}}, dgb:"*"|[slug], acf:"*"|[group key], patterns:"*"|[pattern slug], templates:"*"|[template slug]}');
 		return array(
 			'awesome/sync-code-catalog' => array(
 				'label' => 'Code Catalog', 'category' => 'awesome-sync', 'tier' => 'read', 'operation' => Sync_Code_Catalog::class,
-				'description' => 'The deployable code on this site as a tree (core, services, apps, block definitions, ACF, patterns) with hashes and last deploy, plus saved deployment sets and recent runs.',
+				'description' => 'The deployable code on this site as a tree (core, services, apps, block definitions, ACF, patterns, templates) with hashes and last deploy, plus saved deployment sets and recent runs.',
 				'input_schema' => array('type' => 'object', 'properties' => array()),
 			),
 			'awesome/sync-code-analyze' => array(
