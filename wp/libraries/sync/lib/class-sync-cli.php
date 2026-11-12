@@ -471,4 +471,310 @@ class Sync_CLI_Command extends \WP_CLI_Command
             }
         }
     }
+
+    /**
+     * Deploy Awesome code (core, services, apps, block definitions, ACF, patterns) to the target site.
+     *
+     * Prints the plan (one row per item with its status on the target). Without --yes nothing is written.
+     *
+     * ## OPTIONS
+     *
+     * [--core[=<slugs>]]
+     * : Core modules. All, or a comma-separated list of slugs.
+     *
+     * [--services[=<post_types>]]
+     * : Service modules. All service post types, or a comma-separated list of post types (append :slug1|slug2 to limit modules).
+     *
+     * [--apps[=<slugs>]]
+     * : Apps: definition, config and modules. All apps, or a comma-separated list of app slugs.
+     *
+     * [--with-pages]
+     * : Also include the pages collection of the selected apps.
+     *
+     * [--with-posts]
+     * : Also include the posts collection of the selected apps.
+     *
+     * [--blocks[=<slugs>]]
+     * : Gutenberg block definitions (aw_gb_blocks). All, or a comma-separated list of slugs.
+     *
+     * [--acf[=<keys>]]
+     * : ACF field groups (plus the gutenberg-blocks core module). All, or a comma-separated list of group keys.
+     *
+     * [--patterns[=<slugs>]]
+     * : Managed block patterns. All, or a comma-separated list of pattern slugs.
+     *
+     * [--set=<name>]
+     * : Use a saved deployment set instead of the flags above.
+     *
+     * [--include=<keys>]
+     * : Deploy only these plan rows (comma-separated keys such as awesome_core:header,page:12). Default: the rows the plan ticks.
+     *
+     * [--exclude=<keys>]
+     * : Untick these plan rows.
+     *
+     * [--all]
+     * : Tick every selectable row, including app pages/posts of apps that already exist on the target.
+     *
+     * [--yes]
+     * : Execute the plan instead of only printing it.
+     *
+     * [--overwrite]
+     * : Replace items that were edited on the target since the last deploy.
+     *
+     * [--dry-run]
+     * : Same as omitting --yes.
+     *
+     * [--format=<format>]
+     * : table (default) or json for the plan rows.
+     *
+     * [--user=<login>]
+     * : Run as this user. Defaults to the first administrator.
+     *
+     * ## EXAMPLES
+     *
+     *     $ wp awx sync deploy --apps=crm --dry-run
+     *     $ wp awx sync deploy --core --services --yes
+     *     $ wp awx sync deploy --set=release --yes --overwrite
+     *     $ wp awx sync deploy --blocks=hero,cta --acf --yes
+     */
+    public function deploy($args, $assoc_args)
+    {
+        $this->ensure_user($assoc_args);
+        $run = $this->ability_runner();
+
+        $input = [];
+        if (!empty($assoc_args['set'])) {
+            $input['set'] = (string) $assoc_args['set'];
+        } else {
+            $input['selection'] = self::selection_from_flags($assoc_args);
+            if (empty($input['selection'])) {
+                \WP_CLI::error('Nothing selected. Pass --core, --services, --apps, --blocks, --acf, --patterns or --set=<name>.');
+            }
+        }
+        $view = $run('awesome/sync-code-analyze', $input);
+        $plan = $view['plan'] ?? [];
+        $rows = $plan['rows'] ?? [];
+
+        $format = $assoc_args['format'] ?? 'table';
+        if ($format === 'json') {
+            \WP_CLI::line(json_encode(['run_id' => $view['run_id'], 'status' => $view['status'], 'plan' => $plan], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+        } else {
+            $items = [];
+            foreach ($rows as $r) {
+                $items[] = [
+                    'key'      => $r['key'],
+                    'kind'     => $r['kind'],
+                    'title'    => $r['title'],
+                    'status'   => $r['status'] . (!empty($r['never_synced']) ? ' (never synced)' : ''),
+                    'ticked'   => !empty($r['selected']) ? 'yes' : ($r['selectable'] ? '' : '-'),
+                    'warnings' => implode('; ', array_map(function ($w) { return $w['code']; }, $r['warnings'] ?? [])),
+                ];
+            }
+            \WP_CLI\Utils\format_items('table', $items, ['key', 'kind', 'title', 'status', 'ticked', 'warnings']);
+            $s = $plan['summary']['by_status'] ?? [];
+            \WP_CLI::line(sprintf('Run %s: %d new, %d changed, %d edited on target, %d unchanged, %d only on target, %d blocked.',
+                $view['run_id'], $s['new'] ?? 0, $s['changed'] ?? 0, $s['prod_edited'] ?? 0, $s['unchanged'] ?? 0, $s['only_on_prod'] ?? 0, $s['blocked'] ?? 0));
+        }
+        foreach ($plan['warnings'] ?? [] as $w) {
+            \WP_CLI::warning($w['code'] . ': ' . $w['message']);
+        }
+        foreach ($plan['blockers'] ?? [] as $b) {
+            \WP_CLI::line('BLOCKED ' . $b['code'] . ': ' . $b['message']);
+        }
+        if ($view['status'] === 'blocked') {
+            \WP_CLI::error('The run is blocked; fix the items above and retry.');
+        }
+        if ($view['status'] === 'done') {
+            \WP_CLI::success('Nothing to do: the target already matches.');
+            return;
+        }
+
+        // Which rows to deploy.
+        $selected = [];
+        if (!empty($assoc_args['include'])) {
+            $selected = array_filter(array_map('trim', explode(',', (string) $assoc_args['include'])));
+        } else {
+            foreach ($rows as $r) {
+                if (!empty($assoc_args['all']) ? !empty($r['selectable']) && $r['status'] !== 'unchanged' : !empty($r['selected'])) {
+                    $selected[] = $r['key'];
+                }
+            }
+        }
+        if (!empty($assoc_args['exclude'])) {
+            $ex = array_filter(array_map('trim', explode(',', (string) $assoc_args['exclude'])));
+            $selected = array_values(array_diff($selected, $ex));
+        }
+        \WP_CLI::line(count($selected) . ' row(s) will be deployed.');
+        if (empty($assoc_args['yes']) || !empty($assoc_args['dry-run'])) {
+            \WP_CLI::line('Dry run only. Re-run with --yes to execute.');
+            return;
+        }
+        $run('awesome/sync-code-confirm', ['run_id' => $view['run_id'], 'selected_keys' => $selected, 'overwrite' => !empty($assoc_args['overwrite'])]);
+
+        $status = $run('awesome/sync-code-status', ['run_id' => $view['run_id']]);
+        $bar = \WP_CLI\Utils\make_progress_bar('Deploying', count($status['steps'] ?? []));
+        while (true) {
+            $r = $run('awesome/sync-code-step', ['run_id' => $view['run_id']]);
+            if (!empty($r['error'])) {
+                $bar->finish();
+                if (!empty($r['error']['retryable'])) {
+                    \WP_CLI::warning('Retrying: ' . $r['error']['message']);
+                    continue;
+                }
+                \WP_CLI::error($r['error']['code'] . ': ' . $r['error']['message'] . ' (resume from the Deploy Code screen or run again)');
+            }
+            if (!empty($r['step'])) {
+                $bar->tick(1, sprintf('%s %s', $r['step']['type'], (string) ($r['step']['object_uuid'] ?? '')));
+            }
+            if ($r['status'] === 'done') {
+                $bar->finish();
+                \WP_CLI::success(sprintf('Deployed %d step(s) to %s.', $r['progress']['done'] ?? 0, $r['target_url'] ?? ''));
+                return;
+            }
+            if ($r['status'] !== 'running') {
+                $bar->finish();
+                \WP_CLI::error('Run stopped with status ' . $r['status'] . ': ' . ($r['error'] ?? ''));
+            }
+        }
+    }
+
+    /**
+     * Manage saved deployment sets.
+     *
+     * ## OPTIONS
+     *
+     * <action>
+     * : list, save, delete or show
+     *
+     * [<name>]
+     * : Set name (save, delete, show).
+     *
+     * [--core[=<slugs>]] [--services[=<post_types>]] [--apps[=<slugs>]] [--with-pages] [--with-posts] [--blocks[=<slugs>]] [--acf[=<keys>]] [--patterns[=<slugs>]]
+     * : Selection flags for save (same as `deploy`).
+     *
+     * ## EXAMPLES
+     *
+     *     $ wp awx sync sets save release --core --apps=crm,shop --blocks
+     *     $ wp awx sync sets list
+     *     $ wp awx sync sets delete release
+     */
+    public function sets($args, $assoc_args)
+    {
+        $this->ensure_user($assoc_args);
+        $run = $this->ability_runner();
+        $action = $args[0] ?? 'list';
+        $name = $args[1] ?? '';
+        switch ($action) {
+            case 'list':
+                $sets = $run('awesome/sync-set-list', [])['sets'];
+                if (empty($sets)) {
+                    \WP_CLI::line('No deployment sets.');
+                    return;
+                }
+                \WP_CLI\Utils\format_items('table', array_map(function ($s) {
+                    return ['name' => $s['name'], 'selection' => json_encode($s['selection'], JSON_UNESCAPED_SLASHES), 'updated_at' => $s['updated_at'], 'last_run' => $s['last_run_id'] ?: '-'];
+                }, $sets), ['name', 'selection', 'updated_at', 'last_run']);
+                return;
+            case 'show':
+                $set = \aw2\sync\Deploy_Sets::get($name);
+                if (!$set) {
+                    \WP_CLI::error('Unknown set.');
+                }
+                \WP_CLI::line(json_encode($set['selection'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+                return;
+            case 'save':
+                $sel = self::selection_from_flags($assoc_args);
+                if ($name === '' || empty($sel)) {
+                    \WP_CLI::error('Usage: wp awx sync sets save <name> --core|--services|--apps|--blocks|--acf|--patterns');
+                }
+                $res = $run('awesome/sync-set-save', ['name' => $name, 'selection' => $sel]);
+                \WP_CLI::success('Saved set ' . $res['set']['name'] . '.');
+                return;
+            case 'delete':
+                $res = $run('awesome/sync-set-delete', ['name' => $name]);
+                \WP_CLI::success(($res['deleted'] ? 'Deleted' : 'No such set') . ' ' . $res['name'] . '.');
+                return;
+            default:
+                \WP_CLI::error('Unknown action ' . $action);
+        }
+    }
+
+    /** Translate deploy flags into the selection object the abilities accept. */
+    public static function selection_from_flags(array $a): array
+    {
+        $list = function ($v) {
+            if ($v === true || $v === '' || $v === '*' || $v === 'all') {
+                return '*';
+            }
+            return array_values(array_filter(array_map('trim', explode(',', (string) $v)), 'strlen'));
+        };
+        $sel = [];
+        if (isset($a['core'])) {
+            $sel['core'] = $list($a['core']);
+        }
+        if (isset($a['services'])) {
+            if ($a['services'] === true || $a['services'] === '' || $a['services'] === '*') {
+                foreach (array_keys(\aw2\sync\Code_Catalog::service_post_types()) as $pt) {
+                    $sel['services'][$pt] = '*';
+                }
+            } else {
+                foreach (explode(',', (string) $a['services']) as $part) {
+                    $part = trim($part);
+                    if ($part === '') {
+                        continue;
+                    }
+                    $bits = explode(':', $part, 2);
+                    $sel['services'][$bits[0]] = isset($bits[1]) ? array_values(array_filter(explode('|', $bits[1]))) : '*';
+                }
+            }
+        }
+        if (isset($a['apps'])) {
+            $slugs = ($a['apps'] === true || $a['apps'] === '' || $a['apps'] === '*') ? array_keys(\aw2\sync\Code_Catalog::apps()) : $list($a['apps']);
+            foreach ((array) $slugs as $slug) {
+                $parts = ['definition' => true, 'config' => '*', 'modules' => '*'];
+                if (!empty($a['with-pages'])) {
+                    $parts['pages'] = '*';
+                }
+                if (!empty($a['with-posts'])) {
+                    $parts['posts'] = '*';
+                }
+                $sel['apps'][$slug] = $parts;
+            }
+        }
+        if (isset($a['blocks'])) {
+            $sel['dgb'] = $list($a['blocks']);
+        }
+        if (isset($a['acf'])) {
+            $sel['acf'] = $list($a['acf']);
+        }
+        if (isset($a['patterns'])) {
+            $sel['patterns'] = $list($a['patterns']);
+        }
+        return $sel;
+    }
+
+    private function ensure_user(array $assoc_args): void
+    {
+        if (get_current_user_id()) {
+            return;
+        }
+        $login = $assoc_args['user'] ?? null;
+        $user  = $login ? get_user_by('login', $login) : (get_users(['role' => 'administrator', 'number' => 1])[0] ?? null);
+        if (!$user) {
+            \WP_CLI::error('No user to run as; pass --user=<login>.');
+        }
+        wp_set_current_user($user->ID);
+    }
+
+    private function ability_runner(): callable
+    {
+        return function ($ability, $input) {
+            $res = \aw2\abilities\awx_execute_ability($ability, $input);
+            if (empty($res['success'])) {
+                $e = $res['error'] ?? [];
+                \WP_CLI::error(sprintf('%s: %s %s', $e['code'] ?? 'error', $e['message'] ?? '', $e['next_step'] ?? ''));
+            }
+            return $res['data'];
+        };
+    }
 }

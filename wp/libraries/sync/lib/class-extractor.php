@@ -172,6 +172,61 @@ class Extractor {
 	}
 
 	/**
+	 * Manifest for one reusable block (a managed pattern) on its own: the
+	 * block, the blocks it nests and the media they reference. Same shape as
+	 * analyze() with page = null, so Planner::build() and the block/media
+	 * executors can be reused for code-deploy runs.
+	 *
+	 * @throws Sync_Exception
+	 */
+	public function analyze_block(int $block_id): array {
+		$info = $this->site->block_info($block_id);
+		if ($info === null) {
+			throw new Sync_Exception('block_not_found', "Reusable block #{$block_id} does not exist.");
+		}
+		if (empty($info['uuid'])) {
+			throw new Sync_Exception('post_without_uuid', "Reusable block #{$block_id} has no sync UUID.");
+		}
+		$agg = new Transform_Result();
+		$ordered = array();
+		$visited = array();
+		$this->visit_block($block_id, array(), $visited, $ordered, $agg);
+
+		$media = array();
+		foreach ($agg->refs['media'] as $id => $uuid) {
+			$m = $this->site->media_info((int) $id);
+			if ($m === null) {
+				$agg->warn('media_missing', "Attachment #{$id} has no file on this site.");
+				continue;
+			}
+			$m['uuid'] = $uuid;
+			$m['id']   = (int) $id;
+			$media[$uuid] = $m;
+		}
+		$posts = array();
+		foreach ($agg->refs['posts'] as $id => $uuid) {
+			$p = $this->site->post_info((int) $id);
+			$posts[$uuid] = array('uuid' => $uuid, 'id' => (int) $id, 'type' => $p ? $p['type'] : null, 'slug' => $p ? $p['slug'] : null);
+		}
+		$dgb = array();
+		foreach (\array_keys($agg->refs['dgb']) as $slug) {
+			$dgb[$slug] = $this->site->dgb_block_version((string) $slug);
+		}
+		return array(
+			'protocol'   => \defined('AWX_SYNC_PROTOCOL') ? AWX_SYNC_PROTOCOL : 1,
+			'page'       => null,
+			'media'      => $media,
+			'blocks'     => $ordered,
+			'posts'      => $posts,
+			'terms'      => $agg->refs['terms'],
+			'dgb_blocks' => $dgb,
+			'modules'    => \array_keys($agg->refs['modules']),
+			'post_types' => \array_keys($agg->refs['post_types']),
+			'warnings'   => $agg->warnings,
+		);
+	}
+
+	/**
 	 * Depth-first visit of a reusable block and its own block references.
 	 */
 	private function visit_block(int $block_id, array $stack, array &$visited, array &$ordered, Transform_Result $agg): void {

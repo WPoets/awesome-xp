@@ -68,7 +68,7 @@ echo $have_wp ? "WordPress: " . get_bloginfo('version') . " at " . ABSPATH . "\n
 // ---------------------------------------------------------------------------
 echo "1. Checking class surface...\n";
 assert_true(class_exists('aw2\sync\Schema'), "aw2\\sync\\Schema class exists");
-assert_true(Schema::DB_VERSION === 2, "DB_VERSION is 2");
+assert_true(Schema::DB_VERSION === 3, "DB_VERSION is 3");
 assert_true(Schema::OPTION === 'awx_sync_db_version', "OPTION is 'awx_sync_db_version'");
 foreach (['init','table','maybe_upgrade','install','tables_exist','purge_nonces','purge_logs','uninstall','sql'] as $m) {
     assert_true(method_exists(Schema::class, $m) && (new ReflectionMethod(Schema::class, $m))->isStatic(), "public static $m() exists");
@@ -99,7 +99,7 @@ assert_true($threw, "table('') throws InvalidArgumentException");
 // ---------------------------------------------------------------------------
 echo "\n3. Checking dbDelta formatting of generated SQL...\n";
 $sql = Schema::sql();
-assert_true(count($sql) === 5, "sql() returns 5 CREATE TABLE statements");
+assert_true(count($sql) === 6, "sql() returns 6 CREATE TABLE statements");
 foreach ($sql as $stmt) {
     assert_true(strpos($stmt, 'PRIMARY KEY  (') !== false, "two spaces after PRIMARY KEY in " . substr($stmt, 13, 30));
     assert_true(strpos($stmt, '`') === false, "no backticks in " . substr($stmt, 13, 30));
@@ -118,12 +118,12 @@ if (!$have_wp) {
 echo "\n4. Testing fresh install...\n";
 Schema::uninstall();
 $exists = Schema::tables_exist();
-assert_true(count($exists) === 5 && !in_array(true, $exists, true), "after uninstall() no awx_sync tables exist");
+assert_true(count($exists) === 6 && !in_array(true, $exists, true), "after uninstall() no awx_sync tables exist");
 assert_true(get_option(Schema::OPTION) === false, "after uninstall() the version option is gone");
 
 Schema::install();
 $exists = Schema::tables_exist();
-assert_true(!in_array(false, $exists, true), "install() creates all five tables: " . implode(',', array_keys($exists)));
+assert_true(!in_array(false, $exists, true), "install() creates all six tables: " . implode(',', array_keys($exists)));
 
 // dbDelta should now consider the schema in sync (no ALTERs on a second run).
 require_once ABSPATH . 'wp-admin/includes/upgrade.php';
@@ -134,7 +134,7 @@ $engines = $wpdb->get_results($wpdb->prepare(
     "SELECT TABLE_NAME, ENGINE, TABLE_COLLATION FROM information_schema.TABLES WHERE TABLE_SCHEMA = %s AND TABLE_NAME LIKE %s",
     DB_NAME, $p . 'awx_sync_%'
 ));
-assert_true(count($engines) === 5, "information_schema lists 5 awx_sync tables");
+assert_true(count($engines) === 6, "information_schema lists 6 awx_sync tables");
 foreach ($engines as $row) {
     assert_true($row->ENGINE === 'InnoDB', "{$row->TABLE_NAME} uses InnoDB");
     assert_true(strpos($row->TABLE_COLLATION, 'utf8mb4') === 0, "{$row->TABLE_NAME} collation is utf8mb4 ({$row->TABLE_COLLATION})");

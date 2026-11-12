@@ -13,6 +13,9 @@ class Token_Store {
 
 	const DEFAULT_TTL_DAYS = 90;
 
+	/** Known scopes: `sync` = content (pages, media, blocks); `code` = code deploy routes. */
+	const SCOPES = array('sync', 'code');
+
 	/**
 	 * @return array ['token' => '<id>.<secret>' (shown once), 'token_id' => ..., 'expires_at' => ...]
 	 * @throws \RuntimeException when the secret cannot be encrypted.

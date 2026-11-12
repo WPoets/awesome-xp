@@ -1,0 +1,43 @@
+.awx-sync-deploy .awx-panel { background: #fff; border: 1px solid #c3c4c7; padding: 16px 20px; margin-top: 12px; max-width: 1200px; }
+.awx-sync-deploy h2 { font-size: 15px; margin: 18px 0 6px; }
+.awx-sync-deploy .awx-muted { color: #646970; font-size: 12px; }
+.awx-sync-deploy .awx-hint { color: #646970; font-size: 12px; margin: 2px 0 6px 26px; }
+.awx-sync-deploy .awx-toolbar { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+.awx-sync-deploy .awx-toolbar .components-base-control { margin-bottom: 0; min-width: 240px; }
+.awx-sync-deploy .awx-group { border: 1px solid #e0e0e0; border-radius: 3px; padding: 6px 10px; margin: 6px 0; background: #fafafa; }
+.awx-sync-deploy .awx-group-head { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.awx-sync-deploy .awx-group-head .components-base-control { margin-bottom: 0; }
+.awx-sync-deploy .awx-group-items { columns: 3 260px; margin: 6px 0 0 26px; }
+.awx-sync-deploy .awx-group-items li { break-inside: avoid; margin: 0 0 2px; font-size: 13px; }
+.awx-sync-deploy .awx-app { border: 1px solid #c3c4c7; border-left: 4px solid #2271b1; padding: 8px 12px; margin: 8px 0; }
+.awx-sync-deploy .awx-app-head { display: flex; gap: 10px; align-items: baseline; margin-bottom: 4px; }
+.awx-sync-deploy .awx-content-toggles { margin-top: 6px; padding-top: 6px; border-top: 1px dashed #dcdcde; }
+.awx-sync-deploy .awx-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 18px; padding-top: 12px; border-top: 1px solid #dcdcde; }
+.awx-sync-deploy .awx-save-set { display: inline-flex; gap: 6px; align-items: center; margin-left: auto; }
+.awx-sync-deploy .awx-save-set .components-base-control { margin-bottom: 0; }
+.awx-sync-deploy .awx-phases { display: flex; gap: 18px; margin: 10px 0 0; font-size: 13px; color: #646970; }
+.awx-sync-deploy .awx-phase.is-active { color: #1d2327; font-weight: 600; border-bottom: 2px solid #2271b1; }
+.awx-sync-deploy .awx-summary { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
+.awx-sync-deploy .awx-stat { font-size: 13px; }
+.awx-sync-deploy .awx-badge { display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .02em; background: #dcdcde; color: #1d2327; }
+.awx-sync-deploy .awx-badge-new { background: #d1e7dd; color: #0f5132; }
+.awx-sync-deploy .awx-badge-changed { background: #cfe2ff; color: #084298; }
+.awx-sync-deploy .awx-badge-prod_edited { background: #fff3cd; color: #664d03; }
+.awx-sync-deploy .awx-badge-unchanged { background: #f0f0f1; color: #646970; }
+.awx-sync-deploy .awx-badge-only_on_prod { background: #e2e3e5; color: #41464b; }
+.awx-sync-deploy .awx-badge-blocked { background: #f8d7da; color: #842029; }
+.awx-sync-deploy .awx-plan-group { margin: 14px 0; }
+.awx-sync-deploy .awx-plan-group-head .components-base-control { margin-bottom: 4px; font-weight: 600; }
+.awx-sync-deploy .awx-plan-table td, .awx-sync-deploy .awx-plan-table th { vertical-align: top; }
+.awx-sync-deploy .awx-plan-table .awx-col-tick { width: 28px; }
+.awx-sync-deploy .awx-plan-table .components-base-control { margin-bottom: 0; }
+.awx-sync-deploy .awx-row-dim td { color: #8c8f94; }
+.awx-sync-deploy .awx-row-dim code { color: #8c8f94; }
+.awx-sync-deploy .awx-row-warnings, .awx-sync-deploy .awx-warnings { margin: 0; padding-left: 16px; font-size: 12px; }
+.awx-sync-deploy .awx-warn-strong { color: #8a6d3b; font-weight: 600; }
+.awx-sync-deploy .awx-progress { width: 320px; height: 12px; vertical-align: middle; }
+.awx-sync-deploy .awx-steps { margin: 12px 0 0; padding-left: 20px; font-family: Menlo, Consolas, monospace; font-size: 12px; max-height: 420px; overflow: auto; }
+.awx-sync-deploy .awx-step-done .awx-step-status { color: #00a32a; }
+.awx-sync-deploy .awx-step-failed .awx-step-status { color: #d63638; }
+.awx-sync-deploy .awx-step-error { color: #d63638; margin-left: 14px; }
+.awx-sync-deploy .awx-recent { margin-top: 16px; font-size: 13px; }

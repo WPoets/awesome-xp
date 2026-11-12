@@ -129,6 +129,8 @@ class Receiver {
 			'pull'            => $pull,
 			'unfiltered_html' => Service_User::has_unfiltered_html(),
 			'mime_allowlist'  => Media_Handler::allowed_mimes(),
+			'allow_code'      => Code_Receiver::allowed(),
+			'acf_active'      => \function_exists('acf_import_field_group'),
 		);
 	}
 
