@@ -40,6 +40,13 @@ assert_true(array_keys($filtered) === array('a', 'b') && $filtered['a'] === arra
 $s1 = Code_Item::hash_parts('styles', 'Custom Styles', 'publish', null, '{"version": 3, "styles": {"color": {"text": "#000"}}}', array());
 $s2 = Code_Item::hash_parts('styles', 'Custom Styles', 'publish', null, "{\n  \"styles\": {\n    \"color\": {\n      \"text\": \"#000\"\n    }\n  },\n  \"version\": 3\n}", array());
 assert_true($s1 === $s2, 'styles hash is whitespace and key-order independent (canonical JSON)');
+$m1 = Code_Item::hash_parts('menu', 'Main Menu', 'publish', null, '{"name":"Main","slug":"main","items":[{"title":"Home","menu_order":1}]}', array());
+$m2 = Code_Item::hash_parts('menu', 'Main Menu', 'publish', null, "{\n  \"items\": [\n    {\"menu_order\": 1, \"title\": \"Home\"}\n  ],\n  \"slug\": \"main\",\n  \"name\": \"Main\"\n}", array());
+assert_true($m1 === $m2, 'menu hash is whitespace and key-order independent (canonical JSON)');
+require_once __DIR__ . '/stubs.php';
+$term = new WP_Term(array('term_id' => 10, 'name' => 'Main Menu', 'slug' => 'main-menu'));
+$menu_item = Code_Item::from_menu($term, array('primary'));
+assert_true($menu_item->kind === 'menu' && $menu_item->post_type === 'nav_menu' && $menu_item->slug === 'main-menu', 'from_menu creates kind=menu Code_Item');
 $opt = Code_Item::from_option('awx_token_overrides', array('colors' => array('primary' => '#ff0000')));
 assert_true($opt->kind === 'option' && $opt->post_type === 'option' && $opt->slug === 'awx_token_overrides', 'from_option sets kind=option and slug');
 $item = new Code_Item('module', 'crm_modules', 'lead-form');
@@ -65,6 +72,7 @@ $items = array(
 	array('kind' => 'acf', 'post_type' => 'acf-field-group', 'slug' => 'group_1', 'title' => 'Group 1', 'hash' => 'h7', 'content' => ''),
 	array('kind' => 'styles', 'post_type' => 'wp_global_styles', 'slug' => 'twentytwentyfour', 'title' => 'Global Styles', 'hash' => 'h-styles', 'content' => '{}'),
 	array('kind' => 'option', 'post_type' => 'option', 'slug' => 'awx_token_overrides', 'title' => 'Token overrides (awx_token_overrides)', 'hash' => 'h-tokens', 'content' => '{}'),
+	array('kind' => 'menu', 'post_type' => 'nav_menu', 'slug' => 'main-nav', 'title' => 'Main Navigation', 'hash' => 'h-menu', 'content' => '{}'),
 );
 $manifest = array(
 	'protocol' => 1,
@@ -96,6 +104,7 @@ $answer = array(
 		'aw_gb_blocks:hero'    => array('status' => 'new'),
 		'wp_global_styles:twentytwentyfour' => array('status' => 'changed', 'prod_id' => 88, 'prod_hash' => 's-old'),
 		'option:awx_token_overrides'        => array('status' => 'prod_edited', 'prod_id' => null, 'prod_hash' => 'tok-edited'),
+		'nav_menu:main-nav'                 => array('status' => 'changed', 'prod_id' => 99, 'prod_hash' => 'm-old'),
 	),
 	'acf' => array('group_1' => array('status' => 'changed', 'prod_id' => 9, 'prod_hash' => 'g-old')),
 	'only_on_prod' => array('crm_modules' => array(array('slug' => 'legacy', 'title' => 'Legacy'))),
@@ -143,6 +152,7 @@ assert_true($st('pattern:cta') === 'changed' && $sel('pattern:cta'), 'changed pa
 assert_true($st('template:archive') === 'new' && $sel('template:archive'), 'new template is ticked');
 assert_true($st('wp_global_styles:twentytwentyfour') === 'changed' && $sel('wp_global_styles:twentytwentyfour'), 'changed global styles is ticked');
 assert_true($st('option:awx_token_overrides') === 'prod_edited' && $sel('option:awx_token_overrides') && in_array('edited_on_prod', $codes('option:awx_token_overrides'), true), 'prod-edited option is ticked with edited_on_prod warning');
+assert_true($st('nav_menu:main-nav') === 'changed' && $sel('nav_menu:main-nav'), 'changed navigation menu is ticked');
 assert_true($st('page:12') === 'blocked' && !$rows['page:12']['selectable'] && $codes('page:12') === array('post_without_uuid'), 'content that failed to analyze is a blocked row');
 assert_true($plan['summary']['by_status']['new'] === 5 && $plan['summary']['by_status']['only_on_prod'] === 1 && $plan['summary']['by_status']['blocked'] === 1, 'summary counts by status');
 assert_true($plan['summary']['nothing_to_do'] === false, 'nothing_to_do false when writes exist');
@@ -187,9 +197,12 @@ assert_true($pattern_pos !== false && $template_pos !== false && $page_pos !== f
 $acf_pos = array_search('acf:acf-field-group:group_1', $types, true);
 $styles_pos = array_search('code:wp_global_styles:twentytwentyfour', $types, true);
 $option_pos = array_search('option:option:awx_token_overrides', $types, true);
-assert_true($acf_pos < $styles_pos && $styles_pos < $option_pos && $option_pos < $pattern_pos, 'order: acf < styles < option < patterns');
+$menu_pos = array_search('menu:nav_menu:main-nav', $types, true);
+assert_true($acf_pos < $styles_pos && $styles_pos < $option_pos && $option_pos < $menu_pos && $menu_pos < $pattern_pos, 'order: acf < styles < option < menu < patterns');
 $opt_step = null; foreach ($built['steps'] as $s) { if ($s['object_uuid'] === 'option:awx_token_overrides') { $opt_step = $s; } }
 assert_true($opt_step !== null && $opt_step['type'] === 'option' && $opt_step['payload']['kind'] === 'option', 'option step emitted with type=option');
+$menu_step = null; foreach ($built['steps'] as $s) { if ($s['object_uuid'] === 'nav_menu:main-nav') { $menu_step = $s; } }
+assert_true($menu_step !== null && $menu_step['type'] === 'menu' && $menu_step['payload']['kind'] === 'menu', 'menu step emitted with type=menu');
 assert_true(end($types) === 'finalize:-', 'finalize is last');
 assert_true($built['overwrite_needed'] === true, 'overwrite needed because a prod-edited item is ticked');
 $media_steps = array_filter($built['steps'], function ($s) { return $s['type'] === 'media'; });

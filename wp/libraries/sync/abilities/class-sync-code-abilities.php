@@ -91,7 +91,7 @@ abstract class Code_Operation extends Sync_Operation {
 			return $v ?: null;
 		};
 		$sel = array();
-		foreach (array('core', 'dgb', 'acf', 'patterns', 'templates', 'styles', 'tokens', 'options') as $k) {
+		foreach (array('core', 'dgb', 'acf', 'patterns', 'templates', 'styles', 'tokens', 'options', 'menus') as $k) {
 			if (isset($raw[$k]) && ($v = $list($raw[$k])) !== null) {
 				$sel[$k] = $v;
 			}

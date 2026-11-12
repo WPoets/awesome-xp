@@ -506,6 +506,9 @@ class Sync_CLI_Command extends \WP_CLI_Command
      * [--templates[=<slugs>]]
      * : Site templates and template parts (wp_template, wp_template_part). All, or a comma-separated list of slugs.
      *
+     * [--menus[=<slugs>]]
+     * : Navigation menus (nav_menu). All, or a comma-separated list of menu slugs.
+     *
      * [--set=<name>]
      * : Use a saved deployment set instead of the flags above.
      *
@@ -551,7 +554,7 @@ class Sync_CLI_Command extends \WP_CLI_Command
         } else {
             $input['selection'] = self::selection_from_flags($assoc_args);
             if (empty($input['selection'])) {
-                \WP_CLI::error('Nothing selected. Pass --core, --services, --apps, --blocks, --acf, --patterns, --templates, --styles, --tokens or --set=<name>.');
+                \WP_CLI::error('Nothing selected. Pass --core, --services, --apps, --blocks, --acf, --patterns, --templates, --styles, --tokens, --menus or --set=<name>.');
             }
         }
         $view = $run('awesome/sync-code-analyze', $input);
@@ -652,7 +655,7 @@ class Sync_CLI_Command extends \WP_CLI_Command
      * [<name>]
      * : Set name (save, delete, show).
      *
-     * [--core[=<slugs>]] [--services[=<post_types>]] [--apps[=<slugs>]] [--with-pages] [--with-posts] [--blocks[=<slugs>]] [--acf[=<keys>]] [--patterns[=<slugs>]] [--templates[=<slugs>]]
+     * [--core[=<slugs>]] [--services[=<post_types>]] [--apps[=<slugs>]] [--with-pages] [--with-posts] [--blocks[=<slugs>]] [--acf[=<keys>]] [--patterns[=<slugs>]] [--templates[=<slugs>]] [--menus[=<slugs>]]
      * : Selection flags for save (same as `deploy`).
      *
      * ## EXAMPLES
@@ -688,7 +691,7 @@ class Sync_CLI_Command extends \WP_CLI_Command
             case 'save':
                 $sel = self::selection_from_flags($assoc_args);
                 if ($name === '' || empty($sel)) {
-                    \WP_CLI::error('Usage: wp awx sync sets save <name> --core|--services|--apps|--blocks|--acf|--patterns|--templates|--styles|--tokens');
+                    \WP_CLI::error('Usage: wp awx sync sets save <name> --core|--services|--apps|--blocks|--acf|--patterns|--templates|--styles|--tokens|--menus');
                 }
                 $res = $run('awesome/sync-set-save', ['name' => $name, 'selection' => $sel]);
                 \WP_CLI::success('Saved set ' . $res['set']['name'] . '.');
@@ -761,6 +764,9 @@ class Sync_CLI_Command extends \WP_CLI_Command
         }
         if (isset($a['tokens'])) {
             $sel['tokens'] = true;
+        }
+        if (isset($a['menus'])) {
+            $sel['menus'] = $list($a['menus']);
         }
         return $sel;
     }

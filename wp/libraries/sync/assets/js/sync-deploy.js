@@ -37,7 +37,8 @@
 	var KIND_LABEL = {
 		app: __('App definition', 'awesome-xp'), core: __('Core', 'awesome-xp'), service: __('Service', 'awesome-xp'), config: __('App config', 'awesome-xp'),
 		module: __('App module', 'awesome-xp'), dgb: __('Block definition', 'awesome-xp'), acf: __('ACF field group', 'awesome-xp'), pattern: __('Pattern', 'awesome-xp'),
-		template: __('Template / part', 'awesome-xp'), page: __('App page / post', 'awesome-xp'), styles: __('Global styles', 'awesome-xp'), option: __('Token overrides', 'awesome-xp')
+		template: __('Template / part', 'awesome-xp'), page: __('App page / post', 'awesome-xp'), styles: __('Global styles', 'awesome-xp'), option: __('Token overrides', 'awesome-xp'),
+		menu: __('Navigation menu', 'awesome-xp')
 	};
 	var STATUS_LABEL = {
 		new: __('New', 'awesome-xp'), changed: __('Changed', 'awesome-xp'), unchanged: __('Unchanged', 'awesome-xp'), prod_edited: __('Edited on target', 'awesome-xp'),
@@ -48,8 +49,8 @@
 	/* Selection helpers                                                    */
 	/* ------------------------------------------------------------------ */
 
-	// UI selection: { core: {slug:true}, services: {pt: {slug:true}}, apps: {slug: {definition, config:{slug:true}, modules:{...}, pages:bool, posts:bool}}, dgb:{}, acf:{}, patterns:{}, templates:{}, styles:bool, tokens:bool }
-	function emptySel() { return { core: {}, services: {}, apps: {}, dgb: {}, acf: {}, patterns: {}, templates: {}, styles: false, tokens: false }; }
+	// UI selection: { core: {slug:true}, services: {pt: {slug:true}}, apps: {slug: {definition, config:{slug:true}, modules:{...}, pages:bool, posts:bool}}, dgb:{}, acf:{}, patterns:{}, templates:{}, styles:bool, tokens:bool, menus:{} }
+	function emptySel() { return { core: {}, services: {}, apps: {}, dgb: {}, acf: {}, patterns: {}, templates: {}, styles: false, tokens: false, menus: {} }; }
 
 	function toApiSelection(sel, tree) {
 		var out = {};
@@ -88,6 +89,8 @@
 		if (pat) { out.patterns = pat; }
 		var tmpl = list(sel.templates, (tree.templates || []).map(function (t) { return t.slug; }));
 		if (tmpl) { out.templates = tmpl; }
+		var menus = list(sel.menus, (tree.menus || []).map(function (m) { return m.slug; }));
+		if (menus) { out.menus = menus; }
 		if (sel.styles) { out.styles = true; }
 		if (sel.tokens) { out.tokens = true; }
 		return out;
@@ -119,6 +122,7 @@
 		if (api.acf) { fill(sel.acf, api.acf, (tree.blocks.acf.groups || []).map(function (g) { return g.slug; })); }
 		if (api.patterns) { fill(sel.patterns, api.patterns, (tree.patterns || []).map(function (p) { return p.slug; })); }
 		if (api.templates) { fill(sel.templates, api.templates, (tree.templates || []).map(function (t) { return t.slug; })); }
+		if (api.menus) { fill(sel.menus, api.menus, (tree.menus || []).map(function (m) { return m.slug; })); }
 		if (api.styles) { sel.styles = true; }
 		if (api.tokens || api.options) { sel.tokens = true; }
 		return sel;
@@ -127,7 +131,7 @@
 	function countSel(sel) {
 		var n = 0;
 		function c(map) { Object.keys(map || {}).forEach(function (k) { if (map[k]) { n++; } }); }
-		c(sel.core); c(sel.dgb); c(sel.acf); c(sel.patterns); c(sel.templates);
+		c(sel.core); c(sel.dgb); c(sel.acf); c(sel.patterns); c(sel.templates); c(sel.menus);
 		if (sel.styles) { n++; }
 		if (sel.tokens) { n++; }
 		Object.keys(sel.services).forEach(function (pt) { c(sel.services[pt]); });
@@ -265,6 +269,18 @@
 				filter: fl,
 				onChange: function (m) { upd(function (n) { n.templates = m; }); }
 			}) : null,
+			(tree.menus && tree.menus.length) ? el(Group, {
+				title: __('Navigation menus', 'awesome-xp'),
+				items: tree.menus.map(function (m) {
+					var meta = (m.items_count || 0) + ' ' + __('items', 'awesome-xp');
+					if (m.locations && m.locations.length) { meta += ' • ' + m.locations.join(', '); }
+					if (m.last_sync) { meta += ' · ' + __('deployed', 'awesome-xp') + ' ' + new Date(m.last_sync.time * 1000).toLocaleDateString(); }
+					return { id: m.slug, label: m.title || m.slug, meta: meta };
+				}),
+				checked: sel.menus,
+				filter: fl,
+				onChange: function (m) { upd(function (n) { n.menus = m; }); }
+			}) : null,
 			(tree.styles || tree.tokens) ? el(Fragment, null,
 				el('h2', null, __('Styles & design tokens', 'awesome-xp')),
 				tree.styles ? el('div', { className: 'awx-group' },
@@ -312,7 +328,7 @@
 		var ticked = props.ticked;
 		var setTicked = props.setTicked;
 		var groups = useMemo(function () {
-			var order = ['app', 'core', 'service', 'config', 'module', 'dgb', 'acf', 'styles', 'option', 'pattern', 'template', 'page'];
+			var order = ['app', 'core', 'service', 'config', 'module', 'dgb', 'acf', 'styles', 'option', 'menu', 'pattern', 'template', 'page'];
 			var g = {};
 			plan.rows.forEach(function (r) { (g[r.kind] = g[r.kind] || []).push(r); });
 			return order.filter(function (k) { return g[k]; }).map(function (k) { return { kind: k, rows: g[k] }; });

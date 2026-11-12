@@ -140,6 +140,14 @@ class Prod_Routes {
 				return (new Code_Receiver())->write_option(self::params($r), $run, $step);
 			}),
 		));
+		\register_rest_route(self::NS, '/code/menus', array(
+			'methods'             => 'POST',
+			'permission_callback' => $auth_code,
+			'callback'            => self::wrap('code/menus', function (\WP_REST_Request $r) {
+				list($run, $step) = self::ids($r);
+				return (new Code_Receiver())->write_menu(self::params($r), $run, $step);
+			}),
+		));
 		\register_rest_route(self::NS, '/code/finalize', array(
 			'methods'             => 'POST',
 			'permission_callback' => $auth_code,
@@ -193,6 +201,8 @@ class Prod_Routes {
 				$uuid = Code_Receiver::ACF_POST_TYPE . ':' . (string) $p['key'];
 			} elseif ($uuid === null && isset($p['option']) && \is_scalar($p['option']) && \strpos($route, 'code/options') === 0) {
 				$uuid = 'option:' . (string) $p['option'];
+			} elseif ($uuid === null && isset($p['slug']) && \is_scalar($p['slug']) && \strpos($route, 'code/menus') === 0) {
+				$uuid = 'nav_menu:' . (string) $p['slug'];
 			}
 			try {
 				$result = $fn($r);

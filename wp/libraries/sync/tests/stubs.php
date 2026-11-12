@@ -44,6 +44,29 @@ class WP_Post
     }
 }
 
+class WP_Term
+{
+    public $term_id;
+    public $name;
+    public $slug;
+    public $term_group;
+    public $term_taxonomy_id;
+    public $taxonomy;
+    public $description;
+    public $parent;
+    public $count;
+    public function __construct(array $row = [])
+    {
+        $this->term_id     = (int) ($row['term_id'] ?? 0);
+        $this->name        = (string) ($row['name'] ?? '');
+        $this->slug        = (string) ($row['slug'] ?? '');
+        $this->taxonomy    = (string) ($row['taxonomy'] ?? 'nav_menu');
+        $this->description = (string) ($row['description'] ?? '');
+        $this->parent      = (int) ($row['parent'] ?? 0);
+        $this->count       = (int) ($row['count'] ?? 0);
+    }
+}
+
 /**
  * SQLite-backed stand-in for the handful of $wpdb methods Identity uses.
  */

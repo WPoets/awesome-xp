@@ -228,6 +228,9 @@ class Code_Orchestrator extends Orchestrator {
 				case 'option':
 					$result = $this->exec_option($run, $step, $payload);
 					break;
+				case 'menu':
+					$result = $this->exec_menu($run, $step, $payload);
+					break;
 				case 'finalize':
 					$result = $this->client->post('/code/finalize', array('run_id' => $run_id, 'step_id' => $step['step_id']));
 					$this->throw_if_error($result, 'finalize');
@@ -317,6 +320,23 @@ class Code_Orchestrator extends Orchestrator {
 		));
 		$this->throw_if_error($res, 'Option ' . $item['slug']);
 		Code_Catalog::mark_option_synced($item['slug'], $run['run_id'], (string) $item['hash']);
+		return $res;
+	}
+
+	private function exec_menu(array $run, array $step, array $payload): array {
+		$item = $this->find_item($run, (string) $step['object_uuid']);
+		$res = $this->client->post('/code/menus', array(
+			'run_id'             => $run['run_id'],
+			'step_id'            => $step['step_id'],
+			'slug'               => $item['slug'],
+			'item'               => $item,
+			'content'            => $item['content'] ?? '',
+			'hash'               => $item['hash'],
+			'expected_prod_hash' => $payload['expected_prod_hash'] ?? null,
+			'overwrite'          => !empty($run['plan']['overwrite']),
+		));
+		$this->throw_if_error($res, 'Menu ' . $item['slug']);
+		Code_Catalog::mark_menu_synced($item['slug'], $run['run_id'], (string) $item['hash']);
 		return $res;
 	}
 

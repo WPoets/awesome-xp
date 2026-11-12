@@ -19,12 +19,13 @@
  *   pattern   managed wp_block patterns (keyed by _awx_pattern_slug)
  *   styles    wp_global_styles user customizations for active theme (keyed by theme stylesheet)
  *   option    theme/design token options (e.g. awx_token_overrides)
+ *   menu      WordPress navigation menus and menu items (nav_menu taxonomy term)
  */
 namespace aw2\sync;
 
 class Code_Item {
 
-	const KINDS = array('core', 'service', 'app', 'config', 'module', 'dgb', 'acf', 'pattern', 'styles', 'option');
+	const KINDS = array('core', 'service', 'app', 'config', 'module', 'dgb', 'acf', 'pattern', 'styles', 'option', 'menu');
 
 	/** Meta keys never carried across for any kind. */
 	const META_SKIP = array('_edit_lock', '_edit_last', '_wp_old_slug', '_wp_old_date', '_wp_trash_meta_status', '_wp_trash_meta_time', '_wp_desired_post_slug', '_pingme', '_encloseme');
@@ -106,7 +107,7 @@ class Code_Item {
 		} else {
 			$meta = self::filter_meta($meta);
 			$normalized_content = \str_replace("\r\n", "\n", $content);
-			if ($kind === 'styles' && $normalized_content !== '') {
+			if (($kind === 'styles' || $kind === 'menu') && $normalized_content !== '') {
 				$decoded = \json_decode($normalized_content, true);
 				if (\is_array($decoded)) {
 					$normalized_content = \json_encode(self::canonical($decoded), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
@@ -182,6 +183,88 @@ class Code_Item {
 		$item->title = 'Token overrides (' . $name . ')';
 		$item->status = 'publish';
 		$item->content = \json_encode(self::canonical($value), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+		return $item;
+	}
+
+	/** Build an item for a navigation menu and its menu items. */
+	public static function from_menu(\WP_Term $menu, array $locations = array(), ?string $home_url = null): Code_Item {
+		$raw_items = \function_exists('wp_get_nav_menu_items') ? \wp_get_nav_menu_items($menu->term_id) : array();
+		$items = array();
+		foreach ((array) $raw_items as $it) {
+			if (!($it instanceof \WP_Post)) {
+				continue;
+			}
+			$type      = (string) \get_post_meta($it->ID, '_menu_item_type', true) ?: 'custom';
+			$object    = (string) \get_post_meta($it->ID, '_menu_item_object', true) ?: 'custom';
+			$object_id = (int) \get_post_meta($it->ID, '_menu_item_object_id', true);
+			$parent_id = (int) \get_post_meta($it->ID, '_menu_item_menu_item_parent', true);
+			$url       = (string) \get_post_meta($it->ID, '_menu_item_url', true);
+			$classes   = \get_post_meta($it->ID, '_menu_item_classes', true);
+			if (\is_array($classes)) {
+				$classes = \array_values(\array_filter(\array_map('trim', $classes), 'strlen'));
+			} else {
+				$classes = \array_values(\array_filter(\explode(' ', (string) $classes), 'strlen'));
+			}
+
+			$entry = array(
+				'source_id'        => (int) $it->ID,
+				'parent_source_id' => $parent_id,
+				'menu_order'       => (int) $it->menu_order,
+				'title'            => (string) ($it->post_title ?: \get_post_meta($it->ID, '_menu_item_title', true)),
+				'type'             => $type,
+				'object'           => $object,
+				'target'           => (string) \get_post_meta($it->ID, '_menu_item_target', true),
+				'classes'          => $classes,
+				'xfn'              => (string) \get_post_meta($it->ID, '_menu_item_xfn', true),
+				'description'      => (string) ($it->post_content ?: \get_post_meta($it->ID, '_menu_item_description', true)),
+				'attr_title'       => (string) ($it->post_excerpt ?: \get_post_meta($it->ID, '_menu_item_attr_title', true)),
+			);
+
+			if ($type === 'post_type' && $object_id > 0) {
+				$target_post = \get_post($object_id);
+				if ($target_post) {
+					$entry['object_uuid'] = (string) \get_post_meta($object_id, Identity::META_UUID, true) ?: null;
+					$entry['object_slug'] = (string) $target_post->post_name;
+					$entry['object_type'] = (string) $target_post->post_type;
+				}
+			} elseif ($type === 'taxonomy' && $object_id > 0) {
+				$target_term = \get_term($object_id, $object);
+				if ($target_term && !\is_wp_error($target_term)) {
+					$entry['term_slug'] = (string) $target_term->slug;
+					$entry['taxonomy']  = (string) $target_term->taxonomy;
+				}
+			} elseif ($type === 'custom') {
+				$norm_url = $url;
+				if ($home_url && \strpos($norm_url, $home_url) === 0) {
+					$norm_url = \substr($norm_url, \strlen($home_url));
+					if ($norm_url === '' || $norm_url[0] !== '/') {
+						$norm_url = '/' . $norm_url;
+					}
+				}
+				$entry['url'] = $norm_url;
+			}
+
+			$items[] = $entry;
+		}
+
+		\usort($items, function ($a, $b) {
+			return $a['menu_order'] <=> $b['menu_order'] ?: $a['source_id'] <=> $b['source_id'];
+		});
+
+		\sort($locations, SORT_STRING);
+		$doc = array(
+			'name'        => (string) $menu->name,
+			'slug'        => (string) $menu->slug,
+			'description' => (string) $menu->description,
+			'locations'   => $locations,
+			'items'       => $items,
+		);
+
+		$item = new self('menu', 'nav_menu', (string) $menu->slug);
+		$item->id      = (int) $menu->term_id;
+		$item->title   = (string) ($menu->name ?: $menu->slug);
+		$item->status  = 'publish';
+		$item->content = \json_encode(self::canonical($doc), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 		return $item;
 	}
 

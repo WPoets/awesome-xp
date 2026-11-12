@@ -15,9 +15,9 @@ class Code_Catalog {
 	const META_LAST_SYNC = '_awx_code_last_sync';
 	const ACF_MODULE     = 'gutenberg-blocks';
 
-	/** Post types representing block templates and template parts: content, synced through the page pipeline. */
+	/** Post types representing block templates, template parts, and block navigation menus: content, synced through the page pipeline. */
 	public static function template_post_types(): array {
-		return array('wp_template', 'wp_template_part');
+		return array('wp_template', 'wp_template_part', 'wp_navigation');
 	}
 
 	/* ------------------------------------------------------------------ */
@@ -118,6 +118,7 @@ class Code_Catalog {
 			'templates' => $this->templates(),
 			'styles'    => $this->styles(),
 			'tokens'    => $this->tokens(),
+			'menus'     => $this->menus(),
 			'generated_at' => \time(),
 		);
 		foreach (self::service_post_types() as $pt => $label) {
@@ -349,6 +350,76 @@ class Code_Catalog {
 		);
 	}
 
+	/** All registered navigation menus with their locations and item counts. */
+	public function menus(): array {
+		$menus = \function_exists('wp_get_nav_menus') ? \wp_get_nav_menus() : array();
+		$locations = \function_exists('get_nav_menu_locations') ? (array) \get_nav_menu_locations() : array();
+		$menu_locations = array();
+		foreach ($locations as $loc => $mid) {
+			if ($mid) {
+				$menu_locations[(int) $mid][] = (string) $loc;
+			}
+		}
+		$home_url = \function_exists('home_url') ? \untrailingslashit(\home_url()) : null;
+		$out = array();
+		foreach ((array) $menus as $m) {
+			if (!($m instanceof \WP_Term)) {
+				continue;
+			}
+			$locs = $menu_locations[(int) $m->term_id] ?? array();
+			$item = Code_Item::from_menu($m, $locs, $home_url);
+			$decoded = \json_decode($item->content, true);
+			$count = isset($decoded['items']) && \is_array($decoded['items']) ? \count($decoded['items']) : 0;
+			$out[] = array(
+				'slug'        => (string) $m->slug,
+				'name'        => (string) $m->name,
+				'title'       => (string) ($m->name ?: $m->slug),
+				'id'          => (int) $m->term_id,
+				'locations'   => $locs,
+				'items_count' => $count,
+				'hash'        => $item->hash(),
+				'last_sync'   => \function_exists('get_term_meta') ? (\get_term_meta((int) $m->term_id, self::META_LAST_SYNC, true) ?: null) : null,
+			);
+		}
+		return $out;
+	}
+
+	/** Code_Item for a menu by slug. */
+	public function menu_item(string $slug): ?Code_Item {
+		$menu = \function_exists('wp_get_nav_menu_object') ? \wp_get_nav_menu_object($slug) : null;
+		if (!$menu && \function_exists('get_term_by')) {
+			$menu = \get_term_by('slug', $slug, 'nav_menu');
+		}
+		if (!$menu || !($menu instanceof \WP_Term)) {
+			return null;
+		}
+		return self::menu_item_for_term($menu);
+	}
+
+	/** Code_Item for a given menu term. */
+	public static function menu_item_for_term(\WP_Term $menu): Code_Item {
+		$locations = \function_exists('get_nav_menu_locations') ? (array) \get_nav_menu_locations() : array();
+		$locs = array();
+		foreach ($locations as $loc => $mid) {
+			if ((int) $mid === (int) $menu->term_id) {
+				$locs[] = (string) $loc;
+			}
+		}
+		$home_url = \function_exists('home_url') ? \untrailingslashit(\home_url()) : null;
+		return Code_Item::from_menu($menu, $locs, $home_url);
+	}
+
+	/** Record on the source menu term that it was deployed. */
+	public static function mark_menu_synced(string $slug, string $run_id, string $hash): void {
+		$menu = \function_exists('wp_get_nav_menu_object') ? \wp_get_nav_menu_object($slug) : null;
+		if (!$menu && \function_exists('get_term_by')) {
+			$menu = \get_term_by('slug', $slug, 'nav_menu');
+		}
+		if ($menu && $menu instanceof \WP_Term && \function_exists('update_term_meta')) {
+			\update_term_meta((int) $menu->term_id, self::META_LAST_SYNC, array('run_id' => $run_id, 'time' => \time(), 'hash' => $hash));
+		}
+	}
+
 	/* ------------------------------------------------------------------ */
 	/* Items                                                               */
 	/* ------------------------------------------------------------------ */
@@ -412,7 +483,7 @@ class Code_Catalog {
 	 * @return array {items: Code_Item[] (dependency order), content: [...], collections: [{kind,post_type}], apps: [slug], notes: [...]}
 	 */
 	public function items_for(array $sel): array {
-		$items = array('app' => array(), 'core' => array(), 'service' => array(), 'config' => array(), 'module' => array(), 'dgb' => array(), 'acf' => array(), 'styles' => array(), 'option' => array());
+		$items = array('app' => array(), 'core' => array(), 'service' => array(), 'config' => array(), 'module' => array(), 'dgb' => array(), 'acf' => array(), 'styles' => array(), 'option' => array(), 'menu' => array());
 		$content = $collections = $apps = $notes = array();
 		$core_pt = self::core_post_type();
 
@@ -511,14 +582,26 @@ class Code_Catalog {
 				$collections[] = array('kind' => 'option', 'post_type' => 'option');
 			}
 		}
+		if (!empty($sel['menus'])) {
+			foreach ($this->menus() as $m) {
+				if (\is_array($sel['menus']) && !\in_array($m['slug'], $sel['menus'], true)) {
+					continue;
+				}
+				$menu_obj = $this->menu_item($m['slug']);
+				if ($menu_obj) {
+					$items['menu'][] = $menu_obj;
+					$collections[] = array('kind' => 'menu', 'post_type' => 'nav_menu');
+				}
+			}
+		}
 		foreach ($items['config'] as $it) {
 			if ($it->meta_skipped) {
 				$notes[] = array('code' => 'settings_meta_skipped', 'message' => 'Settings of ' . $it->key() . ' (postmeta) are environment-specific and are not deployed; only the module content is.', 'key' => $it->key());
 			}
 		}
 
-		// Dependency order: app definitions, core, services, config, modules, block definitions, ACF, global styles, token overrides.
-		$ordered = \array_merge($items['app'], $items['core'], $items['service'], $items['config'], $items['module'], $items['dgb'], $items['acf'], $items['styles'], $items['option']);
+		// Dependency order: app definitions, core, services, config, modules, block definitions, ACF, global styles, token overrides, menus.
+		$ordered = \array_merge($items['app'], $items['core'], $items['service'], $items['config'], $items['module'], $items['dgb'], $items['acf'], $items['styles'], $items['option'], $items['menu']);
 		return array('items' => $ordered, 'content' => $this->order_content($content), 'collections' => $collections, 'apps' => \array_values(\array_unique($apps)), 'notes' => $notes);
 	}
 

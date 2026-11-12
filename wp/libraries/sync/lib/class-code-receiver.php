@@ -29,6 +29,7 @@ class Code_Receiver {
 	const STEP_TYPE_CODE     = 'code';
 	const STEP_TYPE_ACF      = 'acf';
 	const STEP_TYPE_OPTION   = 'option';
+	const STEP_TYPE_MENU     = 'menu';
 	const STEP_TYPE_FINALIZE = 'finalize';
 
 	const ALLOWED_OPTIONS = array('awx_token_overrides');
@@ -46,9 +47,9 @@ class Code_Receiver {
 		return \function_exists('acf_import_field_group');
 	}
 
-	/** Kinds accepted by /code/modules (everything but ACF groups and options). */
+	/** Kinds accepted by /code/modules (everything but ACF groups, options and menus). */
 	public static function post_kinds(): array {
-		return \array_values(\array_diff(Code_Item::KINDS, array('acf', 'option')));
+		return \array_values(\array_diff(Code_Item::KINDS, array('acf', 'option', 'menu')));
 	}
 
 	/* ================================================================== */
@@ -84,6 +85,11 @@ class Code_Receiver {
 			if ($kind === 'option') {
 				$seen[$post_type][$slug] = true;
 				$out['items'][$post_type . ':' . $slug] = $this->plan_option($slug, $hash);
+				continue;
+			}
+			if ($kind === 'menu') {
+				$seen[$post_type][$slug] = true;
+				$out['items'][$post_type . ':' . $slug] = $this->plan_menu($slug, $hash);
 				continue;
 			}
 			if (!\in_array($kind, self::post_kinds(), true)) {
@@ -194,6 +200,36 @@ class Code_Receiver {
 		$row['last_synced_hash'] = $last !== '' ? $last : null;
 		$row['status']           = self::classify($prod_hash, $last, $src, $hash, $never);
 		$row['never_synced']     = $never;
+		return $row;
+	}
+
+	/** Status of one menu on this site. */
+	private function plan_menu(string $slug, string $hash): array {
+		$row = array(
+			'status'           => 'new',
+			'prod_id'          => null,
+			'prod_hash'        => null,
+			'last_synced_hash' => null,
+			'never_synced'     => false,
+			'has_revisions'    => false,
+			'title'            => 'Navigation menu (' . $slug . ')',
+		);
+		$menu = self::find_menu($slug);
+		if ($menu === null) {
+			return $row;
+		}
+		$term_id = (int) $menu->term_id;
+		$row['prod_id'] = $term_id;
+		$row['title']   = (string) ($menu->name ?: $slug);
+		$item = Code_Catalog::menu_item_for_term($menu);
+		$prod_hash = $item->hash();
+		$row['prod_hash'] = $prod_hash;
+		$last = \function_exists('get_term_meta') ? (string) \get_term_meta($term_id, Identity::META_CONTENT_HASH, true) : '';
+		$src  = \function_exists('get_term_meta') ? (string) \get_term_meta($term_id, Receiver::META_SOURCE_HASH, true) : '';
+		$never = false;
+		$row['status']           = self::classify($prod_hash, $last, $src, $hash, $never);
+		$row['never_synced']     = $never;
+		$row['last_synced_hash'] = $last !== '' ? $last : null;
 		return $row;
 	}
 
@@ -499,6 +535,238 @@ class Code_Receiver {
 	}
 
 	/* ================================================================== */
+	/* Menus                                                               */
+	/* ================================================================== */
+
+	/**
+	 * @param array $payload {slug, item|content, hash, expected_prod_hash|null, overwrite:bool}
+	 */
+	public function write_menu(array $payload, string $run_id, string $step_id): array {
+		$replay = Step_Store::replay($run_id, $step_id);
+		if ($replay !== null) {
+			return $replay + array('replayed' => true);
+		}
+		$raw = isset($payload['item']) && \is_array($payload['item']) ? $payload['item'] : null;
+		$slug = (string) ($payload['slug'] ?? ($raw['slug'] ?? ''));
+		$content = isset($payload['content']) ? (string) $payload['content'] : (string) ($raw['content'] ?? '');
+		$doc = \json_decode($content, true);
+		if (!\is_array($doc) || $slug === '' || !\preg_match(self::SLUG_RE, $slug)) {
+			throw new Sync_Http_Exception('invalid_payload', 'Invalid menu payload or slug.', 400, array('slug' => $slug));
+		}
+		$item_hash = isset($payload['hash']) && $payload['hash'] !== '' ? (string) $payload['hash'] : (isset($raw['hash']) ? (string) $raw['hash'] : \hash('sha256', \json_encode(Code_Item::canonical($doc), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)));
+		$key = 'nav_menu:' . $slug;
+
+		$existing = self::find_menu($slug);
+		$prod_hash = null;
+		$unchanged = false;
+		if ($existing !== null) {
+			$existing_item = Code_Catalog::menu_item_for_term($existing);
+			$prod_hash = $existing_item->hash();
+			$expected  = isset($payload['expected_prod_hash']) && $payload['expected_prod_hash'] !== '' ? (string) $payload['expected_prod_hash'] : null;
+			if ($expected !== null && !\hash_equals($prod_hash, $expected) && empty($payload['overwrite'])) {
+				throw new Sync_Http_Exception('edited_on_prod', "Menu {$slug} was edited on the target since the plan was made. Re-plan or confirm overwrite.", 409, array('prod_hash' => $prod_hash, 'expected_prod_hash' => $expected, 'key' => $key));
+			}
+			$unchanged = \hash_equals($prod_hash, $item_hash);
+		}
+
+		if ($unchanged) {
+			$term_id = (int) $existing->term_id;
+			if (\function_exists('update_term_meta')) {
+				\update_term_meta($term_id, Identity::META_CONTENT_HASH, $item_hash);
+				\update_term_meta($term_id, Receiver::META_SOURCE_HASH, $item_hash);
+			}
+			self::assign_menu_locations($term_id, (array) ($doc['locations'] ?? array()));
+			$result = array('action' => 'unchanged', 'term_id' => $term_id, 'key' => $key, 'kind' => 'menu', 'slug' => $slug, 'warnings' => array());
+			Step_Store::record($run_id, $step_id, self::STEP_TYPE_MENU, $key, 'done', $result);
+			return $result;
+		}
+
+		$result = Service_User::run(function () use ($doc, $slug, $key, $item_hash, $existing) {
+			$warnings = array();
+			$menu_name = !empty($doc['name']) ? (string) $doc['name'] : $slug;
+			$menu_desc = !empty($doc['description']) ? (string) $doc['description'] : '';
+
+			if ($existing !== null) {
+				$term_id = (int) $existing->term_id;
+				if (\function_exists('wp_update_term')) {
+					\wp_update_term($term_id, 'nav_menu', array(
+						'name'        => $menu_name,
+						'slug'        => $slug,
+						'description' => $menu_desc,
+					));
+				}
+				$action = 'updated';
+			} else {
+				if (\function_exists('wp_insert_term')) {
+					$res = \wp_insert_term($menu_name, 'nav_menu', array(
+						'slug'        => $slug,
+						'description' => $menu_desc,
+					));
+					if (\is_wp_error($res)) {
+						throw new Sync_Http_Exception('write_failed', $res->get_error_message(), 500, array('key' => $key), true);
+					}
+					$term_id = (int) ($res['term_id'] ?? 0);
+				} elseif (\function_exists('wp_create_nav_menu')) {
+					$res = \wp_create_nav_menu($menu_name);
+					if (\is_wp_error($res)) {
+						throw new Sync_Http_Exception('write_failed', $res->get_error_message(), 500, array('key' => $key), true);
+					}
+					$term_id = (int) $res;
+				} else {
+					$term_id = 0;
+				}
+				$action = 'created';
+			}
+
+			if ($term_id <= 0) {
+				throw new Sync_Http_Exception('write_failed', "Could not obtain nav_menu term_id for {$slug}.", 500, array('key' => $key), true);
+			}
+
+			// Delete existing nav_menu_item posts belonging to this menu term.
+			$existing_items = \function_exists('wp_get_nav_menu_items') ? (array) \wp_get_nav_menu_items($term_id) : array();
+			foreach ($existing_items as $ei) {
+				if ($ei instanceof \WP_Post) {
+					\wp_delete_post((int) $ei->ID, true);
+				}
+			}
+
+			// Map target home URL for relative URLs:
+			$target_home_url = \function_exists('home_url') ? \untrailingslashit(\home_url()) : '';
+
+			// Process items: first pass to create all nav_menu_item posts
+			$source_id_to_target_id = array(0 => 0);
+			$created_items = array();
+
+			$items_data = isset($doc['items']) && \is_array($doc['items']) ? $doc['items'] : array();
+			foreach ($items_data as $it) {
+				$src_id = (int) ($it['source_id'] ?? 0);
+				$type   = (string) ($it['type'] ?? 'custom');
+				$object = (string) ($it['object'] ?? 'custom');
+				$order  = (int) ($it['menu_order'] ?? 0);
+				$title  = (string) ($it['title'] ?? '');
+				$desc   = (string) ($it['description'] ?? '');
+				$attr   = (string) ($it['attr_title'] ?? '');
+				$target = (string) ($it['target'] ?? '');
+				$classes= (array) ($it['classes'] ?? array());
+				$xfn    = (string) ($it['xfn'] ?? '');
+
+				// Resolve target object_id
+				$resolved_obj_id = 0;
+				$url = '';
+
+				if ($type === 'post_type') {
+					$uuid = !empty($it['object_uuid']) ? (string) $it['object_uuid'] : null;
+					$obj_slug = !empty($it['object_slug']) ? (string) $it['object_slug'] : '';
+					$obj_type = !empty($it['object_type']) ? (string) $it['object_type'] : $object;
+
+					$found_id = null;
+					if ($uuid !== null) {
+						$found_id = Identity::find_local_id($uuid);
+					}
+					if (!$found_id && $obj_slug !== '') {
+						$p = self::find_post($obj_type, $obj_slug);
+						if ($p) {
+							$found_id = (int) $p->ID;
+						}
+					}
+					if ($found_id) {
+						$resolved_obj_id = $found_id;
+					} else {
+						$warnings[] = array(
+							'code'    => 'menu_target_missing',
+							'message' => "Target post '{$obj_slug}' ({$obj_type}) for menu item '{$title}' was not found on the target."
+						);
+					}
+				} elseif ($type === 'taxonomy') {
+					$term_slug = !empty($it['term_slug']) ? (string) $it['term_slug'] : '';
+					$taxonomy  = !empty($it['taxonomy']) ? (string) $it['taxonomy'] : $object;
+					$t = \function_exists('get_term_by') ? \get_term_by('slug', $term_slug, $taxonomy) : null;
+					if ($t && !(\is_wp_error($t)) && isset($t->term_id)) {
+						$resolved_obj_id = (int) $t->term_id;
+					} else {
+						$warnings[] = array(
+							'code'    => 'menu_target_missing',
+							'message' => "Target term '{$term_slug}' ({$taxonomy}) for menu item '{$title}' was not found on the target."
+						);
+					}
+				} elseif ($type === 'custom') {
+					$raw_url = (string) ($it['url'] ?? '');
+					if ($raw_url !== '' && $raw_url[0] === '/' && $target_home_url !== '') {
+						$url = $target_home_url . $raw_url;
+					} else {
+						$url = $raw_url;
+					}
+				}
+
+				$postarr = array(
+					'post_type'    => 'nav_menu_item',
+					'post_title'   => $title,
+					'post_status'  => 'publish',
+					'post_content' => $desc,
+					'post_excerpt' => $attr,
+					'menu_order'   => $order,
+				);
+				$item_id = \wp_insert_post(\wp_slash($postarr), true);
+				if (\is_wp_error($item_id)) {
+					$warnings[] = array('code' => 'menu_item_create_failed', 'message' => "Could not create menu item '{$title}': " . $item_id->get_error_message());
+					continue;
+				}
+				$item_id = (int) $item_id;
+				if (\function_exists('wp_set_object_terms')) {
+					\wp_set_object_terms($item_id, array($term_id), 'nav_menu');
+				}
+
+				\update_post_meta($item_id, '_menu_item_type', $type);
+				\update_post_meta($item_id, '_menu_item_object', $object);
+				\update_post_meta($item_id, '_menu_item_object_id', $resolved_obj_id);
+				\update_post_meta($item_id, '_menu_item_target', $target);
+				\update_post_meta($item_id, '_menu_item_classes', $classes);
+				\update_post_meta($item_id, '_menu_item_xfn', $xfn);
+				\update_post_meta($item_id, '_menu_item_url', $url);
+
+				if ($src_id > 0) {
+					$source_id_to_target_id[$src_id] = $item_id;
+				}
+				$created_items[] = array(
+					'target_id'        => $item_id,
+					'parent_source_id' => (int) ($it['parent_source_id'] ?? 0),
+				);
+			}
+
+			// Second pass: set parent IDs
+			foreach ($created_items as $ci) {
+				$parent_tid = $source_id_to_target_id[$ci['parent_source_id']] ?? 0;
+				\update_post_meta($ci['target_id'], '_menu_item_menu_item_parent', $parent_tid);
+			}
+
+			// Assign locations
+			self::assign_menu_locations($term_id, (array) ($doc['locations'] ?? array()));
+
+			// Stamp term hashes
+			if (\function_exists('update_term_meta')) {
+				\update_term_meta($term_id, Identity::META_CONTENT_HASH, $item_hash);
+				\update_term_meta($term_id, Receiver::META_SOURCE_HASH, $item_hash);
+			}
+
+			// Invalidate nav menu cache
+			self::clear_nav_menu_cache($term_id);
+
+			\do_action('awx_sync_after_menu_write', $term_id, $doc);
+
+			return array(
+				'action'   => $action,
+				'term_id'  => $term_id,
+				'key'      => $key,
+				'kind'     => 'menu',
+				'slug'     => $slug,
+				'warnings' => $warnings,
+			);
+		});
+		Step_Store::record($run_id, $step_id, self::STEP_TYPE_MENU, $key, 'done', $result);
+		return $result;
+	}
+
+	/* ================================================================== */
 	/* Finalize                                                            */
 	/* ================================================================== */
 
@@ -518,6 +786,7 @@ class Code_Receiver {
 		}
 
 		self::clear_global_styles_cache();
+		self::clear_nav_menu_cache();
 
 		$recompiled = array();
 		if (\function_exists('\\aw2\\gutenberg_blocks\\dgb')) {
@@ -562,7 +831,7 @@ class Code_Receiver {
 			if ($row['status'] !== 'done' || !\is_array($row['response'])) {
 				continue;
 			}
-			if (!\in_array($row['type'], array(self::STEP_TYPE_CODE, self::STEP_TYPE_ACF, self::STEP_TYPE_OPTION), true)) {
+			if (!\in_array($row['type'], array(self::STEP_TYPE_CODE, self::STEP_TYPE_ACF, self::STEP_TYPE_OPTION, self::STEP_TYPE_MENU), true)) {
 				continue;
 			}
 			$r = $row['response'];
@@ -570,10 +839,10 @@ class Code_Receiver {
 			$out['items'][] = array(
 				'key'       => (string) ($r['key'] ?? $row['object_uuid']),
 				'kind'      => $kind,
-				'post_type' => (string) ($r['post_type'] ?? ($kind === 'acf' ? self::ACF_POST_TYPE : ($kind === 'option' ? 'option' : ''))),
+				'post_type' => (string) ($r['post_type'] ?? ($kind === 'acf' ? self::ACF_POST_TYPE : ($kind === 'option' ? 'option' : ($kind === 'menu' ? 'nav_menu' : '')))),
 				'slug'      => (string) ($r['slug'] ?? ($r['option'] ?? ($r['key'] ?? ''))),
 				'action'    => (string) ($r['action'] ?? ''),
-				'post_id'   => (int) ($r['post_id'] ?? 0),
+				'post_id'   => (int) ($r['post_id'] ?? ($r['term_id'] ?? 0)),
 			);
 			if ($kind === 'dgb' && !empty($r['slug']) && !\in_array($r['slug'], $out['blocks'], true)) {
 				$out['blocks'][] = (string) $r['slug'];
@@ -635,6 +904,44 @@ class Code_Receiver {
 		}
 		\delete_transient('global_styles');
 		\delete_transient('wp_global_styles');
+	}
+
+	/** Find a navigation menu term by slug. */
+	public static function find_menu(string $slug): ?\WP_Term {
+		$menu = \function_exists('wp_get_nav_menu_object') ? \wp_get_nav_menu_object($slug) : null;
+		if (!$menu && \function_exists('get_term_by')) {
+			$menu = \get_term_by('slug', $slug, 'nav_menu');
+		}
+		return ($menu instanceof \WP_Term) ? $menu : null;
+	}
+
+	/** Assign menu to theme locations. */
+	public static function assign_menu_locations(int $term_id, array $locations): void {
+		if (!\function_exists('get_nav_menu_locations') || !\function_exists('set_theme_mod')) {
+			return;
+		}
+		$current = (array) \get_nav_menu_locations();
+		$changed = false;
+		foreach ($locations as $loc) {
+			$loc = (string) $loc;
+			if ($loc !== '' && ($current[$loc] ?? 0) !== $term_id) {
+				$current[$loc] = $term_id;
+				$changed = true;
+			}
+		}
+		if ($changed) {
+			\set_theme_mod('nav_menu_locations', $current);
+		}
+	}
+
+	/** Flush transients and cache for navigation menus. */
+	public static function clear_nav_menu_cache(?int $term_id = null): void {
+		if (\function_exists('clean_term_cache') && $term_id) {
+			\clean_term_cache($term_id, 'nav_menu');
+		}
+		if (\function_exists('wp_cache_delete')) {
+			\wp_cache_delete('nav_menu', 'terms');
+		}
 	}
 
 	/** @return array<int, array{post_name:string, post_title:string}> */

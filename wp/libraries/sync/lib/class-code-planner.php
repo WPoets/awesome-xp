@@ -93,9 +93,9 @@ class Code_Planner {
 				}
 			}
 			if ($row['status'] === 'prod_edited') {
-				$row['warnings'][] = array('code' => 'edited_on_prod', 'message' => 'Edited on the target since the last deploy; deploying overwrites those edits' . ($kind === 'acf' ? '.' : ' (a revision is kept).'));
+				$row['warnings'][] = array('code' => 'edited_on_prod', 'message' => 'Edited on the target since the last deploy; deploying overwrites those edits' . ($kind === 'acf' || $kind === 'menu' ? ' (no revisions are kept).' : ' (a revision is kept).'));
 			} elseif ($row['status'] === 'changed' && $row['never_synced']) {
-				$row['warnings'][] = array('code' => 'never_synced', 'message' => 'Exists on the target but was never deployed from here; its current content will be replaced (a revision is kept).');
+				$row['warnings'][] = array('code' => 'never_synced', 'message' => 'Exists on the target but was never deployed from here; its current content will be replaced' . ($kind === 'acf' || $kind === 'menu' ? ' (no revisions are kept).' : ' (a revision is kept).'));
 			}
 			if ($row['meta_skipped']) {
 				$row['warnings'][] = array('code' => 'settings_meta_skipped', 'message' => 'Settings (postmeta) are not deployed; only the module content is.');
@@ -267,12 +267,12 @@ class Code_Planner {
 		$seen_objects = array();
 		$wrote_code = false;
 
-		// Code items in dependency order: app, core, service, config, module, dgb, acf, styles, option.
+		// Code items in dependency order: app, core, service, config, module, dgb, acf, styles, option, menu.
 		$code_rows = \array_filter((array) ($plan['rows'] ?? array()), function ($r) use ($selected) {
 			return isset($selected[$r['key']]) && !\in_array($r['kind'], array('page', 'pattern', 'template'), true);
 		});
 		\usort($code_rows, function ($a, $b) {
-			$order = array('app' => 0, 'core' => 1, 'service' => 2, 'config' => 3, 'module' => 4, 'dgb' => 5, 'acf' => 6, 'styles' => 7, 'option' => 8);
+			$order = array('app' => 0, 'core' => 1, 'service' => 2, 'config' => 3, 'module' => 4, 'dgb' => 5, 'acf' => 6, 'styles' => 7, 'option' => 8, 'menu' => 9);
 			$ka = $order[$a['kind']] ?? 9;
 			$kb = $order[$b['kind']] ?? 9;
 			return $ka <=> $kb;
@@ -281,9 +281,17 @@ class Code_Planner {
 			if ($r['status'] === 'prod_edited') {
 				$overwrite_needed = true;
 			}
+			$type = 'code';
+			if ($r['kind'] === 'acf') {
+				$type = 'acf';
+			} elseif ($r['kind'] === 'option') {
+				$type = 'option';
+			} elseif ($r['kind'] === 'menu') {
+				$type = 'menu';
+			}
 			$steps[] = array(
 				'step_id'     => $uuid_gen(),
-				'type'        => $r['kind'] === 'acf' ? 'acf' : ($r['kind'] === 'option' ? 'option' : 'code'),
+				'type'        => $type,
 				'object_uuid' => $r['key'],
 				'payload'     => array('kind' => $r['kind'], 'title' => $r['title'], 'status' => $r['status'], 'expected_prod_hash' => $r['prod_hash'] ?? null),
 			);
