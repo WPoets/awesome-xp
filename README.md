@@ -15,6 +15,14 @@ Initial setup requires configuration in wp-config.php.
 
 ### Changelog 
 
+##### 1.2.0
+* Improved: AWX Sync code deploy — push Awesome code from a development site to production: Core modules, service modules, apps (definition plus config and module collections, optionally their pages and posts), Gutenberg block definitions, ACF blocks (the `gutenberg-blocks` module and ACF field groups) and managed patterns.
+* Improved: New "Deploy Code" screen under Awesome Enterprise — tick collections or single modules, review a diff against production (new / changed / edited on target / unchanged / only on target), untick rows, deploy with progress and resume, and save selections as named deployment sets.
+* Improved: New Abilities `awesome/sync-code-catalog`, `sync-code-analyze`, `sync-code-plan`, `sync-code-confirm`, `sync-code-step`, `sync-code-resume`, `sync-code-cancel`, `sync-code-status`, `sync-set-list`, `sync-set-save`, `sync-set-delete`, and the `wp awx sync deploy` and `wp awx sync sets` commands.
+* Improved: Target sites opt in with `define('AWX_SYNC_ALLOW_CODE', true);` and a token carrying the new `code` scope (chosen on Settings > AWX Sync Tokens); code posts are matched by post type and slug, keep a revision when overwritten, and the `settings` module's postmeta is never deployed.
+* Improved: After a deploy the target flushes the global cache, invalidates the block registry, recompiles the written block assets and refreshes rewrite rules when a new app was created.
+* Note: 1.2.0 upgrades the `awx_sync_*` tables (schema v3) on first load and adds `awx_sync_sets`.
+
 ##### 1.1.0
 * Improved: AWX Sync — move a saved page from a development site to production from the block editor.
 * Improved: Added new Abilities `awesome/sync-analyze`, `sync-plan`, `sync-confirm`, `sync-step`, `sync-resume`, `sync-cancel` and `sync-status`, the `wp awx sync` command group (`push`, `backfill`, `pair`, `pair-patterns`, `export-pattern-ids`, `uuid`, `install`) and a "Sync to Production" editor sidebar with progress and resume.

@@ -47,12 +47,19 @@ require_once __DIR__ . '/lib/class-manifest-store.php';
 require_once __DIR__ . '/lib/class-request-auth.php';
 require_once __DIR__ . '/lib/class-service-user.php';
 require_once __DIR__ . '/lib/class-receiver.php';
+require_once __DIR__ . '/lib/class-code-receiver.php';
 require_once __DIR__ . '/lib/class-media-handler.php';
 require_once __DIR__ . '/lib/class-prod-routes.php';
 require_once __DIR__ . '/lib/class-sync-client.php';
 require_once __DIR__ . '/lib/class-export-routes.php';
 require_once __DIR__ . '/lib/class-orchestrator.php';
+require_once __DIR__ . '/lib/class-code-item.php';
+require_once __DIR__ . '/lib/class-code-catalog.php';
+require_once __DIR__ . '/lib/class-code-planner.php';
+require_once __DIR__ . '/lib/class-code-orchestrator.php';
+require_once __DIR__ . '/lib/class-deploy-sets.php';
 require_once __DIR__ . '/admin/class-tokens-page.php';
+require_once __DIR__ . '/admin/class-deploy-page.php';
 
 // Components delivered by other work streams; loaded when present so the
 // plugin keeps working while the feature is assembled.
@@ -114,6 +121,15 @@ function init(): void {
 		require_once __DIR__ . '/lib/class-editor-ui.php';
 		Editor_UI::init();
 	}
+	if (is_source() && \is_admin()) {
+		Deploy_Page::init();
+	}
+	// App pages/posts collections are content: let the page pipeline carry them on both roles.
+	$content_types = function (array $types) {
+		return \array_values(\array_unique(\array_merge($types, Code_Catalog::content_post_types())));
+	};
+	\add_filter('awx_sync_allowed_post_types', $content_types);
+	\add_filter('awx_sync_tracked_post_types', $content_types);
 	// Let third-party code add registry entries once everything is loaded.
 	\do_action('awx_sync_register_references', Reference_Registry::instance());
 }

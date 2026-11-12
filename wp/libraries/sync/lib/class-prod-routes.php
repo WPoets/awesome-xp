@@ -87,11 +87,57 @@ class Prod_Routes {
 				}),
 			));
 		}
+		if (Code_Receiver::allowed()) {
+			self::register_code_routes();
+		}
 		\register_rest_route(self::NS, '/runs/(?P<run_id>[0-9a-fA-F-]{36})', array(
 			'methods'             => 'GET',
 			'permission_callback' => $auth,
 			'callback'            => self::wrap('runs', function (\WP_REST_Request $r) {
 				return (new Receiver())->run_status((string) $r->get_param('run_id'));
+			}),
+		));
+	}
+
+	/**
+	 * Code deploy routes (Release 2). Only when AWX_SYNC_ALLOW_CODE is true,
+	 * and every one needs the `code` token scope: a token that only has `sync`
+	 * is refused with 403 scope_denied.
+	 */
+	private static function register_code_routes(): void {
+		$auth_code = function (\WP_REST_Request $r) {
+			$res = Request_Auth::authenticate($r, 'code');
+			return \is_wp_error($res) ? $res : true;
+		};
+		\register_rest_route(self::NS, '/code/plan', array(
+			'methods'             => 'POST',
+			'permission_callback' => $auth_code,
+			'callback'            => self::wrap('code/plan', function (\WP_REST_Request $r) {
+				return (new Code_Receiver())->plan(self::params($r));
+			}),
+		));
+		\register_rest_route(self::NS, '/code/modules', array(
+			'methods'             => 'POST',
+			'permission_callback' => $auth_code,
+			'callback'            => self::wrap('code/modules', function (\WP_REST_Request $r) {
+				list($run, $step) = self::ids($r);
+				return (new Code_Receiver())->write_module(self::params($r), $run, $step);
+			}),
+		));
+		\register_rest_route(self::NS, '/code/acf-field-groups', array(
+			'methods'             => 'POST',
+			'permission_callback' => $auth_code,
+			'callback'            => self::wrap('code/acf-field-groups', function (\WP_REST_Request $r) {
+				list($run, $step) = self::ids($r);
+				return (new Code_Receiver())->write_acf_group(self::params($r), $run, $step);
+			}),
+		));
+		\register_rest_route(self::NS, '/code/finalize', array(
+			'methods'             => 'POST',
+			'permission_callback' => $auth_code,
+			'callback'            => self::wrap('code/finalize', function (\WP_REST_Request $r) {
+				list($run, $step) = self::ids($r);
+				return (new Code_Receiver())->finalize($run, $step);
 			}),
 		));
 	}
@@ -131,6 +177,12 @@ class Prod_Routes {
 					$uuid = (string) $v;
 					break;
 				}
+			}
+			// Code routes carry no UUID: the audit row holds the item key (post_type:slug).
+			if ($uuid === null && isset($p['item']['post_type'], $p['item']['slug']) && \is_scalar($p['item']['post_type']) && \is_scalar($p['item']['slug'])) {
+				$uuid = (string) $p['item']['post_type'] . ':' . (string) $p['item']['slug'];
+			} elseif ($uuid === null && isset($p['key']) && \is_scalar($p['key']) && \strpos($route, 'code/acf') === 0) {
+				$uuid = Code_Receiver::ACF_POST_TYPE . ':' . (string) $p['key'];
 			}
 			try {
 				$result = $fn($r);

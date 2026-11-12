@@ -200,7 +200,7 @@ class Sync_Abilities {
 
 	public static function categories(): array {
 		return array(
-			'awesome-sync' => array('label' => 'Awesome Sync', 'description' => 'Move saved pages, with their media and reusable blocks, from this source site to the configured target site.'),
+			'awesome-sync' => array('label' => 'Awesome Sync', 'description' => 'Move saved pages (with their media and reusable blocks) and deploy Awesome code (core, services, apps, block definitions, ACF, patterns) from this source site to the configured target site.'),
 		);
 	}
 
@@ -251,7 +251,12 @@ class Sync_Abilities {
 		}
 		$registry = \aw2\abilities\Abilities_Registry::instance();
 		if (\method_exists($registry, 'add_abilities')) {
-			$registry->add_abilities(self::categories(), self::abilities());
+			$abilities = self::abilities();
+			if (\class_exists('\\aw2\\sync\\Code_Orchestrator')) {
+				require_once __DIR__ . '/class-sync-code-abilities.php';
+				$abilities += Sync_Code_Abilities::abilities();
+			}
+			$registry->add_abilities(self::categories(), $abilities);
 		}
 	}
 }

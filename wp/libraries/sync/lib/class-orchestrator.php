@@ -10,11 +10,11 @@ class Orchestrator {
 	const MAX_ATTEMPTS = 3;
 
 	/** @var Sync_Client */
-	private $client;
+	protected $client;
 	/** @var Site_Resolver */
-	private $site;
+	protected $site;
 	/** @var Transformer */
-	private $transformer;
+	protected $transformer;
 
 	public function __construct(?Sync_Client $client = null, ?Site_Resolver $site = null) {
 		$this->client      = $client ?: Sync_Client::from_config();
@@ -185,7 +185,7 @@ class Orchestrator {
 	/* Step executors                                                      */
 	/* ================================================================== */
 
-	private function exec_media(array $run, array $step, array $payload): array {
+	protected function exec_media(array $run, array $step, array $payload): array {
 		$uuid = (string) $step['object_uuid'];
 		$info = (array) ($run['manifest']['media'][$uuid] ?? array());
 		if (empty($info)) {
@@ -205,7 +205,7 @@ class Orchestrator {
 		return $res;
 	}
 
-	private function exec_block(array $run, array $step): array {
+	protected function exec_block(array $run, array $step): array {
 		$uuid  = (string) $step['object_uuid'];
 		$block = null;
 		foreach ((array) $run['manifest']['blocks'] as $b) {
@@ -233,7 +233,7 @@ class Orchestrator {
 		return $res;
 	}
 
-	private function exec_page(array $run, array $step): array {
+	protected function exec_page(array $run, array $step): array {
 		$m  = $run['manifest'];
 		$pp = (array) ($run['plan']['target']['page'] ?? array());
 		$res = $this->client->post('/pages', \array_merge($m['page'], array(
@@ -252,7 +252,7 @@ class Orchestrator {
 	/* Helpers                                                             */
 	/* ================================================================== */
 
-	private function load(string $run_id, array $statuses = array()): array {
+	protected function load(string $run_id, array $statuses = array()): array {
 		$run = Manifest_Store::get($run_id);
 		if ($run === null) {
 			throw new Sync_Exception('run_not_found', 'Unknown run.');
@@ -263,7 +263,7 @@ class Orchestrator {
 		return $run;
 	}
 
-	private function next_step(string $run_id): ?array {
+	protected function next_step(string $run_id): ?array {
 		foreach (Step_Store::for_run($run_id) as $s) {
 			if ($s['status'] === 'pending') {
 				return $s;
@@ -272,7 +272,7 @@ class Orchestrator {
 		return null;
 	}
 
-	private function throw_if_error($res, string $what): void {
+	protected function throw_if_error($res, string $what): void {
 		if (\is_wp_error($res)) {
 			$data = (array) $res->get_error_data();
 			throw new Sync_Exception(\preg_replace('/^awx_sync_/', '', $res->get_error_code()), "{$what}: " . $res->get_error_message(), array(
@@ -283,7 +283,7 @@ class Orchestrator {
 		}
 	}
 
-	private function step_view(?array $s): ?array {
+	protected function step_view(?array $s): ?array {
 		if ($s === null) {
 			return null;
 		}

@@ -9,7 +9,7 @@ class Manifest_Store {
 
 	const OPEN_STATUSES = array('planning', 'awaiting_confirm', 'running', 'failed');
 
-	public static function create(int $post_id, string $post_uuid, array $manifest, string $target_url, int $user_id, string $media_mode = 'push'): string {
+	public static function create(int $post_id, string $post_uuid, array $manifest, string $target_url, int $user_id, string $media_mode = 'push', string $kind = 'page', string $label = ''): string {
 		global $wpdb;
 		$run_id = \wp_generate_uuid4();
 		$now = \current_time('mysql', true);
@@ -17,6 +17,8 @@ class Manifest_Store {
 			'run_id'     => $run_id,
 			'post_id'    => $post_id,
 			'post_uuid'  => $post_uuid,
+			'kind'       => $kind,
+			'label'      => \mb_substr($label, 0, 100),
 			'target_url' => \mb_substr($target_url, 0, 255),
 			'media_mode' => $media_mode,
 			'status'     => 'planning',
@@ -64,6 +66,21 @@ class Manifest_Store {
 		global $wpdb;
 		$in = "'" . \implode("','", self::OPEN_STATUSES) . "'";
 		$wpdb->query($wpdb->prepare('UPDATE ' . Schema::table('runs') . " SET status = 'superseded', updated_at = %s WHERE post_id = %d AND status IN ({$in})", \current_time('mysql', true), $post_id));
+	}
+
+	/** Most recent code-deploy runs (any status). */
+	public static function recent_code_runs(int $limit = 10): array {
+		global $wpdb;
+		$rows = $wpdb->get_results($wpdb->prepare('SELECT * FROM ' . Schema::table('runs') . " WHERE kind = 'code' ORDER BY id DESC LIMIT %d", $limit), ARRAY_A) ?: array();
+		return \array_map(array(__CLASS__, 'decode'), $rows);
+	}
+
+	/** The open code-deploy run of a user, or null. */
+	public static function open_code_run(int $user_id): ?array {
+		global $wpdb;
+		$in  = "'" . \implode("','", self::OPEN_STATUSES) . "'";
+		$row = $wpdb->get_row($wpdb->prepare('SELECT * FROM ' . Schema::table('runs') . " WHERE kind = 'code' AND user_id = %d AND status IN ({$in}) ORDER BY id DESC LIMIT 1", $user_id), ARRAY_A);
+		return $row ? self::decode($row) : null;
 	}
 
 	private static function decode(array $row): array {

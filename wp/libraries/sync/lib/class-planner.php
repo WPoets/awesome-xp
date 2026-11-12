@@ -38,16 +38,21 @@ class Planner {
 			$blockers[] = array('code' => 'registry_mismatch', 'message' => 'The reference registry differs between the two sites. Update the plugin so both sites agree on where references sit.');
 		}
 
-		// Page
+		// Page (absent for a block-only manifest, see Extractor::analyze_block())
+		$has_page = !empty($manifest['page']);
 		$page = (array) ($manifest['page'] ?? array());
 		$pp   = (array) ($plan['page'] ?? array());
-		if (isset($pp['type_allowed']) && !$pp['type_allowed']) {
+		if ($has_page && isset($pp['type_allowed']) && !$pp['type_allowed']) {
 			$blockers[] = array('code' => 'post_type_not_allowed', 'message' => 'The target does not accept the post type ' . ($page['type'] ?? '?') . '.');
 		}
 		$exists = ($pp['status'] ?? 'missing') === 'exists';
 		$from   = $exists ? (string) ($pp['prod_status'] ?? '') : null;
 		$to     = (string) ($page['status'] ?? 'draft');
 		$edited = $exists && (($pp['edited_on_prod'] ?? null) === true || ($pp['last_synced_hash'] ?? null) === null);
+		if (!$has_page) {
+			$exists = false;
+			$edited = false;
+		}
 		if ($exists && ($pp['edited_on_prod'] ?? null) === true) {
 			$warnings[] = array('code' => 'edited_on_prod', 'message' => 'The target page was edited since the last sync. Syncing overwrites those edits (a revision is kept).');
 		} elseif ($exists && ($pp['last_synced_hash'] ?? null) === null) {
@@ -110,10 +115,10 @@ class Planner {
 			$steps[] = array('step_id' => $uuid_gen(), 'type' => 'block', 'object_uuid' => (string) $b['uuid'], 'payload' => array('status' => $pb['status'] ?? 'missing', 'title' => $b['title'] ?? ''));
 		}
 
-		// Page step: skipped only when nothing at all changed.
+		// Page step: skipped only when nothing at all changed (or there is no page).
 		$page_unchanged = $exists && !empty($pp['unchanged']) && ($from === $to);
-		$nothing = $page_unchanged && empty($steps);
-		if (!$nothing) {
+		$nothing = $has_page ? ($page_unchanged && empty($steps)) : empty($steps);
+		if (!$nothing && $has_page) {
 			$steps[] = array('step_id' => $uuid_gen(), 'type' => 'page', 'object_uuid' => (string) ($page['uuid'] ?? ''), 'payload' => array('action' => $exists ? 'update' : 'create'));
 		}
 
@@ -129,7 +134,7 @@ class Planner {
 				'media_push'     => $push,
 				'media_pull'     => $pull,
 				'blocks_count'   => $blocks_count,
-				'page_action'    => $nothing ? 'none' : ($exists ? 'update' : 'create'),
+				'page_action'    => ($nothing || !$has_page) ? 'none' : ($exists ? 'update' : 'create'),
 				'from_status'    => $from,
 				'to_status'      => $to,
 				'publishes'      => $to === 'publish' && $from !== 'publish',

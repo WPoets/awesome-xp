@@ -37,8 +37,21 @@ class Tokens_Page {
 		$label = \sanitize_text_field((string) ($_POST['label'] ?? ''));
 		$days  = isset($_POST['ttl_days']) ? (int) $_POST['ttl_days'] : Token_Store::DEFAULT_TTL_DAYS;
 		$days  = \max(0, \min(3650, $days));
+		$scopes = array();
+		foreach ((array) ($_POST['scopes'] ?? array()) as $s) {
+			$s = \sanitize_key((string) $s);
+			if (\in_array($s, Token_Store::SCOPES, true)) {
+				$scopes[] = $s;
+			}
+		}
+		if (empty($scopes)) {
+			self::back(array('awx_error' => \rawurlencode('Pick at least one scope for the token.')));
+		}
+		if (\in_array('code', $scopes, true) && !\in_array('sync', $scopes, true)) {
+			$scopes[] = 'sync'; // the handshake and run status routes need it
+		}
 		try {
-			$t = Token_Store::create($label !== '' ? $label : 'Dev site', $days);
+			$t = Token_Store::create($label !== '' ? $label : 'Dev site', $days, $scopes);
 		} catch (\Throwable $e) {
 			self::back(array('awx_error' => \rawurlencode($e->getMessage())));
 		}
@@ -115,16 +128,20 @@ class Tokens_Page {
 				<table class="form-table">
 					<tr><th><label for="awx-label">Label</label></th><td><input id="awx-label" name="label" type="text" class="regular-text" placeholder="dev.example.com"></td></tr>
 					<tr><th><label for="awx-ttl">Expires after (days)</label></th><td><input id="awx-ttl" name="ttl_days" type="number" min="0" max="3650" value="<?php echo (int) Token_Store::DEFAULT_TTL_DAYS; ?>"> <span class="description">0 = never</span></td></tr>
+					<tr><th>Scopes</th><td>
+						<label><input type="checkbox" name="scopes[]" value="sync" checked> Content sync <span class="description">(pages, media, reusable blocks)</span></label><br>
+						<label><input type="checkbox" name="scopes[]" value="code"<?php echo (\defined('AWX_SYNC_ALLOW_CODE') && AWX_SYNC_ALLOW_CODE) ? '' : ' disabled'; ?>> Code deploy <span class="description">(core, services, apps, block definitions, patterns, ACF; includes Content sync, which the handshake needs)<?php if (!\defined('AWX_SYNC_ALLOW_CODE') || !AWX_SYNC_ALLOW_CODE) : ?> — add <code>define('AWX_SYNC_ALLOW_CODE', true);</code> to wp-config.php to enable<?php endif; ?></span></label>
+					</td></tr>
 				</table>
 				<?php \submit_button('Create token'); ?>
 			</form>
 
 			<h2>Tokens</h2>
 			<table class="widefat striped">
-				<thead><tr><th>Label</th><th>Token id</th><th>Created</th><th>Expires</th><th>Last used</th><th>From</th><th>Status</th><th></th></tr></thead>
+				<thead><tr><th>Label</th><th>Token id</th><th>Scopes</th><th>Created</th><th>Expires</th><th>Last used</th><th>From</th><th>Status</th><th></th></tr></thead>
 				<tbody>
 				<?php if (empty($tokens)) : ?>
-					<tr><td colspan="8">No tokens yet.</td></tr>
+					<tr><td colspan="9">No tokens yet.</td></tr>
 				<?php endif; ?>
 				<?php foreach ($tokens as $t) :
 					$expired = !empty($t['expires_at']) && \strtotime($t['expires_at'] . ' UTC') < \time();
@@ -133,6 +150,7 @@ class Tokens_Page {
 					<tr>
 						<td><?php echo \esc_html($t['label']); ?></td>
 						<td><code><?php echo \esc_html($t['token_id']); ?></code></td>
+						<td><?php echo \esc_html(\implode(', ', Token_Store::scopes($t))); ?></td>
 						<td><?php echo \esc_html($t['created_at']); ?></td>
 						<td><?php echo \esc_html($t['expires_at'] ?: 'never'); ?></td>
 						<td><?php echo \esc_html($t['last_used_at'] ?: '–'); ?></td>

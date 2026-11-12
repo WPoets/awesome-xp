@@ -8,6 +8,7 @@
  *   awx_sync_tokens  Prod scoped sync tokens (SHA-256 hash only)
  *   awx_sync_log     Prod audit log of every authenticated call
  *   awx_sync_nonces  Prod replay store for request nonces
+ *   awx_sync_sets    Dev saved code-deploy selections ("deployment sets")
  *
  * Tables are created with dbDelta and gated by the `awx_sync_db_version`
  * option checked on `init`, so existing installs pick them up without a
@@ -26,7 +27,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Schema {
 
 	/** Bump when the SQL below changes; `maybe_upgrade()` re-runs dbDelta. */
-	const DB_VERSION = 2;
+	const DB_VERSION = 3;
 
 	/** Option holding the installed schema version. */
 	const OPTION = 'awx_sync_db_version';
@@ -44,6 +45,7 @@ class Schema {
 		'tokens' => 'awx_sync_tokens',
 		'log'    => 'awx_sync_log',
 		'nonces' => 'awx_sync_nonces',
+		'sets'   => 'awx_sync_sets',
 	);
 
 	/**
@@ -98,7 +100,7 @@ class Schema {
 	}
 
 	/**
-	 * Run dbDelta for all tables. Idempotent; safe to call from an activation
+	 * Run dbDelta for all tables (v3 widens object_uuid columns and adds runs.kind/label and the sets table). Idempotent; safe to call from an activation
 	 * hook, a CLI command, or inside switch_to_blog(). Does not touch the
 	 * version option — callers that want the gate updated use maybe_upgrade().
 	 */
@@ -110,7 +112,7 @@ class Schema {
 	}
 
 	/**
-	 * Which of the five tables currently exist, as [short => bool].
+	 * Which of the six tables currently exist, as [short => bool].
 	 */
 	public static function tables_exist(): array {
 		global $wpdb;
@@ -182,7 +184,7 @@ class Schema {
 	}
 
 	/**
-	 * dbDelta-formatted CREATE TABLE statements for all five tables.
+	 * dbDelta-formatted CREATE TABLE statements for all six tables.
 	 *
 	 * Formatting rules dbDelta relies on: one column/index per line, two
 	 * spaces after PRIMARY KEY, KEY definitions named, no backticks around
@@ -198,6 +200,8 @@ class Schema {
   run_id char(36) NOT NULL,
   post_id bigint(20) unsigned NOT NULL DEFAULT 0,
   post_uuid char(36) NOT NULL DEFAULT '',
+  kind varchar(10) NOT NULL DEFAULT 'page',
+  label varchar(100) NOT NULL DEFAULT '',
   target_url varchar(255) NOT NULL DEFAULT '',
   media_mode enum('push','pull','mixed') NOT NULL DEFAULT 'push',
   status varchar(20) NOT NULL DEFAULT 'planning',
@@ -210,7 +214,8 @@ class Schema {
   PRIMARY KEY  (id),
   UNIQUE KEY run_id (run_id),
   KEY post_id (post_id),
-  KEY status (status)
+  KEY status (status),
+  KEY kind (kind)
 ) ENGINE=InnoDB {$charset};";
 
 		$steps = "CREATE TABLE {$p}awx_sync_steps (
@@ -219,7 +224,7 @@ class Schema {
   step_id char(36) NOT NULL,
   seq int(10) unsigned NOT NULL DEFAULT 0,
   type varchar(20) NOT NULL DEFAULT '',
-  object_uuid char(36) NULL,
+  object_uuid varchar(191) NULL,
   status varchar(20) NOT NULL DEFAULT 'pending',
   attempts tinyint(3) unsigned NOT NULL DEFAULT 0,
   request_hash char(64) NULL,
@@ -255,7 +260,7 @@ class Schema {
   run_id char(36) NULL,
   route varchar(100) NOT NULL DEFAULT '',
   method varchar(8) NOT NULL DEFAULT '',
-  object_uuid char(36) NULL,
+  object_uuid varchar(191) NULL,
   result varchar(20) NOT NULL DEFAULT '',
   http_status smallint(5) unsigned NOT NULL DEFAULT 0,
   message text NULL,
@@ -275,7 +280,19 @@ class Schema {
   KEY seen_at (seen_at)
 ) ENGINE=InnoDB {$charset};";
 
-		return array( $runs, $steps, $tokens, $log, $nonces );
+		$sets = "CREATE TABLE {$p}awx_sync_sets (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  name varchar(100) NOT NULL DEFAULT '',
+  selection longtext NOT NULL,
+  user_id bigint(20) unsigned NOT NULL DEFAULT 0,
+  last_run_id char(36) NULL,
+  created_at datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  updated_at datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  PRIMARY KEY  (id),
+  UNIQUE KEY name (name)
+) ENGINE=InnoDB {$charset};";
+
+		return array( $runs, $steps, $tokens, $log, $nonces, $sets );
 	}
 
 	// ------------------------------------------------------------------

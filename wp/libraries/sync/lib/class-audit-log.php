@@ -13,7 +13,7 @@ class Audit_Log {
 			'run_id'      => isset($entry['run_id']) ? \mb_substr((string) $entry['run_id'], 0, 36) : null,
 			'route'       => \mb_substr((string) ($entry['route'] ?? ''), 0, 100),
 			'method'      => \mb_substr((string) ($entry['method'] ?? ''), 0, 8),
-			'object_uuid' => isset($entry['object_uuid']) ? \mb_substr((string) $entry['object_uuid'], 0, 36) : null,
+			'object_uuid' => isset($entry['object_uuid']) ? \mb_substr((string) $entry['object_uuid'], 0, 191) : null,
 			'result'      => \mb_substr((string) ($entry['result'] ?? 'ok'), 0, 20),
 			'http_status' => (int) ($entry['http_status'] ?? 200),
 			'message'     => isset($entry['message']) ? \mb_substr((string) $entry['message'], 0, 2000) : null,
