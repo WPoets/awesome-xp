@@ -16,6 +16,46 @@ class Audit_Page {
 	public static function init(): void {
 		\add_action('admin_menu', array(__CLASS__, 'menu'), 25);
 		\add_action('admin_post_awx_sync_export_releases', array(__CLASS__, 'handle_export'));
+		\add_action('wp_ajax_awx_sync_release_details', array(__CLASS__, 'ajax_release_details'));
+	}
+
+	/**
+	 * Itemized details for one release. Releases listed from the target only
+	 * exist there, so they are fetched through the sync client, not local REST.
+	 */
+	public static function ajax_release_details(): void {
+		if (!\current_user_can(self::CAP) && !\current_user_can('manage_options')) {
+			\wp_send_json_error(array('message' => 'Not allowed.'), 403);
+		}
+		\check_ajax_referer('awx_sync_release_details');
+
+		$id = isset($_GET['id']) ? (string) \wp_unslash($_GET['id']) : '';
+		if (!\preg_match('/^[0-9a-fA-F-]{36}$/', $id)) {
+			\wp_send_json_error(array('message' => 'Invalid release ID.'), 400);
+		}
+		$source = isset($_GET['source']) ? \sanitize_key((string) $_GET['source']) : 'local';
+
+		$release = null;
+		$error = '';
+		if ($source === 'remote' && is_source()) {
+			try {
+				$res = Sync_Client::from_config()->get('/code/releases/' . \rawurlencode($id));
+				if (\is_wp_error($res)) {
+					$error = $res->get_error_message();
+				} elseif (isset($res['release'])) {
+					$release = $res['release'];
+				}
+			} catch (\Exception $e) {
+				$error = $e->getMessage();
+			}
+		} else {
+			$release = Release_Store::get($id, true);
+		}
+
+		if (!$release) {
+			\wp_send_json_error(array('message' => $error !== '' ? $error : 'Release not found.'), 404);
+		}
+		\wp_send_json_success(array('release' => $release));
 	}
 
 	public static function menu(): void {
@@ -357,15 +397,18 @@ class Audit_Page {
 					}
 
 					// Fetch release details with items via REST
-					var endpoint = '<?php echo \esc_url_raw(\rest_url(Prod_Routes::NS . '/code/releases/')); ?>' + encodeURIComponent(id);
-					fetch(endpoint, {
-						headers: { 'X-WP-Nonce': '<?php echo \wp_create_nonce('wp_rest'); ?>' }
-					})
+					var endpoint = <?php echo \wp_json_encode(\add_query_arg(array(
+						'action'      => 'awx_sync_release_details',
+						'_ajax_nonce' => \wp_create_nonce('awx_sync_release_details'),
+					), \admin_url('admin-ajax.php'))); ?> + '&source=' + encodeURIComponent(source || 'local') + '&id=' + encodeURIComponent(id);
+					fetch(endpoint, { credentials: 'same-origin' })
 					.then(function(res) { return res.json(); })
-					.then(function(data) {
-						var r = data.release;
+					.then(function(res) {
+						var r = res && res.success && res.data ? res.data.release : null;
 						if (!r) {
-							drawerContent.innerHTML = '<p class="error">Could not load release details.</p>';
+							var msg = res && res.data && res.data.message ? res.data.message : 'Could not load release details.';
+							drawerContent.innerHTML = '<p class="error"></p>';
+							drawerContent.firstChild.textContent = msg;
 							return;
 						}
 						var items = r.items || [];
