@@ -375,6 +375,10 @@ class Sync_CLI_Command extends \WP_CLI_Command
      * Runs analyze, plan, confirm and every step in sequence. Without --yes the
      * dry run is printed and nothing is written on the target.
      *
+     * Runs as the user given with WP-CLI's global --user=<login> flag, or the
+     * first administrator when it is omitted. That user must be able to edit
+     * the post.
+     *
      * ## OPTIONS
      *
      * <post_id>
@@ -385,9 +389,6 @@ class Sync_CLI_Command extends \WP_CLI_Command
      *
      * [--overwrite]
      * : Replace the target page even if it was edited there since the last sync.
-     *
-     * [--user=<login>]
-     * : Run as this user (needed for capability checks). Defaults to the first administrator.
      *
      * ## EXAMPLES
      *
@@ -401,14 +402,7 @@ class Sync_CLI_Command extends \WP_CLI_Command
         if ($post_id <= 0 || !get_post($post_id)) {
             \WP_CLI::error("Post {$post_id} does not exist.");
         }
-        if (!get_current_user_id()) {
-            $login = $assoc_args['user'] ?? null;
-            $user  = $login ? get_user_by('login', $login) : (get_users(['role' => 'administrator', 'number' => 1])[0] ?? null);
-            if (!$user) {
-                \WP_CLI::error('No user to run as; pass --user=<login>.');
-            }
-            wp_set_current_user($user->ID);
-        }
+        $this->ensure_user(false);
         $run = function ($ability, $input) {
             $res = \aw2\abilities\awx_execute_ability($ability, $input);
             if (empty($res['success'])) {
@@ -477,6 +471,10 @@ class Sync_CLI_Command extends \WP_CLI_Command
      *
      * Prints the plan (one row per item with its status on the target). Without --yes nothing is written.
      *
+     * Runs as the user given with WP-CLI's global --user=<login> flag, or the
+     * first administrator when it is omitted. That user must be an
+     * administrator or have Awesome developer access (develop_for_awesomeui).
+     *
      * ## OPTIONS
      *
      * [--core[=<slugs>]]
@@ -533,9 +531,6 @@ class Sync_CLI_Command extends \WP_CLI_Command
      * [--format=<format>]
      * : table (default) or json for the plan rows.
      *
-     * [--user=<login>]
-     * : Run as this user. Defaults to the first administrator.
-     *
      * ## EXAMPLES
      *
      *     $ wp awx sync deploy --apps=crm --dry-run
@@ -545,7 +540,7 @@ class Sync_CLI_Command extends \WP_CLI_Command
      */
     public function deploy($args, $assoc_args)
     {
-        $this->ensure_user($assoc_args);
+        $this->ensure_user();
         $run = $this->ability_runner();
 
         $input = [];
@@ -666,7 +661,7 @@ class Sync_CLI_Command extends \WP_CLI_Command
      */
     public function sets($args, $assoc_args)
     {
-        $this->ensure_user($assoc_args);
+        $this->ensure_user();
         $run = $this->ability_runner();
         $action = $args[0] ?? 'list';
         $name = $args[1] ?? '';
@@ -771,17 +766,49 @@ class Sync_CLI_Command extends \WP_CLI_Command
         return $sel;
     }
 
-    private function ensure_user(array $assoc_args): void
+    /**
+     * Settle which WordPress user the command runs as.
+     *
+     * `--user` is a WP-CLI global flag: WP-CLI consumes it and sets the current
+     * user before the command starts, so it never reaches $assoc_args. Without
+     * it the first administrator is used. With $need_developer the user must
+     * pass the same gate as the code-deploy abilities, checked here so the
+     * message can name the user and say how to grant access.
+     */
+    private function ensure_user(bool $need_developer = true): void
     {
-        if (get_current_user_id()) {
+        $explicit = get_current_user_id() > 0;
+        if (!$explicit) {
+            $user = get_users(['role' => 'administrator', 'number' => 1])[0] ?? null;
+            if (!$user) {
+                \WP_CLI::error('This site has no administrator to run as; pass --user=<login>.');
+            }
+            wp_set_current_user($user->ID);
+        }
+        if (!$need_developer || \aw2\sync\abilities\Code_Operation::is_developer()) {
             return;
         }
-        $login = $assoc_args['user'] ?? null;
-        $user  = $login ? get_user_by('login', $login) : (get_users(['role' => 'administrator', 'number' => 1])[0] ?? null);
-        if (!$user) {
-            \WP_CLI::error('No user to run as; pass --user=<login>.');
+        $user  = wp_get_current_user();
+        $login = $user->user_login;
+        $roles = $user->roles ? implode(', ', $user->roles) : 'none';
+        $grant = "wp user add-cap {$login} develop_for_awesomeui";
+        if (is_multisite()) {
+            $grant .= " && wp user meta update {$login} develop_for_awesomeui yes";
         }
-        wp_set_current_user($user->ID);
+        \WP_CLI::error_multi_line([
+            sprintf(
+                'Only Awesome developers can run this command. It ran as "%s" (ID %d, roles: %s)%s, who has neither manage_options nor Awesome developer access.',
+                $login,
+                $user->ID,
+                $roles,
+                $explicit ? ', the user given with --user' : ', the first user with the administrator role'
+            ),
+            'Fix it one of two ways:',
+            '  1. Run as an administrator or developer: add --user=<login> to the command.',
+            "  2. Grant \"{$login}\" developer access: {$grant}",
+            '     (or tick "Grant Developer Access" on the user\'s profile screen).',
+        ]);
+        \WP_CLI::halt(1);
     }
 
     private function ability_runner(): callable
@@ -844,7 +871,7 @@ class Sync_CLI_Command extends \WP_CLI_Command
      */
     public function releases($args, $assoc_args)
     {
-        $this->ensure_user($assoc_args);
+        $this->ensure_user();
         $action = $args[0] ?? 'list';
         $format = $assoc_args['format'] ?? 'table';
 
