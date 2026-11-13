@@ -185,24 +185,24 @@ class Audit_Page {
 			</div>
 
 			<!-- Releases Table -->
-			<table class="wp-list-table widefat striped fixed table-view-list awx-releases-table">
+			<div class="awx-releases-scroll">
+			<table class="wp-list-table widefat striped fixed awx-releases-table">
 				<thead>
 					<tr>
-						<th style="width:170px;">Date & Time (UTC)</th>
-						<th style="width:180px;">Release / Run ID</th>
-						<th style="width:70px;">Type</th>
-						<th>Label</th>
-						<th style="width:180px;">Deployed By</th>
-						<th style="width:120px;">Auth / Token</th>
-						<th style="width:90px;">Status</th>
-						<th style="width:160px;">Summary</th>
-						<th style="width:110px;">Actions</th>
+						<th class="awx-col-date">Date & Time (UTC)</th>
+						<th class="awx-col-id">Run ID</th>
+						<th class="awx-col-release">Release</th>
+						<th class="awx-col-by">Deployed By</th>
+						<th class="awx-col-token">Auth / Token</th>
+						<th class="awx-col-status">Status</th>
+						<th class="awx-col-summary">Summary</th>
+						<th class="awx-col-actions">Actions</th>
 					</tr>
 				</thead>
 				<tbody>
 				<?php if (empty($releases)) : ?>
 					<tr>
-						<td colspan="9" style="text-align:center;padding:24px;color:#666;">No sync releases found.</td>
+						<td colspan="8" style="text-align:center;padding:24px;color:#666;">No sync releases found.</td>
 					</tr>
 				<?php endif; ?>
 
@@ -217,20 +217,18 @@ class Audit_Page {
 				?>
 					<tr id="release-row-<?php echo \esc_attr($r['release_id']); ?>">
 						<td>
-							<strong><?php echo \esc_html($r['created_at']); ?></strong><br>
+							<strong class="awx-nowrap"><?php echo \esc_html($r['created_at']); ?></strong><br>
 							<span class="description" style="font-size:11px;"><?php echo \esc_html($ago); ?></span>
 						</td>
 						<td>
 							<code style="font-size:11px;" title="<?php echo \esc_attr($r['release_id']); ?>">
-								<?php echo \esc_html(\substr($r['release_id'], 0, 13) . '…'); ?>
+								<?php echo \esc_html(\substr($r['release_id'], 0, 8) . '…'); ?>
 							</code>
 						</td>
 						<td>
 							<span class="awx-badge awx-badge-<?php echo \esc_attr($r['kind']); ?>">
 								<?php echo \esc_html(\strtoupper($r['kind'])); ?>
 							</span>
-						</td>
-						<td>
 							<strong><?php echo \esc_html($r['label'] ?: '–'); ?></strong>
 							<?php if (!empty($r['source_url'])) : ?>
 								<br><span class="description" style="font-size:11px;">from: <?php echo \esc_html($r['source_url']); ?></span>
@@ -293,7 +291,7 @@ class Audit_Page {
 					</tr>
 					<!-- Drawer Container Row (Hidden by default) -->
 					<tr id="drawer-<?php echo \esc_attr($r['release_id']); ?>" class="awx-drawer-row" style="display:none;background:#f8f9fa;">
-						<td colspan="9" style="padding:16px 20px;">
+						<td colspan="8" style="padding:16px 20px;">
 							<div class="awx-drawer-content" id="drawer-content-<?php echo \esc_attr($r['release_id']); ?>">
 								<p><em>Loading itemized breakdown…</em></p>
 							</div>
@@ -302,9 +300,22 @@ class Audit_Page {
 				<?php endforeach; ?>
 				</tbody>
 			</table>
+			</div>
 		</div>
 
 		<style>
+			.awx-releases-scroll { overflow-x:auto; }
+			.awx-releases-table { min-width:960px; }
+			.awx-releases-table th, .awx-releases-table td { vertical-align:top; overflow-wrap:anywhere; }
+			.awx-releases-table th { white-space:nowrap; }
+			.awx-releases-table .awx-col-date { width:150px; }
+			.awx-releases-table .awx-col-id { width:95px; }
+			.awx-releases-table .awx-col-by { width:175px; }
+			.awx-releases-table .awx-col-token { width:105px; }
+			.awx-releases-table .awx-col-status { width:90px; }
+			.awx-releases-table .awx-col-summary { width:120px; }
+			.awx-releases-table .awx-col-actions { width:95px; }
+			.awx-releases-table .awx-nowrap, .awx-releases-table .awx-status-pill, .awx-releases-table .awx-badge { white-space:nowrap; }
 			.awx-badge { display:inline-block; padding:2px 6px; border-radius:3px; font-size:10px; font-weight:700; letter-spacing:0.5px; }
 			.awx-badge-code { background:#e0f2fe; color:#0369a1; border:1px solid #bae6fd; }
 			.awx-badge-page { background:#ccfbf1; color:#0f766e; border:1px solid #99f6e4; }
