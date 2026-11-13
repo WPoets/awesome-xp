@@ -21,7 +21,15 @@ Initial setup requires configuration in wp-config.php.
 * Improved: New Abilities `awesome/sync-code-catalog`, `sync-code-analyze`, `sync-code-plan`, `sync-code-confirm`, `sync-code-step`, `sync-code-resume`, `sync-code-cancel`, `sync-code-status`, `sync-set-list`, `sync-set-save`, `sync-set-delete`, and the `wp awx sync deploy` and `wp awx sync sets` commands.
 * Improved: Target sites opt in with `define('AWX_SYNC_ALLOW_CODE', true);` and a token carrying the new `code` scope (chosen on Settings > AWX Sync Tokens); code posts are matched by post type and slug, keep a revision when overwritten, and the `settings` module's postmeta is never deployed.
 * Improved: After a deploy the target flushes the global cache, invalidates the block registry, recompiles the written block assets and refreshes rewrite rules when a new app was created.
-* Note: 1.2.0 upgrades the `awx_sync_*` tables (schema v3) on first load and adds `awx_sync_sets`.
+* Improved: Code deploy now also covers unmanaged block patterns (any `wp_block` post, whether user-created, synced or unsynced) and site templates and template parts (`wp_template`, `wp_template_part`, such as archive, single, index, header and footer).
+* Improved: Code deploy now also covers global styles (`wp_global_styles`) and design token overrides (`awx_token_overrides`).
+* Improved: Code deploy now also covers WordPress navigation menus and their menu items.
+* Improved: Sync audit and release history — every code deploy and content sync is recorded with who ran it, when, from which IP and token, and an itemised manifest. The production record is authoritative; the development site records the run before it starts and can reconcile it after a network failure. Item details are stripped after 30 days, and records are deleted after 90 days or beyond the latest 100.
+* Improved: New "Sync Audit & Releases" screen (`page=awx-sync-audit`) with Production and Local tabs, filters, an item drawer and CSV export; the Deploy Code screen warns when another developer deployed recently.
+* Improved: New Abilities `awesome/sync-release-list`, `sync-release-get` and `sync-release-reconcile`, and the `wp awx sync releases` command (`list`, `show <id>`).
+* Improved: `wp awx sync deploy`, `sets` and `releases` check developer access up front; a refusal now names the user the command ran as, their roles, and how to grant access (including the `develop_for_awesomeui` user meta on multisite). The user comes from WP-CLI's global `--user=<login>` flag, or the first administrator when it is omitted.
+* Fixed: Menu sync failed on the target with "Call to undefined method aw2\sync\Identity::find_local_id()".
+* Note: 1.2.0 upgrades the `awx_sync_*` tables (schema v4) on first load and adds `awx_sync_sets` and `awx_sync_releases`.
 
 ##### 1.1.0
 * Improved: AWX Sync — move a saved page from a development site to production from the block editor.
